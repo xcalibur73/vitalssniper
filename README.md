@@ -42,44 +42,23 @@ Running heavy audit tools, waiting for slow Lighthouse reports, and drafting man
 
 ---
 
-## 💼 High-Ticket Client Acquisition Playbook
+## 💼 Client Audit & Outreach Workflow
 
-### Step 1: Target Prospecting
-Visit target websites in high-ticket niches:
-- Luxury Interior Designers, Architects, High-End Remodelers
-- Boutique Law Firms, Wealth Advisors, Private Family Offices
-- Cosmetic Surgeons, Aesthetic Medical Clinics
-- Premium E-Commerce & Direct-to-Consumer Brands
+### Step 1: Open Target Prospect
+Navigate to any client or prospect website you want to analyze in your browser.
 
-### Step 2: 1-Click Inspection
-Click **VitalsSniper PRO** on their homepage. Spot immediate opportunities:
-- High DOM element counts or bloated HTML payloads (common with heavy page builders)
-- Missing Schema.org structured data
-- Mobile zoom / accessibility restrictions
+### Step 2: 1-Click Forensic Scan
+Click **VitalsSniper PRO** on your browser toolbar to instantly diagnose:
+- Heavy Page Builder container nesting (Elementor, Divi, WPBakery, Avada, Webflow, etc.)
+- Uncompressed document payloads exceeding the 50KB mobile ceiling
+- Viewport scaling restrictions and mobile usability bottlenecks
+- Missing Schema.org Knowledge Graph structured data for AI search engines
 
 ### Step 3: Dispatch Personalized Outreach
-Select the **Cold Email** or **LinkedIn DM** tab and click **Copy**:
-
-```text
-Subject: quick observation on the mobile experience for [Domain]
-
-Hi [First Name],
-
-While reviewing [Domain] on mobile, I noticed the homepage payload carries over 180KB of uncompressed container code across 3,200 DOM elements, causing a multi-second freeze on cellular connections before imagery renders.
-
-We specialize in optimizing high-ticket digital architecture so visual fidelity stays pristine while dropping mobile load times to under 1 second.
-
-I put together a quick 30-second screen recording showing the exact bottleneck and the zero-design-change fix.
-
-Would you like me to send the clip over to your team?
-
-Best regards,
-[Your Name]
-[Your Title / Agency]
-```
+Select the **Cold Email**, **LinkedIn DM**, or **30s Loom Script** tab and click **Copy Pitch Script** to dispatch an authentic, technical observation highlighting the exact bottleneck and zero-design-change fix.
 
 ### Step 4: Export 1-Page Teardown Dossier
-Click **1-Page Teardown** to launch the print-optimized executive audit. Save as PDF and attach to your follow-up note or proposal.
+Click **1-Page Teardown** to generate a clean, print-ready PDF executive audit to attach to your client proposal or discovery deck.
 
 ---
 
