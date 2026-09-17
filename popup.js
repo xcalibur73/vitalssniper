@@ -1,5 +1,5 @@
 // VitalsSniper PRO: Proof-of-Flaw Precision Web Inspector
-// Author: Sadikeen Firoz • Vibe Coder & Digital Architect
+// Author: Antigravity • NB Solutions
 
 document.addEventListener('DOMContentLoaded', async () => {
   let tab;
