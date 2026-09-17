@@ -152,6 +152,41 @@
     <div id="healthStatus" style="display:none;"></div>
     <div id="healthTier" style="display:none;"></div>
 
+    <!-- License Activation Modal -->
+    <div id="activationModal" class="activation-modal" style="display:none;">
+      <div class="activation-backdrop" id="activationBackdrop"></div>
+      <div class="activation-box">
+        <button class="activation-close" id="activationClose">&times;</button>
+        
+        <div class="activation-header">
+          <div class="activation-badge">PRO LICENSE</div>
+          <h3 id="activationTitle">Activate VitalsSniper PRO</h3>
+          <p id="activationSub">Enter your AppSumo license key to unlock unlimited audits and cold outreach scripts.</p>
+        </div>
+        
+        <div class="activation-form" id="activationFormArea">
+          <label for="licenseKeyInput" class="activation-label">License Key</label>
+          <input type="text" id="licenseKeyInput" class="activation-input" placeholder="VS-PRO-XXXX-XXXX" maxlength="24" autocomplete="off" spellcheck="false">
+          <div id="activationError" class="activation-error" style="display:none;"></div>
+          <button id="btnActivateLicense" class="btn-activate">
+            <span>Unlock PRO Features</span>
+          </button>
+        </div>
+
+        <div class="activation-active-state" id="activationActiveArea" style="display:none;">
+          <div class="active-check">✓</div>
+          <div class="active-key-display" id="activeKeyDisplay">VS-PRO-XXXX-XXXX</div>
+          <div class="active-tier-pill">Lifetime Commercial License</div>
+          <p class="active-desc">This browser is unlocked with full commercial access and unlimited 1-click audits.</p>
+          <button id="btnDeactivateKey" class="btn-deactivate">Deactivate License on This Device</button>
+        </div>
+
+        <div class="activation-footer">
+          <a href="https://appsumo.com/products/vitalssniper" target="_blank" class="activation-link">Need a license key? Get on AppSumo &rarr;</a>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
       <span>Engineered by [Your Name]</span>

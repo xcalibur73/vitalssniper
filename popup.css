@@ -496,4 +496,241 @@ body {
 .footer-ver {
   color: #94a3b8;
   font-weight: 500;
+}
+
+/* ==========================================================================
+   Activation Modal Styling
+   ========================================================================== */
+.activation-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activation-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+.activation-box {
+  position: relative;
+  width: 320px;
+  background: #141622;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 18px 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+  z-index: 10000;
+  text-align: center;
+}
+
+.activation-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.activation-close:hover {
+  color: #ffffff;
+}
+
+.activation-badge {
+  display: inline-block;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #10b981;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+}
+
+.activation-header h3 {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.activation-header p {
+  font-size: 10px;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.activation-form {
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.activation-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin-bottom: 4px;
+}
+
+.activation-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #090a10;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #10b981;
+  outline: none;
+  transition: border-color 0.2s;
+  text-align: center;
+}
+
+.activation-input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.activation-error {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: #fb7185;
+  font-size: 9.5px;
+  border-radius: 5px;
+  padding: 5px 8px;
+  margin-top: 6px;
+  text-align: center;
+}
+
+.btn-activate {
+  width: 100%;
+  margin-top: 10px;
+  background: #10b981;
+  color: #000000;
+  border: none;
+  border-radius: 7px;
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-activate:hover {
+  background: #34d399;
+  transform: translateY(-1px);
+}
+
+.activation-active-state {
+  padding: 8px 0;
+}
+
+.active-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+  border-radius: 50%;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.active-key-display {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.active-tier-pill {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.active-desc {
+  font-size: 9.5px;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.btn-deactivate {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  font-size: 9px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-deactivate:hover {
+  border-color: #f43f5e;
+  color: #f43f5e;
+}
+
+.activation-footer {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.activation-link {
+  color: #10b981;
+  font-size: 9.5px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.activation-link:hover {
+  text-decoration: underline;
+}
+
+.pro-tag.active {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+}
+
+.pro-tag.inactive {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #f59e0b;
+  cursor: pointer;
 }

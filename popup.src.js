@@ -55,6 +55,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const data = results[0].result;
     renderAuditData(domain, tab.url, data);
   });
+
+  // Initialize license activation & validation
+  initLicense();
 });
 
 // Injected into active target web page
@@ -847,4 +850,139 @@ function updateActiveChannelView() {
     box.innerText = currentScripts.loom;
     btnText.innerText = 'Copy 30s Loom Video Script';
   }
+}
+
+// License Activation & Management
+async function initLicense() {
+  const data = await chrome.storage.local.get(['vs_license_key', 'vs_is_pro']);
+  const isPro = Boolean(data.vs_is_pro && data.vs_license_key);
+  const proTag = document.getElementById('proTag');
+
+  if (isPro) {
+    proTag.innerText = 'PRO';
+    proTag.classList.remove('inactive');
+    proTag.classList.add('active');
+    proTag.title = 'PRO Active: ' + data.vs_license_key;
+  } else {
+    proTag.innerText = 'ACTIVATE';
+    proTag.classList.remove('active');
+    proTag.classList.add('inactive');
+    proTag.title = 'Click to activate your AppSumo license key';
+  }
+
+  const modal = document.getElementById('activationModal');
+  const closeBtn = document.getElementById('activationClose');
+  const backdrop = document.getElementById('activationBackdrop');
+  const activateBtn = document.getElementById('btnActivateLicense');
+  const deactivateBtn = document.getElementById('btnDeactivateKey');
+  const keyInput = document.getElementById('licenseKeyInput');
+  const errorDiv = document.getElementById('activationError');
+  const formArea = document.getElementById('activationFormArea');
+  const activeArea = document.getElementById('activationActiveArea');
+  const keyDisplay = document.getElementById('activeKeyDisplay');
+
+  function openModal() {
+    chrome.storage.local.get(['vs_license_key', 'vs_is_pro'], (res) => {
+      if (res.vs_is_pro && res.vs_license_key) {
+        formArea.style.display = 'none';
+        activeArea.style.display = 'block';
+        keyDisplay.innerText = res.vs_license_key;
+        document.getElementById('activationTitle').innerText = 'License Active';
+        document.getElementById('activationSub').innerText = 'Your browser extension is fully activated with a lifetime commercial license.';
+      } else {
+        formArea.style.display = 'block';
+        activeArea.style.display = 'none';
+        keyInput.value = '';
+        errorDiv.style.display = 'none';
+        document.getElementById('activationTitle').innerText = 'Activate VitalsSniper PRO';
+        document.getElementById('activationSub').innerText = 'Enter your AppSumo license key to unlock unlimited audits and cold outreach scripts.';
+      }
+      modal.style.display = 'flex';
+    });
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+  }
+
+  proTag.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', closeModal);
+
+  // Auto uppercase formatting
+  keyInput.addEventListener('input', (e) => {
+    e.target.value = e.target.value.toUpperCase();
+  });
+
+  // Activate handler
+  activateBtn.addEventListener('click', async () => {
+    const rawKey = keyInput.value.trim().toUpperCase();
+    errorDiv.style.display = 'none';
+
+    if (!rawKey) {
+      errorDiv.innerText = 'Please enter your license key.';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    const keyPattern = /^VS-PRO-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+    if (!keyPattern.test(rawKey)) {
+      errorDiv.innerText = 'Invalid format. Key must look like VS-PRO-XXXX-XXXX.';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    activateBtn.disabled = true;
+    activateBtn.innerText = 'Verifying License...';
+
+    try {
+      const res = await fetch('https://vitalssniper-web.vercel.app/api/license/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: rawKey })
+      });
+      const result = await res.json();
+
+      if (result.valid) {
+        await chrome.storage.local.set({
+          vs_license_key: rawKey,
+          vs_is_pro: true,
+          vs_tier: result.tier || 'PRO Lifetime License'
+        });
+        proTag.innerText = 'PRO';
+        proTag.classList.remove('inactive');
+        proTag.classList.add('active');
+        proTag.title = 'PRO Active: ' + rawKey;
+        closeModal();
+      } else {
+        errorDiv.innerText = result.message || 'License key not found or inactive.';
+        errorDiv.style.display = 'block';
+      }
+    } catch (netErr) {
+      // Offline fallback: allow valid format
+      await chrome.storage.local.set({
+        vs_license_key: rawKey,
+        vs_is_pro: true,
+        vs_tier: 'PRO Lifetime License'
+      });
+      proTag.innerText = 'PRO';
+      proTag.classList.remove('inactive');
+      proTag.classList.add('active');
+      proTag.title = 'PRO Active: ' + rawKey;
+      closeModal();
+    } finally {
+      activateBtn.disabled = false;
+      activateBtn.innerText = 'Unlock PRO Features';
+    }
+  });
+
+  // Deactivate handler
+  deactivateBtn.addEventListener('click', async () => {
+    await chrome.storage.local.remove(['vs_license_key', 'vs_is_pro', 'vs_tier']);
+    proTag.innerText = 'ACTIVATE';
+    proTag.classList.remove('active');
+    proTag.classList.add('inactive');
+    proTag.title = 'Click to activate your AppSumo license key';
+    closeModal();
+  });
 }
