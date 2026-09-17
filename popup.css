@@ -1,0 +1,484 @@
+/* ==========================================================================
+   VitalsSniper PRO: Clean Luxury Performance Inspector
+   Design System: Linear / Apple / Vercel Minimalist Dark Palette
+   Colors: Obsidian Canvas (#0c0d12), Slate Card (#141620), Pure White (#ffffff)
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  width: 380px;
+  background-color: #0c0d12;
+  color: #f1f5f9;
+  overflow: hidden;
+}
+
+.container {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+
+.brand-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.brand-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: #ffffff;
+}
+
+.pro-tag {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  padding: 1px 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  color: #94a3b8;
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #10b981;
+  border-radius: 50%;
+}
+
+.status-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   Target Site & Score Card
+   ========================================================================== */
+.site-card {
+  background: #141620;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 9px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.site-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.domain-area {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow: hidden;
+}
+
+.site-favicon {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.domain-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sec-badge {
+  font-size: 8.5px;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.score-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.score-number {
+  font-size: 12px;
+  font-weight: 700;
+  color: #34d399;
+}
+
+.score-scale {
+  font-size: 9.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.tech-stack-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tech-badge {
+  font-size: 9.5px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.tech-cms {
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.2);
+}
+
+.tech-builder {
+  background: rgba(244, 63, 94, 0.1);
+  color: #fb7185;
+  border-color: rgba(244, 63, 94, 0.2);
+}
+
+.tech-tracker {
+  background: rgba(168, 85, 247, 0.1);
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.2);
+}
+
+/* ==========================================================================
+   6 Diagnostic Metrics Grid
+   ========================================================================== */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.metric-card {
+  background: #141620;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 7px;
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: border-color 0.15s ease;
+}
+
+.metric-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.metric-card.flaw-danger {
+  border-color: rgba(244, 63, 94, 0.3);
+  background: #16131c;
+}
+
+.metric-card.flaw-good {
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric-label {
+  font-size: 9.5px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.metric-tag {
+  font-size: 8px;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.tag-red {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+}
+
+.tag-green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.tag-yellow {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.metric-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+}
+
+.metric-footer {
+  font-size: 8px;
+  color: #64748b;
+}
+
+/* ==========================================================================
+   Primary Vulnerability Box
+   ========================================================================== */
+.flaw-banner {
+  background: #15141c;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid #f43f5e;
+  border-radius: 7px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flaw-banner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flaw-title {
+  font-size: 9px;
+  font-weight: 700;
+  color: #fb7185;
+  letter-spacing: 0.4px;
+}
+
+.btn-copy-hook {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 8.5px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-copy-hook:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.flaw-desc {
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: #e2e8f0;
+}
+
+/* ==========================================================================
+   Segmented Outreach Controls & Preview
+   ========================================================================== */
+.channel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.channel-tabs {
+  display: flex;
+  background: #141620;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.channel-tab {
+  flex: 1;
+  padding: 5px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.channel-tab:hover {
+  color: #ffffff;
+}
+
+.channel-tab.active {
+  background: #232738;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.email-box {
+  padding: 8px 10px;
+  background: #090a0f;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  line-height: 1.45;
+  color: #94a3b8;
+  white-space: pre-wrap;
+  user-select: all;
+  max-height: 75px;
+  overflow-y: auto;
+}
+
+.email-box::-webkit-scrollbar {
+  width: 4px;
+}
+
+.email-box::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   Actions & Utility Buttons
+   ========================================================================== */
+.action-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 9px 12px;
+  background: #ffffff;
+  color: #0c0d12;
+  border: none;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: #e2e8f0;
+}
+
+.btn-primary.copied {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.utility-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px;
+}
+
+.btn-secondary {
+  padding: 6px 8px;
+  background: #141620;
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  font-size: 9.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-secondary:hover {
+  background: #1e2232;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+  color: #64748b;
+  padding-top: 2px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-ver {
+  color: #94a3b8;
+  font-weight: 500;
+}

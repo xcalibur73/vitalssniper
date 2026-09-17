@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VitalsSniper</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-logo">
+          <img src="icons/icon16.png" alt="VitalsSniper" class="brand-icon">
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">VitalsSniper</span>
+          <span class="pro-tag">PRO</span>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-dot"></span>
+        <span class="status-label" id="statusText">Active Scan</span>
+      </div>
+    </header>
+
+    <!-- Target Site & Health Score Summary Card -->
+    <section class="site-card">
+      <div class="site-card-top">
+        <div class="domain-area">
+          <img class="site-favicon" id="siteFavicon" src="icons/icon16.png" alt="">
+          <span class="domain-text" id="targetDomain">Detecting site...</span>
+          <span class="sec-badge" id="secBadge">HTTPS</span>
+        </div>
+        <div class="score-badge" id="scoreBadge" title="Mobile Performance Score">
+          <span class="score-number" id="healthScoreVal">--</span>
+          <span class="score-scale">/100</span>
+        </div>
+      </div>
+      <div class="tech-stack-row" id="techStackRow">
+        <span class="tech-badge tech-loading">Scanning tech stack...</span>
+      </div>
+    </section>
+
+    <!-- 6 Diagnostic Metrics Grid -->
+    <section class="metrics-grid">
+      <!-- Card 1: DOM Elements -->
+      <div class="metric-card" id="cardDom">
+        <div class="metric-header">
+          <span class="metric-label">DOM Elements</span>
+          <span class="metric-tag" id="tagDom">--</span>
+        </div>
+        <div class="metric-value" id="valDom">--</div>
+        <div class="metric-footer" id="descDom">Standard: &lt; 1,400</div>
+      </div>
+
+      <!-- Card 2: Document Size -->
+      <div class="metric-card" id="cardSize">
+        <div class="metric-header">
+          <span class="metric-label">Page Payload</span>
+          <span class="metric-tag" id="tagSize">--</span>
+        </div>
+        <div class="metric-value" id="valSize">--</div>
+        <div class="metric-footer" id="descSize">Budget: &lt; 45 KB</div>
+      </div>
+
+      <!-- Card 3: Mobile Viewport -->
+      <div class="metric-card" id="cardViewport">
+        <div class="metric-header">
+          <span class="metric-label">Mobile Scaling</span>
+          <span class="metric-tag" id="tagViewport">--</span>
+        </div>
+        <div class="metric-value" id="valViewport">--</div>
+        <div class="metric-footer" id="descViewport">WCAG Mobile Scale</div>
+      </div>
+
+      <!-- Card 4: AI & Schema Ready -->
+      <div class="metric-card" id="cardSchema">
+        <div class="metric-header">
+          <span class="metric-label">AI &amp; Schema</span>
+          <span class="metric-tag" id="tagSchema">--</span>
+        </div>
+        <div class="metric-value" id="valSchema">--</div>
+        <div class="metric-footer" id="descSchema">JSON-LD Entity Graph</div>
+      </div>
+
+      <!-- Card 5: Scripts & Bloat -->
+      <div class="metric-card" id="cardAssets">
+        <div class="metric-header">
+          <span class="metric-label">Scripts &amp; Bloat</span>
+          <span class="metric-tag" id="tagAssets">--</span>
+        </div>
+        <div class="metric-value" id="valAssets">--</div>
+        <div class="metric-footer" id="descAssets">Payload Analysis</div>
+      </div>
+
+      <!-- Card 6: Server TTFB -->
+      <div class="metric-card" id="cardSpeed">
+        <div class="metric-header">
+          <span class="metric-label">Server TTFB</span>
+          <span class="metric-tag" id="tagSpeed">--</span>
+        </div>
+        <div class="metric-value" id="valSpeed">--</div>
+        <div class="metric-footer" id="descSpeed">Response Latency</div>
+      </div>
+    </section>
+
+    <!-- Primary Vulnerability Callout -->
+    <section class="flaw-banner" id="flawBanner">
+      <div class="flaw-banner-header">
+        <span class="flaw-title">KEY OPTIMIZATION ANGLE</span>
+        <button class="btn-copy-hook" id="btnCopyHook" title="Copy hook sentence only">Copy Hook</button>
+      </div>
+      <div class="flaw-desc" id="flawDesc">Analyzing DOM structure and mobile bottlenecks...</div>
+    </section>
+
+    <!-- Outreach Channel Segmented Control -->
+    <section class="channel-section">
+      <div class="channel-tabs">
+        <button class="channel-tab active" data-channel="email" id="tabEmail">Cold Email</button>
+        <button class="channel-tab" data-channel="dm" id="tabDm">LinkedIn DM</button>
+        <button class="channel-tab" data-channel="loom" id="tabLoom">Loom Pitch</button>
+      </div>
+
+      <div class="email-box" id="emailPreviewBox">Generating tailored outreach copy...</div>
+    </section>
+
+    <!-- Action Buttons -->
+    <section class="action-section">
+      <button class="btn-primary" id="btnCopyEmail">
+        <span class="btn-text" id="btnCopyText">Copy 3-Sentence Email</span>
+      </button>
+
+      <div class="utility-grid">
+        <button class="btn-secondary" id="btnExportCard" title="Open confidential 1-page executive teardown">
+          <span>1-Page Teardown</span>
+        </button>
+
+        <button class="btn-secondary" id="btnPageSpeed" title="Test URL on Google PageSpeed Insights">
+          <span>PageSpeed Live</span>
+        </button>
+
+        <button class="btn-secondary" id="btnCopyJson" title="Copy raw diagnostic metrics JSON">
+          <span>Copy JSON</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Hidden compatibility elements to preserve JS contract -->
+    <div id="healthBarFill" style="display:none;"></div>
+    <div id="healthStatus" style="display:none;"></div>
+    <div id="healthTier" style="display:none;"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>Operated by Sadikeen Firoz &bull; Vibe Coder &amp; Digital Architect</span>
+      <span class="footer-ver">v1.2.0 PRO</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
