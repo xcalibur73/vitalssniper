@@ -437,66 +437,40 @@ function renderAuditData(domain, currentUrl, data) {
   document.getElementById('descSpeed').innerText = data.loadTimeSec > 0 ? `Total Load: ${data.loadTimeSec}s` : 'Time To First Byte';
 
   // 9. Determine Primary Strategic Flaw
+  // 9. Determine Primary Strategic Flaw & Deep Technical Reasoning
   let flawText = '';
   let emailHook = '';
   let dmHook = '';
   let loomHook = '';
+  let improvements = [];
+  const detectedBuilders = (data.cms || []).filter(c => ['Elementor', 'Divi', 'WPBakery', 'Avada', 'Salient', 'Beaver Builder'].includes(c));
+  const builderName = detectedBuilders.length > 0 ? detectedBuilders.join(' + ') : ((data.cms && data.cms.length > 0) ? data.cms[0] : 'page builder');
 
   if (data.vpMissing) {
     flawText = 'Critical: Viewport meta tag is missing. Mobile browsers render the site as a tiny desktop view.';
+    improvements = [
+      'Add responsive viewport meta tag (width=device-width, initial-scale=1.0) to trigger native mobile layout rendering',
+      'Ensure all container widths and tap elements adapt fluidly across mobile and tablet viewports',
+      'Zero visual design changes (100% typography, styling, and photography preserved with 0 alteration)',
+    ];
     emailHook = `While testing ${domain} on an iPhone, I noticed your homepage is currently missing a responsive viewport tag, which causes mobile Safari to render the whole site zoomed-out as a tiny desktop screen.`;
     dmHook = `noticed your site is missing a mobile viewport tag, so mobile Safari renders everything tiny and zoomed-out.`;
     loomHook = `The mobile viewport meta tag is completely missing, forcing iPhone Safari into desktop emulation mode.`;
-  } else if (data.vpLocked) {
-    flawText = 'Mobile Accessibility: Viewport locks zoom (user-scalable=0), failing Google mobile standards.';
-    emailHook = `While testing ${domain} on an iPhone, I noticed your viewport tag locks user pinch-to-zoom (user-scalable=0), preventing prospective clients from inspecting portfolio details and triggering mobile penalties.`;
-    dmHook = `noticed your mobile viewport locks pinch-to-zoom (user-scalable=0), which blocks clients from zooming in and flags usability warnings.`;
-    loomHook = `The viewport tag locks user pinch-to-zoom, which restricts mobile client accessibility and hurts Core Web Vitals.`;
-  } else if (data.sizeKB > 200 || data.totalDom > 4000) {
-    flawText = `Severe Page Builder Bloat: ${data.sizeKB}KB raw HTML across ${data.totalDom.toLocaleString()} elements chokes mobile CPU.`;
-    emailHook = `While reviewing ${domain} on mobile, I noticed the homepage payload carries over ${data.sizeKB}KB of uncompressed container code across ${data.totalDom.toLocaleString()} DOM elements, causing a multi-second freeze on cellular connections before imagery renders.`;
-    dmHook = `noticed your homepage payload is ${data.sizeKB}KB across ${data.totalDom.toLocaleString()} elements, which causes noticeable mobile lag on cellular data.`;
-    loomHook = `Here is the DOM tree payload: over ${data.sizeKB}KB of HTML code choke mobile rendering before photography even starts downloading.`;
-  } else if (!data.hasSchema) {
-    flawText = 'AI Search Invisibility: 0% Schema.org structured data. The site is excluded from ChatGPT Search & Perplexity citations.';
-    emailHook = `While auditing search discoverability for ${domain}, I noticed your practice currently misses out on high-intent citations in new AI search tools like ChatGPT and Perplexity due to missing structured Schema.org entity data.`;
-    dmHook = `noticed your site has 0% Schema.org entity structured data, which excludes you from citations in new AI search engines like ChatGPT and Perplexity.`;
-    loomHook = `There is zero Schema.org structured data on this URL, making the business invisible to AI search citation engines.`;
-  } else if (data.uncompressedImages > 0) {
-    flawText = `Uncompressed Media: ${data.uncompressedImages} legacy JPG/PNG images delay Largest Contentful Paint (LCP) on cellular data.`;
-    emailHook = `While reviewing ${domain} on mobile, I noticed your portfolio imagery is loading as uncompressed legacy JPG files, adding a 3-second delay to the Largest Contentful Paint (LCP) on cellular connections.`;
-    dmHook = `noticed your portfolio photography loads as uncompressed JPGs, adding heavy delay before images resolve on mobile.`;
-    loomHook = `Several primary portfolio images are loading as uncompressed JPGs rather than modern WebP with explicit dimensions, delaying Largest Contentful Paint.`;
-  } else if (data.totalDom > 1400) {
-    flawText = `DOM Element Bloat: ${data.totalDom.toLocaleString()} DOM elements exceed Google's recommended 1,400 ceiling.`;
-    emailHook = `While reviewing ${domain} on mobile, I noticed the DOM tree contains ${data.totalDom.toLocaleString()} elements, which exceeds Google's recommended 1,400-node ceiling and degrades touch response on phones.`;
-    dmHook = `noticed the page contains ${data.totalDom.toLocaleString()} DOM nodes (Google recommends under 1,400), causing mobile scroll stutter.`;
-    loomHook = `The page tree contains ${data.totalDom.toLocaleString()} DOM elements, exceeding Google's recommended ceiling and inflating mobile memory usage.`;
-  } else if (data.sizeKB > 50) {
-    flawText = `HTML Payload: ${data.sizeKB}KB document payload exceeds the 50KB mobile cellular speed budget.`;
-    emailHook = `While testing ${domain} on cellular data, I noticed the initial HTML payload is ${data.sizeKB}KB, delaying initial paint before stylesheets parse.`;
-    dmHook = `noticed your HTML payload is ${data.sizeKB}KB, which slows down initial rendering on mobile networks.`;
-    loomHook = `The HTML document payload alone is ${data.sizeKB}KB, exceeding the cellular first-packet budget.`;
-  } else {
-    flawText = `Asset Optimization Opportunity: Render-blocking resources and script execution can be streamlined for sub-1s mobile LCP.`;
-    emailHook = `While analyzing ${domain}'s mobile architecture, I noticed key asset delivery bottlenecks that can be streamlined to achieve sub-1-second LCP.`;
-    dmHook = `noticed key render-blocking script bottlenecks that can be streamlined for sub-1s mobile load times.`;
-    loomHook = `Render-blocking resources and third-party script chains are delaying the Largest Contentful Paint.`;
-  }
 
-  currentFlawHook = emailHook;
-  document.getElementById('flawDesc').innerText = flawText;
-
-  // 10. Generate Multi-Channel Outreach Templates
-  currentScripts.email = `Subject: quick observation on the mobile experience for ${domain}
+    currentScripts.email = `Subject: mobile viewport issue on ${domain}
 
 Hi [First Name],
 
-${emailHook}
+While testing ${domain} on an iPhone, I noticed your homepage is currently missing a responsive viewport tag, which causes mobile Safari to render the entire page zoomed-out as a tiny desktop view.
 
-We specialize in optimizing high-ticket digital architecture so visual fidelity stays pristine while dropping mobile load times to under 1 second.
+Because mobile devices cannot detect the layout boundary without this tag, mobile visitors are forced to manually pinch and pan across the screen just to read headlines, causing severe drop-offs on mobile ad campaigns.
 
-I put together a quick 30-second screen recording showing the exact bottleneck and the zero-design-change fix.
+We can resolve this cleanly with zero changes to your website design:
+1. Add modern viewport configuration allowing fluid zoom without horizontal scrolling.
+2. Ensure container grids adapt seamlessly across phone and tablet screens.
+3. 100% visual design invariance guarantee (zero disruption to styling or photography).
+
+I recorded a quick 30-second screen recording showing the issue and the exact 5-minute code fix.
 
 Would you like me to send the clip over to your team?
 
@@ -504,21 +478,346 @@ Best regards,
 [Your Name]
 [Your Title / Agency]`;
 
-  currentScripts.dm = `Hey [First Name] - noticed ${domain} on mobile while exploring your work. 
+    currentScripts.dm = `Hey [First Name] - noticed ${domain} on mobile while checking out your site.
 
-${dmHook}
+The site is missing a responsive viewport tag, forcing mobile Safari to render everything zoomed-out like a desktop screen where text is too small to read without zooming.
 
-I put together a quick 30s screen recording showing how to resolve the bottleneck with zero changes to your photography, typography, or styling.
+We can fix this in under an hour with 0 design changes:
+• Configure responsive viewport meta for native mobile scaling.
+• Validate container boundaries across iOS and Android devices.
+• 100% design fidelity preserved (exact typography, spacing, and photography).
 
-Mind if I send the clip link over here?
+I recorded a 30s screen clip showing the fix. Mind if I send the link over?
 
 - [Your Name]`;
 
-  currentScripts.loom = `[0:00 - 0:08] "Hey [Name], [Your Name] here. I was reviewing the mobile experience on ${domain} and wanted to point out one specific technical bottleneck your team might not have caught."
+    currentScripts.loom = `[0:00 - 0:08] "Hey [Name], [Your Name] here. I was reviewing ${domain} on an iPhone and spotted a critical layout setting that's hurting your mobile conversions."
 
-[0:08 - 0:18] "Right here on mobile: ${loomHook} Affluent clients on iPhone Safari wait several seconds before credentials and imagery render."
+[0:08 - 0:22] "Right here on mobile Safari: the responsive viewport tag is completely missing. Mobile browsers are forced into desktop emulation mode, so prospective clients see a tiny zoomed-out page that's difficult to navigate."
 
-[0:18 - 0:30] "The good news is this can be streamlined in 48 hours with 100% visual invariance and zero downtime. Happy to share the exact remediation teardown if helpful!"`;
+[0:22 - 0:35] "The fix takes less than an hour and requires zero design changes: we configure proper viewport scaling so the page displays natively on all devices. Happy to share the exact fix if helpful!"`;
+
+  } else if (data.vpLocked) {
+    flawText = 'Mobile Accessibility: Viewport locks zoom (user-scalable=0), violating WCAG 2.2 standards.';
+    improvements = [
+      'Update viewport meta tag to width=device-width, initial-scale=1.0 allowing fluid pinch-to-zoom up to 500% with 0 layout shift',
+      'Implement modern CSS clamp() typography so text scales elegantly across all screen magnifications',
+      'Validate all interactive buttons meet 48x48px mobile touch target standards, eliminating mis-taps',
+    ];
+    emailHook = `While testing ${domain} on an iPhone, I noticed your viewport tag locks user pinch-to-zoom (user-scalable=0), preventing prospective clients from inspecting portfolio details and triggering mobile penalties.`;
+    dmHook = `noticed your mobile viewport locks pinch-to-zoom (user-scalable=0), which blocks clients from zooming in and flags usability warnings.`;
+    loomHook = `The viewport tag locks user pinch-to-zoom, which restricts mobile client accessibility and hurts Core Web Vitals.`;
+
+    currentScripts.email = `Subject: mobile accessibility issue on ${domain}
+
+Hi [First Name],
+
+While reviewing ${domain} on an iPhone, I noticed your mobile viewport configuration currently blocks pinch-to-zoom (user-scalable=no).
+
+This creates a frustrating experience for prospective clients trying to zoom in on your work, directly violates WCAG 2.2 accessibility standards (SC 1.4.4), and triggers usability warnings in Google's mobile ranking algorithms.
+
+We can resolve this cleanly with zero disruption to your visual design:
+1. Update the viewport meta tag to allow fluid zoom up to 500% without horizontal overflow.
+2. Implement modern fluid clamp() typography so text scales elegantly across all screen sizes.
+3. Validate all touch targets meet the 48x48px standard for effortless mobile navigation.
+
+I recorded a 30-second mobile walkthrough demonstrating the issue and the exact 5-minute code fix.
+
+Would you like me to send the clip over to your team?
+
+Best regards,
+[Your Name]
+[Your Title / Agency]`;
+
+    currentScripts.dm = `Hey [First Name] - noticed ${domain} on mobile while checking out your site.
+
+The viewport tag is set to lock pinch-to-zoom (user-scalable=0). This blocks visitors on phones from zooming in on portfolio details, violates WCAG 2.2 accessibility rules, and can trigger Google mobile usability demotions.
+
+We can fix this in under an hour with 0 design changes:
+• Unlock the viewport tag for smooth 500% zoom with 0 layout shift.
+• Add fluid clamp() scaling so typography adjusts seamlessly.
+• Ensure all touch targets meet mobile tap standards.
+
+I recorded a 30s screen clip showing the fix. Mind if I send the link over?
+
+- [Your Name]`;
+
+    currentScripts.loom = `[0:00 - 0:08] "Hey [Name], [Your Name] here. I was reviewing ${domain} on mobile and noticed an accessibility restriction that could be hurting your mobile conversions and Google visibility."
+
+[0:08 - 0:22] "Right here in the viewport tag: user zooming is locked with user-scalable=0. When prospective clients try to pinch and zoom into your portfolio or details, the screen is frozen. This triggers WCAG accessibility violations and Google mobile usability penalties."
+
+[0:22 - 0:35] "The fix takes less than an hour with zero visual changes: we configure fluid scaling so mobile visitors can zoom comfortably while the design stays pixel-perfect. Happy to share the exact fix if helpful!"`;
+
+  } else if (data.totalDom > 2000 || (data.totalDom > 1400 && detectedBuilders.length > 0)) {
+    flawText = `Severe Page Builder Bloat: ${data.sizeKB}KB raw HTML across ${data.totalDom.toLocaleString()} elements chokes mobile CPU.`;
+    improvements = [
+      'Flatten container hierarchy into semantic HTML5 (<section>, <main>) with native CSS Grid/Flexbox, dropping total DOM nodes by 60%+',
+      'Virtualize and defer below-the-fold content sections so mobile layout geometry calculates instantly for visible hero elements',
+      'Guarantee 100% visual design invariance (exact typography, spacing, styling, animations, and photography preserved with 0 changes)',
+    ];
+    emailHook = `While reviewing ${domain} on mobile, I noticed the homepage tree carries ${data.totalDom.toLocaleString()} DOM elements with deep container nesting from ${builderName}.`;
+    dmHook = `noticed the homepage carries ${data.totalDom.toLocaleString()} DOM nodes from ${builderName}, causing mobile rendering freeze on phones.`;
+    loomHook = `The page tree contains ${data.totalDom.toLocaleString()} DOM elements with deep nesting from ${builderName}, choking mobile CPU before images render.`;
+
+    currentScripts.email = `Subject: quick observation on the mobile experience for ${domain}
+
+Hi [First Name],
+
+While reviewing ${domain} on mobile, I noticed the homepage tree carries ${data.totalDom.toLocaleString()} DOM elements with deep container nesting from ${builderName}.
+
+Because mobile browsers must recursively recalculate layout geometry across thousands of nested nodes, this creates a 1.8s to 3.2s main-thread freeze where button taps hesitate before responding, causing mobile visitors to bounce.
+
+We specialize in architectural refactoring that flattens excessive builder nesting into semantic HTML5 while keeping your design, branding, and typography 100% intact:
+1. Flatten 15+ container wrappers into lightweight CSS Grid (reducing DOM nodes by 60%+).
+2. Defer layout calculations for below-the-fold sections so the mobile viewport becomes interactive in under 1 second.
+3. Zero design changes (100% visual fidelity guarantee).
+
+I recorded a quick 30-second screen teardown showing the exact bottleneck and how to eliminate the lag in 48 hours.
+
+Mind if I send the clip over to your team?
+
+Best regards,
+[Your Name]
+[Your Title / Agency]`;
+
+    currentScripts.dm = `Hey [First Name] - noticed ${domain} on mobile while exploring your work.
+
+The homepage carries ${data.totalDom.toLocaleString()} DOM nodes with deep container nesting from ${builderName}. On mobile devices, this forces the browser to recalculate layout geometry across thousands of elements, causing a 2-second main-thread freeze before taps respond.
+
+We can streamline this with zero visual changes:
+• Flatten container nesting into clean CSS Grid (cutting DOM count by 60%+).
+• Virtualize below-the-fold blocks so the mobile viewport is interactive in under 1 second.
+• 100% design fidelity preserved (exact typography, spacing, and photography).
+
+I recorded a 30s teardown showing the exact fix. Mind if I share the link here?
+
+- [Your Name]`;
+
+    currentScripts.loom = `[0:00 - 0:08] "Hey [Name], [Your Name] here. I was testing ${domain} on mobile and wanted to point out one specific technical bottleneck that's impacting your conversion rates."
+
+[0:08 - 0:22] "Right here in the mobile inspector: the page tree has ${data.totalDom.toLocaleString()} DOM nodes with deep container nesting from ${builderName}. Because mobile chipsets have to recursively compute layout geometry for every wrapper, button clicks freeze for up to 2 seconds before firing."
+
+[0:22 - 0:35] "The fix is straightforward and requires zero design changes: we flatten the container hierarchy into semantic CSS Grid, dropping DOM count by 60%+ and making the page instantly responsive. Happy to share the exact teardown if helpful!"`;
+
+  } else if (!data.hasSchema) {
+    flawText = 'AI Search Invisibility: 0% Schema.org structured data. Excluded from ChatGPT Search & Perplexity citations.';
+    improvements = [
+      'Deploy structured JSON-LD Knowledge Graph with Organization/LocalBusiness, Service, and canonical sameAs authority links',
+      'Add conversational FAQPage and semantic entity markup optimized for direct citation in Google AI Overviews and ChatGPT Search',
+      'Configure a structured llms.txt index so autonomous AI crawlers can cleanly parse and cite your brand offerings',
+    ];
+    emailHook = `While auditing search discoverability for ${domain}, I noticed your site currently has 0% Schema.org structured data in JSON-LD format.`;
+    dmHook = `noticed your site has 0% Schema.org entity structured data, which excludes you from citations in new AI search engines like ChatGPT and Perplexity.`;
+    loomHook = `There is zero Schema.org structured data on this URL, making the business invisible to AI search citation engines.`;
+
+    currentScripts.email = `Subject: AI search discoverability for ${domain}
+
+Hi [First Name],
+
+While auditing search discoverability for ${domain}, I noticed your site currently has 0% Schema.org structured data in JSON-LD format.
+
+New AI search platforms (ChatGPT Search, Perplexity AI, Google AI Overviews) rely on structured entity graphs to verify authority. Without this structured data, AI models cannot disambiguate your services or credentials, causing them to cite competitors instead of your business.
+
+We can implement a complete AI-ready semantic graph with zero changes to your website design:
+1. Deploy a comprehensive JSON-LD Knowledge Graph with Organization, Service, and sameAs entity links.
+2. Add FAQPage and passage-optimized structured schema for direct citation in AI summaries.
+3. Configure an llms.txt index so AI search crawlers can parse and cite your offerings instantly.
+
+I put together a quick 30-second teardown showing how AI search currently sees your domain and how to get cited.
+
+Would you like me to send the video over?
+
+Best regards,
+[Your Name]
+[Your Title / Agency]`;
+
+    currentScripts.dm = `Hey [First Name] - noticed ${domain} while researching leaders in your space.
+
+Your site currently lacks Schema.org JSON-LD structured data. Modern AI search engines like ChatGPT Search and Perplexity use these entity graphs to cite authoritative brands. Without it, AI crawlers skip your content and cite competitors instead.
+
+We can set up full AI citation readiness with zero changes to your website:
+• Deploy structured Organization and Service JSON-LD entity graphs.
+• Add passage-extractable schema for AI Overviews and answer engines.
+• Set up an llms.txt index for autonomous AI crawlers.
+
+I recorded a 30s teardown showing how AI crawlers currently read your domain. Mind if I share the link?
+
+- [Your Name]`;
+
+    currentScripts.loom = `[0:00 - 0:08] "Hey [Name], [Your Name] here. I was analyzing ${domain}'s search presence and wanted to highlight an emerging blind spot in AI search discoverability."
+
+[0:08 - 0:22] "Right here in the page source: there is zero Schema.org JSON-LD structured data. Platforms like ChatGPT Search, Perplexity, and Google AI Overviews rely on structured entity graphs to understand your authority. Without it, they end up citing competing businesses."
+
+[0:22 - 0:35] "We can implement a complete entity Knowledge Graph and llms.txt directory with zero visual changes to your website, unlocking AI citations within days. Happy to share the teardown if you'd like to take a look!"`;
+
+  } else if (data.sizeKB > 50) {
+    flawText = `HTML Payload: ${data.sizeKB}KB document payload exceeds the 50KB mobile cellular speed budget.`;
+    improvements = [
+      'Extract inlined base64 data URIs and embedded SVG graphics into external cached assets served via HTTP/2 multiplexing',
+      'Enable edge-level Brotli compression (level 11) with HTML minification to bring the initial document under 35KB',
+      'Inline only critical above-the-fold CSS while deferring non-essential stylesheet chunks for sub-800ms FCP',
+    ];
+    emailHook = `While testing ${domain} on cellular data, I noticed the initial HTML document payload alone is ${data.sizeKB}KB, which significantly exceeds the 50KB mobile cellular speed budget.`;
+    dmHook = `noticed your HTML payload is ${data.sizeKB}KB, which slows down initial rendering on mobile networks.`;
+    loomHook = `The HTML document payload alone is ${data.sizeKB}KB, exceeding the cellular first-packet budget.`;
+
+    currentScripts.email = `Subject: quick observation on the mobile speed for ${domain}
+
+Hi [First Name],
+
+While testing ${domain} on mobile data, I noticed the initial HTML document payload alone is ${data.sizeKB}KB, which significantly exceeds the 50KB mobile cellular speed budget.
+
+Because mobile towers transmit data in 14.6KB TCP packets during the slow-start window, an oversized HTML file requires multiple cellular round-trips before the browser can even begin parsing your layout, delaying First Contentful Paint by over 2 seconds.
+
+We can resolve this without touching your visual layout or design:
+1. Extract inline SVG graphics and embedded base64 assets into external cached files via HTTP/2.
+2. Implement edge Brotli compression and code minification to bring the document under 35KB.
+3. Inline critical above-the-fold styling while deferring non-essential stylesheets.
+
+I put together a quick 30-second screen recording showing the packet waterfall and the zero-design-change fix.
+
+Would you like me to send the video over?
+
+Best regards,
+[Your Name]
+[Your Title / Agency]`;
+
+    currentScripts.dm = `Hey [First Name] - noticed ${domain} on mobile while checking out your site.
+
+The initial HTML payload is ${data.sizeKB}KB (above the 50KB mobile threshold). Over cellular data, this requires 5+ TCP packet round-trips before the browser can even start rendering, leaving mobile visitors on a blank screen for 2+ seconds.
+
+We can fix this with 0 visual changes:
+• Extract inline base64/SVG assets into cached HTTP/2 assets.
+• Apply edge Brotli compression to drop the document payload under 35KB.
+• Defer secondary styling so First Contentful Paint renders in under 800ms.
+
+I made a quick 30s screen recording showing the fix. Mind if I send the clip over?
+
+- [Your Name]`;
+
+    currentScripts.loom = `[0:00 - 0:08] "Hey [Name], [Your Name] here. I was testing ${domain} on a mobile connection and spotted a network-level bottleneck that's delaying your initial render."
+
+[0:08 - 0:22] "Right here in the network waterfall: the HTML payload is ${data.sizeKB}KB. Cellular networks deliver data in 14.6KB TCP packets, so this requires multiple round-trips over cellular towers before the browser can paint anything, creating 2 seconds of blank-screen delay."
+
+[0:22 - 0:35] "We can resolve this with zero design modifications by extracting inline assets into cached CDN files and enabling edge Brotli compression to bring it under 35KB. Happy to send over the full remediation plan if you'd like!"`;
+
+  } else if (data.uncompressedImages > 0) {
+    flawText = `Uncompressed Media: ${data.uncompressedImages} legacy JPG/PNG images delay Largest Contentful Paint (LCP) on cellular data.`;
+    improvements = [
+      'Convert legacy raster images to modern responsive WebP/AVIF format with next-gen compression, saving 65%+ bandwidth',
+      'Add explicit width and height attributes plus decoding="async" to eliminate layout shifts (0 CLS)',
+      'Apply fetchpriority="high" to hero LCP visual while lazy-loading below-the-fold images',
+    ];
+    emailHook = `While reviewing ${domain} on mobile, I noticed your imagery is loading as uncompressed legacy JPG/PNG files, adding a 3-second delay to Largest Contentful Paint on cellular connections.`;
+    dmHook = `noticed your photography loads as uncompressed JPGs, adding heavy delay before images resolve on mobile.`;
+    loomHook = `Several primary images are loading as uncompressed JPGs rather than modern WebP with explicit dimensions, delaying Largest Contentful Paint.`;
+
+    currentScripts.email = `Subject: quick observation on mobile loading speed for ${domain}
+
+Hi [First Name],
+
+While reviewing ${domain} on mobile, I noticed key portfolio imagery is loading as uncompressed legacy JPG files, adding a 3-second delay to the Largest Contentful Paint (LCP) on cellular connections.
+
+Because mobile devices have to download heavy uncompressed bitmaps over cellular towers, prospective clients experience noticeable lag before your photography and credentials resolve.
+
+We can optimize your imagery pipeline to achieve sub-1-second mobile speeds with zero loss of visual quality:
+1. Convert imagery to next-gen WebP/AVIF format, cutting image file sizes by 65%+ with zero visible quality loss.
+2. Apply fetchpriority="high" on hero photography so above-the-fold imagery renders immediately.
+3. Add explicit dimensions to eliminate Cumulative Layout Shift (CLS).
+
+I put together a quick 30-second screen recording showing the image delivery waterfall and the fix.
+
+Would you like me to send the clip over to your team?
+
+Best regards,
+[Your Name]
+[Your Title / Agency]`;
+
+    currentScripts.dm = `Hey [First Name] - noticed ${domain} on mobile while exploring your work.
+
+Your portfolio photography is loading as uncompressed JPGs, adding a 3-second delay before imagery resolves on mobile cellular data.
+
+We can drop this to sub-1-second speeds with 0 visual changes:
+• Convert images to WebP/AVIF with zero visible loss, saving 65%+ bandwidth.
+• Prioritize hero imagery with fetchpriority="high".
+• Ensure zero layout shift with explicit image dimensions.
+
+I recorded a 30s screen clip showing the fix. Mind if I send the link over?
+
+- [Your Name]`;
+
+    currentScripts.loom = `[0:00 - 0:08] "Hey [Name], [Your Name] here. I was reviewing ${domain}'s mobile performance and wanted to point out a specific image delivery bottleneck."
+
+[0:08 - 0:22] "Right here in the network waterfall: primary portfolio images are loading as uncompressed JPG files. Over cellular data, this delays your Largest Contentful Paint past 3 seconds and causes prospective clients to bounce."
+
+[0:22 - 0:35] "We can optimize the media pipeline into next-gen WebP with explicit dimensions in 48 hours, keeping visual quality 100% pristine while making the page load instantly. Happy to share the teardown if helpful!"`;
+
+  } else {
+    flawText = `Asset Optimization Opportunity: Render-blocking resources and script execution can be streamlined for sub-1s mobile LCP.`;
+    improvements = [
+      'Apply fetchpriority="high" and preconnect resource hints on Largest Contentful Paint hero visuals',
+      'Offload non-critical analytics trackers (GTM, Meta Pixel, Hotjar) off the main thread via web workers',
+      'Preload primary typography with font-display: swap to eliminate layout shifts (CLS) and invisible text flash',
+    ];
+    emailHook = `While analyzing ${domain}'s mobile architecture, I noticed key render-blocking resource chains that delay Largest Contentful Paint (LCP) past Google's 2.5s Core Web Vitals threshold.`;
+    dmHook = `noticed key render-blocking script bottlenecks that can be streamlined for sub-1s mobile load times.`;
+    loomHook = `Render-blocking resources and third-party script chains are delaying the Largest Contentful Paint.`;
+
+    currentScripts.email = `Subject: quick observation on mobile loading speed for ${domain}
+
+Hi [First Name],
+
+While testing ${domain}'s mobile architecture, I noticed key render-blocking resource chains that delay Largest Contentful Paint (LCP) past Google's 2.5s Core Web Vitals threshold.
+
+Because third-party tracker scripts and web fonts load synchronously on the main thread, mobile visitors experience a noticeable delay before interactive elements respond, directly impacting conversion rates.
+
+We can optimize this to sub-1-second mobile speeds with zero visual changes:
+1. Add fetchpriority="high" and preconnect hints to ensure hero visuals load instantly.
+2. Offload heavy analytics trackers to web workers off the main execution thread.
+3. Preload web fonts with font-display: swap to eliminate layout shifts and invisible text.
+
+I put together a quick 30-second screen recording showing the network waterfall and the exact optimization fix.
+
+Would you like me to send the clip over to your team?
+
+Best regards,
+[Your Name]
+[Your Title / Agency]`;
+
+    currentScripts.dm = `Hey [First Name] - noticed ${domain} on mobile while exploring your work.
+
+Your mobile page load has render-blocking script chains that push Largest Contentful Paint past Google's 2.5s threshold, which creates friction on mobile connections.
+
+We can drop this to sub-1-second speeds with 0 visual changes:
+• Prioritize hero imagery with fetchpriority="high" and preconnects.
+• Offload analytics trackers off the main UI thread via web workers.
+• Preload primary web fonts with font-display: swap for 0 layout shift.
+
+I recorded a 30s screen clip showing the fix. Mind if I send the link over?
+
+- [Your Name]`;
+
+    currentScripts.loom = `[0:00 - 0:08] "Hey [Name], [Your Name] here. I was reviewing ${domain}'s mobile performance and wanted to point out a specific asset delivery bottleneck."
+
+[0:08 - 0:22] "Right here in the network waterfall: third-party scripts and synchronous font loading are blocking the main thread, pushing your Largest Contentful Paint past 2.5 seconds and hurting mobile visitor retention."
+
+[0:22 - 0:35] "We can streamline the asset delivery pipeline to achieve sub-1-second mobile loads with 100% visual fidelity preserved. Happy to share the exact remediation breakdown if helpful!"`;
+  }
+
+  currentFlawHook = emailHook;
+  document.getElementById('flawDesc').innerText = flawText;
+
+  // Render Actionable Improvements
+  const impBox = document.getElementById('improvementsBox');
+  const impList = document.getElementById('improvementsList');
+  if (impBox && impList) {
+    if (improvements.length > 0) {
+      impList.innerHTML = improvements.map(imp => `<li>${imp}</li>`).join('');
+      impBox.style.display = 'flex';
+    } else {
+      impBox.style.display = 'none';
+    }
+  }
 
   // Set initial preview
   updateActiveChannelView();
@@ -813,6 +1112,13 @@ Mind if I send the clip link over here?
         Prospective clients browsing on mobile connections expect instantaneous rendering. When container payloads exceed 100KB or viewport scaling is blocked, visitor drop-off increases significantly before credentials and portfolio imagery resolve.
       </p>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="card-heading">Recommended Technical Remediation (0 Design Changes)</div>
+    <ul style="margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.7; color: #cbd5e1;">
+      ${improvements.map(imp => `<li>${imp}</li>`).join('')}
+    </ul>
   </div>
 
   <div class="card">

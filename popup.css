@@ -352,6 +352,37 @@ body {
   color: #e2e8f0;
 }
 
+.improvements-box {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.improvements-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #34d399;
+  letter-spacing: 0.3px;
+}
+
+.improvements-list {
+  margin: 0;
+  padding-left: 14px;
+  font-size: 9.5px;
+  line-height: 1.35;
+  color: #94a3b8;
+}
+
+.improvements-list li {
+  margin-bottom: 2px;
+}
+
 /* ==========================================================================
    Segmented Outreach Controls & Preview
    ========================================================================== */
