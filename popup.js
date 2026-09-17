@@ -183,6 +183,41 @@ let currentScripts = {
 let activeChannel = 'email';
 let currentFlawHook = '';
 
+// ExtensionPay Monetization Integration
+let extpay = null;
+let isPaidUser = false;
+try {
+  if (typeof ExtPay !== 'undefined') {
+    extpay = ExtPay('vitalssniper');
+    extpay.getUser().then(user => {
+      isPaidUser = !!(user && user.paid);
+      const proTag = document.getElementById('proTag');
+      if (proTag) {
+        if (isPaidUser) {
+          proTag.innerText = 'PRO';
+          proTag.classList.add('active-pro');
+          proTag.title = 'PRO Active (Subscribed via Stripe)';
+        } else {
+          proTag.innerText = 'UPGRADE';
+          proTag.classList.remove('active-pro');
+          proTag.title = 'Click to upgrade to VitalsSniper PRO';
+        }
+      }
+    }).catch(e => console.log('ExtPay status check:', e));
+  }
+} catch (e) {
+  console.log('ExtPay init error:', e);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const proTag = document.getElementById('proTag');
+  if (proTag) {
+    proTag.addEventListener('click', () => {
+      if (extpay) extpay.openPaymentPage();
+    });
+  }
+});
+
 function renderAuditData(domain, currentUrl, data) {
   // 1. Calculate Comprehensive Health Score (0 - 100)
   let score = 100;
@@ -529,7 +564,24 @@ Mind if I send the clip link over here?
 
   // 16. Utility: Export 1-Page Teardown Dossier
   document.getElementById('btnExportCard').addEventListener('click', () => {
-    const reportHtml = `<!DOCTYPE html>
+    if (extpay && !isPaidUser && typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(['teardownExportCount'], (res) => {
+        const count = res.teardownExportCount || 0;
+        if (count >= 3) {
+          if (confirm('You have reached the free limit of 3 executive teardowns.\n\nUpgrade to VitalsSniper PRO to unlock unlimited client audit dossiers and custom outreach?')) {
+            extpay.openPaymentPage();
+          }
+          return;
+        }
+        chrome.storage.local.set({ teardownExportCount: count + 1 });
+        triggerReportExport();
+      });
+    } else {
+      triggerReportExport();
+    }
+
+    function triggerReportExport() {
+      const reportHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -747,7 +799,8 @@ Mind if I send the clip link over here?
     const blob = new Blob([reportHtml], { type: 'text/html;charset=utf-8' });
     const reportUrl = URL.createObjectURL(blob);
     chrome.tabs.create({ url: reportUrl });
-  });
+  }
+});
 }
 
 function updateActiveChannelView() {

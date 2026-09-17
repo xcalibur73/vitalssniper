@@ -5,8 +5,15 @@
   "description": "1-Click CMS & Builder detector, DOM bloat scanner, Core Web Vitals audit, and client outreach email generator.",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
+  "host_permissions": [
+    "https://extensionpay.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
