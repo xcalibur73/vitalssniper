@@ -15,8 +15,21 @@
     "storage"
   ],
   "host_permissions": [
-    "https://extensionpay.com/*"
+    "https://extensionpay.com/*",
+    "https://vitalssniper-web.vercel.app/*",
+    "https://www.webaudits.pro/*",
+    "https://webaudits.pro/*",
+    "https://www.googleapis.com/*"
   ],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+A",
+        "mac": "Command+Shift+A"
+      },
+      "description": "Inspect active tab with VitalsSniper"
+    }
+  },
   "background": {
     "service_worker": "background.js"
   },

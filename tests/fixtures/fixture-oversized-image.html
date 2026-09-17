@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture: Potentially Oversized Image Resource</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; }
+    .thumbnail { width: 140px; height: 90px; object-fit: cover; }
+  </style>
+</head>
+<body>
+  <h1>Image Dimension Heuristic Inspection</h1>
+  <p>The following images have natural resolutions exceeding 1800px width but are rendered in a 140px container without responsive srcset or declared dimensions.</p>
+  <div>
+    <img class="thumbnail"
+         id="oversized-1"
+         src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2400' height='1600' viewBox='0 0 2400 1600'%3E%3Crect width='2400' height='1600' fill='%2364748b'/%3E%3C/svg%3E"
+         alt="Oversized asset 1">
+    <img class="thumbnail"
+         id="oversized-2"
+         src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2000' height='1400' viewBox='0 0 2000 1400'%3E%3Crect width='2000' height='1400' fill='%23475569'/%3E%3C/svg%3E"
+         alt="Oversized asset 2">
+    <img class="thumbnail"
+         id="oversized-3"
+         src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2200' height='1500' viewBox='0 0 2200 1500'%3E%3Crect width='2200' height='1500' fill='%23334155'/%3E%3C/svg%3E"
+         alt="Oversized asset 3">
+  </div>
+</body>
+</html>

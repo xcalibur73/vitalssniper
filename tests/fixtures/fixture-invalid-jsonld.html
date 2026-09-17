@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture: Malformed Structured Data Parsing</title>
+  <!-- Deliberately malformed JSON-LD with syntax error (trailing comma and unquoted key) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Acme Corp",
+    invalid_unquoted_key: "Syntax Error Example",
+  }
+  </script>
+</head>
+<body>
+  <h1>Structured Data Parsing Test</h1>
+  <p>This fixture contains deliberately malformed JSON-LD to test parser exception handling and malformed-schema finding generation.</p>
+</body>
+</html>

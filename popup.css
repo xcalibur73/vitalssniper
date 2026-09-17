@@ -329,6 +329,25 @@ body {
   letter-spacing: 0.4px;
 }
 
+.severity-badge {
+  font-size: 7.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.severity-badge.critical { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+.severity-badge.warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.severity-badge.opportunity { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+.severity-badge.healthy { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+.flaw-banner.severity-critical { border-left-color: #f43f5e; }
+.flaw-banner.severity-warning { border-left-color: #f59e0b; }
+.flaw-banner.severity-opportunity { border-left-color: #38bdf8; }
+.flaw-banner.severity-healthy { border-left-color: #10b981; }
+
 .btn-copy-hook {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -390,6 +409,52 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.tone-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.tone-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.tone-tabs {
+  display: flex;
+  background: #0e1017;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 1.5px;
+  gap: 2px;
+}
+
+.tone-tab {
+  padding: 2px 7px;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  font-size: 8.5px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tone-tab:hover {
+  color: #e2e8f0;
+}
+
+.tone-tab.active {
+  background: #1e293b;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.2);
 }
 
 .channel-tabs {
@@ -1053,4 +1118,109 @@ body {
   color: #64748b;
   text-align: center;
   padding: 20px 10px;
-}
+}
+
+/* ==========================================================================
+   Bulk Audit Modal & Batch Progress
+   ========================================================================== */
+.bulk-box {
+  max-width: 420px;
+  width: 94%;
+}
+
+.bulk-textarea {
+  width: 100%;
+  background: #090a0f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 10px;
+  padding: 8px;
+  resize: vertical;
+  min-height: 70px;
+  box-sizing: border-box;
+}
+
+.bulk-textarea:focus {
+  outline: none;
+  border-color: #38bdf8;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.bulk-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: #1e293b;
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.bulk-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #38bdf8;
+  transition: width 0.2s ease;
+}
+
+.bulk-status-text {
+  font-size: 9px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.bulk-results-area {
+  margin-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.bulk-results-header {
+  font-size: 8px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.bulk-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bulk-result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #141620;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.bulk-res-domain {
+  font-size: 10px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.bulk-res-score {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.bulk-res-score.critical { background: rgba(244, 63, 94, 0.2); color: #fb7185; }
+.bulk-res-score.warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.bulk-res-score.healthy { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+

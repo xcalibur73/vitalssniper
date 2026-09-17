@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture: Responsive Srcset Asset Delivery</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; }
+    .card-img { width: 320px; height: 240px; display: block; }
+  </style>
+</head>
+<body>
+  <h1>Responsive Image Implementation</h1>
+  <p>The following assets declare explicit dimensions and responsive srcset attributes matching layout display.</p>
+  <picture>
+    <source media="(min-width: 600px)"
+            srcset="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='480' viewBox='0 0 640 480'%3E%3Crect width='640' height='480' fill='%23059669'/%3E%3C/svg%3E">
+    <img class="card-img"
+         id="responsive-img"
+         src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='240' viewBox='0 0 320 240'%3E%3Crect width='320' height='240' fill='%2310b981'/%3E%3C/svg%3E"
+         alt="Correctly sized responsive asset"
+         width="320"
+         height="240"
+         loading="lazy"
+         decoding="async">
+  </picture>
+</body>
+</html>

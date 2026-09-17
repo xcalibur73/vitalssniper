@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture: Main Thread Long Task Execution</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; }
+    .status { padding: 16px; background: #e0f2fe; border-radius: 6px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Main Thread Long Task Profiler</h1>
+  <div class="status" id="task-status">Executing synchronous computational workload...</div>
+  <script>
+    // Dispatched via setTimeout to establish a distinct main-thread task exceeding 50ms
+    setTimeout(() => {
+      const start = performance.now();
+      while (performance.now() - start < 100) {
+        Math.sqrt(Math.random() * 1000000);
+      }
+      const el = document.getElementById('task-status');
+      if (el) el.textContent = 'Long task execution complete: ' + Math.round(performance.now() - start) + ' ms';
+    }, 20);
+  </script>
+</body>
+</html>

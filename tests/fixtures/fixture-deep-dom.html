@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture: Deep DOM Tree Architecture</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; }
+    .level { padding-left: 8px; border-left: 1px solid #cbd5e1; }
+  </style>
+</head>
+<body>
+  <h1>DOM Tree Recursion Test</h1>
+  <p>The hierarchy below nests through 20 distinct levels, establishing a genuine branch depth exceeding the 15-level threshold.</p>
+  <div class="level" id="d1"><div class="level" id="d2"><div class="level" id="d3"><div class="level" id="d4"><div class="level" id="d5">
+  <div class="level" id="d6"><div class="level" id="d7"><div class="level" id="d8"><div class="level" id="d9"><div class="level" id="d10">
+  <div class="level" id="d11"><div class="level" id="d12"><div class="level" id="d13"><div class="level" id="d14"><div class="level" id="d15">
+  <div class="level" id="d16"><div class="level" id="d17"><div class="level" id="d18"><div class="level" id="d19"><div class="level" id="d20">
+    <div id="deep-leaf-content">
+      <strong>Deep DOM Leaf Node at Depth 20</strong>
+      <p>This element is located at tree level 20 beneath the document root.</p>
+    </div>
+  </div></div></div></div></div>
+  </div></div></div></div></div>
+  </div></div></div></div></div>
+  </div></div></div></div></div>
+</body>
+</html>

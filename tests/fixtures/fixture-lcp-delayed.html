@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture: Delayed LCP Mutation</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; }
+    #delayed-target { min-height: 400px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Dynamic Asset Hydration</h1>
+  </header>
+  <div id="delayed-target">
+    <p id="placeholder">Loading telemetry payload...</p>
+  </div>
+  <script>
+    setTimeout(() => {
+      const container = document.getElementById('delayed-target');
+      if (container) {
+        container.innerHTML = '<h2 id="hydrated-lcp" style="font-size: 42px; color: #0f172a; padding: 30px; text-align: center;">Hydrated Production Telemetry Dashboard</h2>';
+      }
+    }, 40);
+  </script>
+</body>
+</html>

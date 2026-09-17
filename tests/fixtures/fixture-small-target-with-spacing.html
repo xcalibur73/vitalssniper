@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture: Small Target with Spacing Offset</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; }
+    .spaced-target {
+      width: 20px;
+      height: 20px;
+      margin: 32px;
+      display: inline-block;
+      background: #e2e8f0;
+      border: 1px solid #94a3b8;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Target Spacing Offset Fixture</h1>
+  <p>This control measures 20x20 CSS pixels but is surrounded by 32px of margin offset. WCAG 2.5.8 permits spacing exceptions where target offset circles do not intersect. Observed geometry alone does not establish a formal conformance failure.</p>
+  <div>
+    <button class="spaced-target" id="btn-isolated">ok</button>
+  </div>
+</body>
+</html>

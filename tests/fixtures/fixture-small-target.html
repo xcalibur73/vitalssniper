@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture: Undersized Touch Targets</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; }
+    .tiny-btn {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      min-height: 16px;
+      padding: 0;
+      margin: 0;
+      border: 1px solid #333;
+      background: #f1f5f9;
+      display: inline-block;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Interactive Target Size Evaluation</h1>
+  <p>The controls below have measured dimensions of 16x16 CSS pixels, evaluating detection of targets below the 24px threshold.</p>
+  <div class="toolbar">
+    <button class="tiny-btn" id="btn-close">x</button>
+    <button class="tiny-btn" id="btn-min">-</button>
+    <a href="#" class="tiny-btn" id="link-info" style="text-align: center; line-height: 16px; font-size: 10px;">i</a>
+  </div>
+</body>
+</html>

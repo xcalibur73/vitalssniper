@@ -1,0 +1,187 @@
+// Audit Engine Data Models and Interfaces
+// Zero em-dash compliance: strictly hyphens or colons
+
+export interface AuditMetadata {
+  url: string;
+  domain: string;
+  tabId: number | null;
+  protocol: 'https:' | 'http:' | string;
+  auditedAt: string;
+  viewportWidth: number;
+  viewportHeight: number;
+  scanDurationMs: number;
+  cacheState?: 'likely cached' | 'service-worker mediated' | 'network-delivered' | 'unavailable/uncertain' | 'redirect' | string;
+  measurementSource?: string;
+}
+
+export type LcpMeasurementSource =
+  | 'navigation-observed'
+  | 'buffered-active-tab'
+  | 'heuristic'
+  | 'unavailable';
+
+export interface PerformanceMetrics {
+  lcpMs: number | null;
+  lcpSource: LcpMeasurementSource;
+  lcpDisplay: string;
+  lcpElementSelector: string | null;
+  lcpElementType: string | null;
+  fcpMs: number | null;
+  fcpDisplay: string;
+  inpMs: number | null;
+  inpObserved: boolean;
+  inpDisplay: string;
+  cls: number | null;
+  clsDisplay: string;
+  ttfbMs: number | null;
+  ttfbDisplay: string;
+  domLoadMs: number | null;
+}
+
+export interface MainThreadMetrics {
+  longTaskCount: number;
+  longestTaskMs: number | null;
+  totalBlockingTimeMs: number;
+}
+
+export interface DomMetrics {
+  totalElements: number;
+  maxDepth: number;
+  averageDepth: number;
+  deepBranchCount: number; // elements at depth > 15
+}
+
+export interface HtmlSizeMetrics {
+  documentSerializedKB: number;
+  encodedBodyKB: number | null;
+  decodedBodyKB: number | null;
+  transferKB: number | null;
+}
+
+export interface ImageAuditItem {
+  src: string;
+  currentSrc: string;
+  format: string;
+  naturalWidth: number;
+  naturalHeight: number;
+  renderedWidth: number;
+  renderedHeight: number;
+  isOversized: boolean;
+  missingDimensions: boolean;
+  hasPictureParent: boolean;
+  hasSrcset: boolean;
+  resourceKB: number | null;
+  loading: 'lazy' | 'eager' | 'auto';
+  fetchPriority: 'high' | 'low' | 'auto';
+  decoding: 'async' | 'sync' | 'auto';
+}
+
+export interface SeoStructuredDataAudit {
+  jsonLdDetected: boolean;
+  jsonLdValid: boolean;
+  schemaTypes: string[];
+  graphTypes: string[];
+  duplicateSchemas: boolean;
+  parsingErrors: string[];
+  title: string | null;
+  metaDescription: string | null;
+  canonical: string | null;
+  robots: string | null;
+  h1Count: number;
+  h1Text: string | null;
+  openGraph: Record<string, string>;
+  twitter: Record<string, string>;
+  lang: string | null;
+  hreflangCount: number;
+}
+
+export interface AccessibilityMetrics {
+  viewportPresent: boolean;
+  zoomRestricted: boolean;
+  viewportContent: string;
+  horizontalOverflow: boolean;
+  missingAltCount: number;
+  emptyInteractiveCount: number;
+  unlabeledControlCount: number;
+  undersizedTargets24px: number;
+  undersizedTargets44px: number;
+  smallestTargetDimensions: string | null;
+}
+
+export interface ResourceMetrics {
+  totalScripts: number;
+  inlineScripts: number;
+  externalScripts: number;
+  thirdPartyScripts: number;
+  stylesheets: number;
+  fonts: number;
+  imagesCount: number;
+  totalTransferKB: number;
+  detectedTelemetry: string[];
+}
+
+export interface TechnologyDetection {
+  name: string;
+  category: 'CMS' | 'Page Builder' | 'Framework' | 'Analytics';
+  confidence: 'high' | 'medium' | 'low';
+  evidence: string[];
+}
+
+export interface LabMetrics {
+  lighthouseScore: number;
+  seoScore: number;
+  accessibilityScore: number;
+  bestPracticesScore: number;
+  lcpMs: number | null;
+  lcpDisplay: string;
+  clsScore: number | null;
+  clsDisplay: string;
+  tbtMs: number | null;
+  tbtDisplay: string;
+  fcpMs: number | null;
+  fcpDisplay: string;
+  speedIndexMs: number | null;
+}
+
+export interface FieldMetrics {
+  available: boolean;
+  lcpMs: number | null;
+  lcpDisplay: string;
+  clsScore: number | null;
+  clsDisplay: string;
+  inpMs: number | null;
+  inpDisplay: string;
+  fcpMs: number | null;
+  fcpDisplay: string;
+}
+
+export interface ExternalMetrics {
+  lighthouseScore: number;
+  seoScore: number;
+  accessibilityScore: number;
+  bestPracticesScore: number;
+  lcpMs: number | null;
+  lcpDisplay: string;
+  clsScore: number | null;
+  clsDisplay: string;
+  inpMs: number | null;
+  inpDisplay: string;
+  fcpMs: number | null;
+  fcpDisplay: string;
+  auditedAt: string;
+  lab?: LabMetrics;
+  field?: FieldMetrics;
+}
+
+export interface RawObservations {
+  metadata: AuditMetadata;
+  performance: PerformanceMetrics;
+  mainThread: MainThreadMetrics;
+  dom: DomMetrics;
+  htmlSize: HtmlSizeMetrics;
+  images: ImageAuditItem[];
+  seo: SeoStructuredDataAudit;
+  accessibility: AccessibilityMetrics;
+  resources: ResourceMetrics;
+  technologies: TechnologyDetection[];
+}

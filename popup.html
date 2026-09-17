@@ -42,7 +42,7 @@
           <span class="domain-text" id="targetDomain">Detecting site...</span>
           <span class="sec-badge" id="secBadge">HTTPS</span>
         </div>
-        <div class="score-badge" id="scoreBadge" title="Mobile Performance Score">
+        <div class="score-badge" id="scoreBadge" title="VitalsSniper Proprietary Diagnostic Heuristic (Score: 20-100 : Not Google Lighthouse or CWV)">
           <span class="score-number" id="healthScoreVal">--</span>
           <span class="score-scale">/100</span>
         </div>
@@ -118,7 +118,10 @@
     <!-- Primary Vulnerability Callout -->
     <section class="flaw-banner" id="flawBanner">
       <div class="flaw-banner-header">
-        <span class="flaw-title">KEY OPTIMIZATION ANGLE</span>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span class="flaw-title">EVIDENCE ENGINE</span>
+          <span class="severity-badge critical" id="flawSeverityBadge">CRITICAL</span>
+        </div>
         <button class="btn-copy-hook" id="btnCopyHook" title="Copy hook sentence only">Copy Hook</button>
       </div>
       <div class="flaw-desc" id="flawDesc">Analyzing DOM structure and mobile bottlenecks...</div>
@@ -131,8 +134,18 @@
       </div>
     </section>
 
-    <!-- Outreach Channel Segmented Control -->
+    <!-- Outreach Channel Segmented Control & Tone Variations -->
     <section class="channel-section">
+      <div class="tone-bar">
+        <span class="tone-label">AI TONE:</span>
+        <div class="tone-tabs">
+          <button class="tone-tab active" data-tone="data-driven" id="toneDataDriven">Data</button>
+          <button class="tone-tab" data-tone="urgency" id="toneUrgency">Urgency</button>
+          <button class="tone-tab" data-tone="soft-sell" id="toneSoftSell">Soft-Sell</button>
+          <button class="tone-tab" data-tone="aggressive" id="toneAggressive">Direct</button>
+        </div>
+      </div>
+
       <div class="channel-tabs">
         <button class="channel-tab active" data-channel="email" id="tabEmail">Cold Email</button>
         <button class="channel-tab" data-channel="dm" id="tabDm">LinkedIn DM</button>
@@ -161,6 +174,10 @@
 
         <button class="btn-secondary" id="btnHighlightLcp" title="Highlight Largest Contentful Paint (LCP) element on live page">
           <span>🎯 Highlight LCP</span>
+        </button>
+
+        <button class="btn-secondary" id="btnBulkAudit" title="Audit multiple prospect URLs in batch">
+          <span>📦 Bulk Audit</span>
         </button>
 
         <button class="btn-secondary" id="btnPageSpeed" title="Test URL on Google PageSpeed Insights">
@@ -204,6 +221,10 @@
           <div class="form-group">
             <label class="form-label">Calendly / Booking Link (Clickable on PDF)</label>
             <input type="url" id="cfgBookingUrl" class="form-input" placeholder="https://calendly.com/yourname/15min">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Google PageSpeed API Key (Optional)</label>
+            <input type="text" id="cfgPsiApiKey" class="form-input" placeholder="AIzaSy... (For high-volume lab audits)">
           </div>
           <button type="submit" class="btn-activate">Save Agency Settings</button>
         </form>
@@ -301,6 +322,40 @@
 
         <div class="activation-footer">
           <a href="https://appsumo.com/products/vitalssniper" target="_blank" class="activation-link">Need a license key? Get on AppSumo &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Bulk Prospect Audit Modal -->
+    <div id="bulkAuditModal" class="activation-modal" style="display:none;">
+      <div class="activation-backdrop" id="bulkAuditBackdrop"></div>
+      <div class="activation-box bulk-box">
+        <button class="activation-close" id="bulkAuditClose">&times;</button>
+        <div class="activation-header">
+          <div class="activation-badge">BATCH ENGINE</div>
+          <h3>Bulk Prospect Audit</h3>
+          <p>Paste up to 50 URLs (one per line) to audit and rank prospects by technical flaw severity.</p>
+        </div>
+        
+        <div class="bulk-form">
+          <textarea id="bulkUrlsInput" class="bulk-textarea" placeholder="https://example.com&#10;https://competitor.com&#10;targetstore.com" rows="4"></textarea>
+          <div class="bulk-actions">
+            <button id="btnRunBulkAudit" class="btn-activate">
+              <span id="bulkRunText">🚀 Run Batch Audit</span>
+            </button>
+            <button id="btnExportBulkCsv" class="btn-csv-download" style="display:none;">📥 Export Lemlist CSV</button>
+          </div>
+          <div id="bulkProgress" class="bulk-progress-bar" style="display:none;">
+            <div id="bulkProgressFill" class="bulk-progress-fill"></div>
+          </div>
+          <div id="bulkStatusText" class="bulk-status-text" style="display:none;"></div>
+        </div>
+
+        <div class="bulk-results-area" id="bulkResultsArea" style="display:none;">
+          <div class="bulk-results-header">
+            <span>PROSPECTS RANKED BY OPTIMIZATION OPPORTUNITY:</span>
+          </div>
+          <div class="bulk-results-list" id="bulkResultsList"></div>
         </div>
       </div>
     </div>

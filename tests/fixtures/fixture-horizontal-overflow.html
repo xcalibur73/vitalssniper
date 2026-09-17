@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture: Horizontal Layout Overflow</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; }
+    .overflow-container {
+      width: 2600px;
+      height: 80px;
+      background: #fee2e2;
+      border: 2px solid #ef4444;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      font-weight: bold;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+  <h1>Viewport Boundary Test</h1>
+  <p>The container below exceeds standard viewport widths, establishing horizontal document scroll.</p>
+  <div class="overflow-container" id="wide-element">
+    Unconstrained 2600px layout width triggering document.documentElement.scrollWidth > window.innerWidth
+  </div>
+</body>
+</html>
