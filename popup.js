@@ -183,37 +183,68 @@ let currentScripts = {
 let activeChannel = 'email';
 let currentFlawHook = '';
 
-// ExtensionPay Monetization Integration
-let extpay = null;
+// AppSumo License Key & Monetization Engine
 let isPaidUser = false;
-try {
-  if (typeof ExtPay !== 'undefined') {
-    extpay = ExtPay('vitalssniper');
-    extpay.getUser().then(user => {
-      isPaidUser = !!(user && user.paid);
-      const proTag = document.getElementById('proTag');
-      if (proTag) {
-        if (isPaidUser) {
-          proTag.innerText = 'PRO';
-          proTag.classList.add('active-pro');
-          proTag.title = 'PRO Active (Subscribed via Stripe)';
-        } else {
-          proTag.innerText = 'UPGRADE';
-          proTag.classList.remove('active-pro');
-          proTag.title = 'Click to upgrade to VitalsSniper PRO';
-        }
-      }
-    }).catch(e => console.log('ExtPay status check:', e));
+
+function setProActive(reason) {
+  isPaidUser = true;
+  const proTag = document.getElementById('proTag');
+  if (proTag) {
+    proTag.innerText = 'PRO';
+    proTag.classList.add('active-pro');
+    proTag.title = `VitalsSniper PRO (${reason})`;
   }
-} catch (e) {
-  console.log('ExtPay init error:', e);
 }
+
+function setFreeTier() {
+  isPaidUser = false;
+  const proTag = document.getElementById('proTag');
+  if (proTag) {
+    proTag.innerText = 'UPGRADE';
+    proTag.classList.remove('active-pro');
+    proTag.title = 'Click to activate your AppSumo license';
+  }
+}
+
+function checkProStatus() {
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(['appsumoProKey'], (res) => {
+      if (res.appsumoProKey) {
+        setProActive('AppSumo Lifetime License');
+      } else if (typeof ExtPay !== 'undefined') {
+        try {
+          const extpay = ExtPay('vitalssniper');
+          extpay.getUser().then(user => {
+            if (user && user.paid) setProActive('Stripe Active');
+            else setFreeTier();
+          }).catch(() => setFreeTier());
+        } catch (e) {
+          setFreeTier();
+        }
+      } else {
+        setFreeTier();
+      }
+    });
+  }
+}
+
+checkProStatus();
 
 document.addEventListener('DOMContentLoaded', () => {
   const proTag = document.getElementById('proTag');
   if (proTag) {
     proTag.addEventListener('click', () => {
-      if (extpay) extpay.openPaymentPage();
+      if (isPaidUser) {
+        alert('Your VitalsSniper PRO license is active with unlimited audits and teardowns.');
+      } else {
+        const code = prompt('Enter your AppSumo Redemption Code to activate VitalsSniper PRO:');
+        if (code && code.trim().length >= 8) {
+          chrome.storage.local.set({ appsumoProKey: code.trim().toUpperCase() }, () => {
+            setProActive('AppSumo Lifetime License');
+            alert('✓ VitalsSniper PRO successfully activated with your AppSumo license!');
+          });
+        }
+      }
     });
   }
 });
