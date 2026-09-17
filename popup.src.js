@@ -2,16 +2,28 @@
 // Author: [Your Name]
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Always initialize UI modals and drawers first
+  initLicense();
+  initSettingsModal();
+  initCompetitorModal();
+  initPipelineDrawer();
+
   let tab;
   try {
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-    tab = tabs[0];
+    if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      tab = tabs[0];
+    }
   } catch (e) {}
 
   if (!tab || !tab.id || !tab.url) {
-    document.getElementById('targetDomain').innerText = 'No active tab found';
+    const td = document.getElementById('targetDomain');
+    if (td) td.innerText = 'Demo / Standalone Mode';
     return;
   }
+
+  currentAuditState.tabId = tab.id;
+  initLcpHighlighter(tab.id);
 
   let urlObj;
   try {
@@ -56,14 +68,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderAuditData(domain, tab.url, data);
   });
 
-  currentAuditState.tabId = tab.id;
-
-  // Initialize license activation & validation
-  initLicense();
-  initSettingsModal();
-  initCompetitorModal();
-  initPipelineDrawer();
-  initLcpHighlighter(tab.id);
 });
 
 // Injected into active target web page
@@ -1192,9 +1196,44 @@ function updateActiveChannelView() {
   }
 }
 
+// Universal Storage Helpers (Supports Extension Context and Browser Tabs)
+const storageGet = async (keys) => {
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    return await chrome.storage.local.get(keys);
+  }
+  const out = {};
+  keys.forEach(k => {
+    try {
+      const val = localStorage.getItem(k);
+      if (val !== null) out[k] = JSON.parse(val);
+    } catch (e) {
+      out[k] = localStorage.getItem(k);
+    }
+  });
+  return out;
+};
+
+const storageSet = async (obj) => {
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    return await chrome.storage.local.set(obj);
+  }
+  Object.entries(obj).forEach(([k, v]) => {
+    try {
+      localStorage.setItem(k, typeof v === 'object' ? JSON.stringify(v) : v);
+    } catch (e) {}
+  });
+};
+
+const storageRemove = async (keys) => {
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    return await chrome.storage.local.remove(keys);
+  }
+  keys.forEach(k => localStorage.removeItem(k));
+};
+
 // License Activation & Management
 async function initLicense() {
-  const data = await chrome.storage.local.get(['vs_license_key', 'vs_is_pro']);
+  const data = await storageGet(['vs_license_key', 'vs_is_pro']);
   const isPro = Boolean(data.vs_is_pro && data.vs_license_key);
   const proTag = document.getElementById('proTag');
 
@@ -1221,105 +1260,104 @@ async function initLicense() {
   const activeArea = document.getElementById('activationDetailsArea');
   const keyDisplay = document.getElementById('activeKeyDisplay');
 
-  function openModal() {
-    chrome.storage.local.get(['vs_license_key', 'vs_is_pro'], (res) => {
-      if (res.vs_is_pro && res.vs_license_key) {
-        formArea.style.display = 'none';
-        activeArea.style.display = 'block';
-        keyDisplay.innerText = res.vs_license_key;
-        document.getElementById('activationTitle').innerText = 'License Active';
-        document.getElementById('activationSub').innerText = 'Your browser extension is fully activated with a lifetime commercial license.';
-      } else {
-        formArea.style.display = 'block';
-        activeArea.style.display = 'none';
-        keyInput.value = '';
-        errorDiv.style.display = 'none';
-        document.getElementById('activationTitle').innerText = 'Activate VitalsSniper PRO';
-        document.getElementById('activationSub').innerText = 'Enter your AppSumo license key to unlock unlimited audits and cold outreach scripts.';
-      }
-      modal.style.display = 'flex';
-    });
+  async function openModal() {
+    const res = await storageGet(['vs_license_key', 'vs_is_pro']);
+    if (res.vs_is_pro && res.vs_license_key) {
+      formArea.style.display = 'none';
+      activeArea.style.display = 'block';
+      keyDisplay.innerText = res.vs_license_key;
+      document.getElementById('activationTitle').innerText = 'License Active';
+      document.getElementById('activationSub').innerText = 'Your browser extension is fully activated with a lifetime commercial license.';
+    } else {
+      formArea.style.display = 'block';
+      activeArea.style.display = 'none';
+      keyInput.value = '';
+      errorDiv.style.display = 'none';
+      document.getElementById('activationTitle').innerText = 'Activate VitalsSniper PRO';
+      document.getElementById('activationSub').innerText = 'Enter your AppSumo license key to unlock unlimited audits and cold outreach scripts.';
+    }
+    modal.style.display = 'flex';
   }
 
   function closeModal() {
     modal.style.display = 'none';
   }
 
-  proTag.addEventListener('click', openModal);
-  closeBtn.addEventListener('click', closeModal);
-  backdrop.addEventListener('click', closeModal);
+  if (proTag) proTag.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (backdrop) backdrop.addEventListener('click', closeModal);
 
-  // Auto uppercase formatting
-  keyInput.addEventListener('input', (e) => {
-    e.target.value = e.target.value.toUpperCase();
-  });
+  if (keyInput) {
+    keyInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.toUpperCase();
+    });
+  }
 
-  // Activate handler
-  activateBtn.addEventListener('click', async () => {
-    const rawKey = keyInput.value.trim().toUpperCase();
-    errorDiv.style.display = 'none';
+  if (activateBtn) {
+    activateBtn.addEventListener('click', async () => {
+      const rawKey = keyInput.value.trim().toUpperCase();
+      errorDiv.style.display = 'none';
 
-    if (!rawKey) {
-      errorDiv.innerText = 'Please enter your license key.';
-      errorDiv.style.display = 'block';
-      return;
-    }
+      if (!rawKey) {
+        errorDiv.innerText = 'Please enter your license key.';
+        errorDiv.style.display = 'block';
+        return;
+      }
 
-    const keyPattern = /^VS-PRO-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
-    if (!keyPattern.test(rawKey)) {
-      errorDiv.innerText = 'Invalid format. Key must look like VS-PRO-XXXX-XXXX.';
-      errorDiv.style.display = 'block';
-      return;
-    }
+      const keyPattern = /^VS-PRO-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+      if (!keyPattern.test(rawKey)) {
+        errorDiv.innerText = 'Invalid format. Key must look like VS-PRO-XXXX-XXXX.';
+        errorDiv.style.display = 'block';
+        return;
+      }
 
-    activateBtn.disabled = true;
-    activateBtn.innerText = 'Verifying License...';
+      activateBtn.disabled = true;
+      activateBtn.innerText = 'Verifying License...';
 
-    try {
-      const res = await fetch('https://vitalssniper-web.vercel.app/api/license/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: rawKey })
-      });
-      const result = await res.json();
+      try {
+        const res = await fetch('https://vitalssniper-web.vercel.app/api/license/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: rawKey })
+        });
+        const result = await res.json();
 
-      if (result.valid) {
-        await chrome.storage.local.set({
+        if (result.valid) {
+          await storageSet({
+            vs_license_key: rawKey,
+            vs_is_pro: true,
+            vs_tier: result.tier || 'PRO Lifetime License'
+          });
+          proTag.innerText = 'PRO';
+          proTag.classList.remove('inactive');
+          proTag.classList.add('active');
+          proTag.title = 'PRO Active: ' + rawKey;
+          closeModal();
+        } else {
+          errorDiv.innerText = result.message || 'License key not found or inactive.';
+          errorDiv.style.display = 'block';
+        }
+      } catch (netErr) {
+        await storageSet({
           vs_license_key: rawKey,
           vs_is_pro: true,
-          vs_tier: result.tier || 'PRO Lifetime License'
+          vs_tier: 'PRO Lifetime License'
         });
         proTag.innerText = 'PRO';
         proTag.classList.remove('inactive');
         proTag.classList.add('active');
         proTag.title = 'PRO Active: ' + rawKey;
         closeModal();
-      } else {
-        errorDiv.innerText = result.message || 'License key not found or inactive.';
-        errorDiv.style.display = 'block';
+      } finally {
+        activateBtn.disabled = false;
+        activateBtn.innerText = 'Unlock PRO Features';
       }
-    } catch (netErr) {
-      // Offline fallback: allow valid format
-      await chrome.storage.local.set({
-        vs_license_key: rawKey,
-        vs_is_pro: true,
-        vs_tier: 'PRO Lifetime License'
-      });
-      proTag.innerText = 'PRO';
-      proTag.classList.remove('inactive');
-      proTag.classList.add('active');
-      proTag.title = 'PRO Active: ' + rawKey;
-      closeModal();
-    } finally {
-      activateBtn.disabled = false;
-      activateBtn.innerText = 'Unlock PRO Features';
-    }
-  });
+    });
+  }
 
-  // Deactivate handler
   if (deactivateBtn) {
     deactivateBtn.addEventListener('click', async () => {
-      await chrome.storage.local.remove(['vs_license_key', 'vs_is_pro', 'vs_tier']);
+      await storageRemove(['vs_license_key', 'vs_is_pro', 'vs_tier']);
       proTag.innerText = 'ACTIVATE';
       proTag.classList.remove('active');
       proTag.classList.add('inactive');
@@ -1343,18 +1381,17 @@ function initSettingsModal() {
 
   if (!modal || !btnOpen) return;
 
-  function loadSettings() {
-    chrome.storage.local.get(['agency_settings'], (res) => {
-      const cfg = res.agency_settings || {};
-      if (inpAgency) inpAgency.value = cfg.agencyName || '';
-      if (inpLogo) inpLogo.value = cfg.logoUrl || '';
-      if (inpAuditor) inpAuditor.value = cfg.auditorName || '';
-      if (inpBooking) inpBooking.value = cfg.bookingUrl || '';
-    });
+  async function loadSettings() {
+    const res = await storageGet(['agency_settings']);
+    const cfg = res.agency_settings || {};
+    if (inpAgency) inpAgency.value = cfg.agencyName || '';
+    if (inpLogo) inpLogo.value = cfg.logoUrl || '';
+    if (inpAuditor) inpAuditor.value = cfg.auditorName || '';
+    if (inpBooking) inpBooking.value = cfg.bookingUrl || '';
   }
 
-  btnOpen.addEventListener('click', () => {
-    loadSettings();
+  btnOpen.addEventListener('click', async () => {
+    await loadSettings();
     modal.style.display = 'flex';
   });
 
@@ -1366,7 +1403,7 @@ function initSettingsModal() {
   if (backdrop) backdrop.addEventListener('click', closeModal);
 
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const newSettings = {
         agencyName: inpAgency ? inpAgency.value.trim() : '',
@@ -1374,9 +1411,8 @@ function initSettingsModal() {
         auditorName: inpAuditor ? inpAuditor.value.trim() : '',
         bookingUrl: inpBooking ? inpBooking.value.trim() : ''
       };
-      chrome.storage.local.set({ agency_settings: newSettings }, () => {
-        closeModal();
-      });
+      await storageSet({ agency_settings: newSettings });
+      closeModal();
     });
   }
 }
@@ -1582,31 +1618,30 @@ Open to a 3-minute screen recording showing the exact bottleneck?`;
 }
 
 // 3. Lead Pipeline Modal / Drawer
-function updatePipelineBadge() {
+async function updatePipelineBadge() {
   const badgeCount = document.getElementById('pipelineCount');
   const btnSave = document.getElementById('btnSavePipeline');
 
-  chrome.storage.local.get(['vs_pipeline'], (res) => {
-    const list = res.vs_pipeline || [];
-    if (badgeCount) badgeCount.innerText = list.length;
-    
-    if (btnSave && currentAuditState.domain) {
-      const isSaved = list.some(item => item.domain === currentAuditState.domain);
-      const iconEl = document.getElementById('savePipelineIcon');
-      const textEl = document.getElementById('savePipelineText');
-      if (isSaved) {
-        if (iconEl) iconEl.innerText = '✓';
-        if (textEl) textEl.innerText = 'Saved';
-        btnSave.style.borderColor = '#10b981';
-        btnSave.style.color = '#34d399';
-      } else {
-        if (iconEl) iconEl.innerText = '📌';
-        if (textEl) textEl.innerText = 'Save';
-        btnSave.style.borderColor = '';
-        btnSave.style.color = '';
-      }
+  const res = await storageGet(['vs_pipeline']);
+  const list = res.vs_pipeline || [];
+  if (badgeCount) badgeCount.innerText = list.length;
+  
+  if (btnSave && currentAuditState.domain) {
+    const isSaved = list.some(item => item.domain === currentAuditState.domain);
+    const iconEl = document.getElementById('savePipelineIcon');
+    const textEl = document.getElementById('savePipelineText');
+    if (isSaved) {
+      if (iconEl) iconEl.innerText = '✓';
+      if (textEl) textEl.innerText = 'Saved';
+      btnSave.style.borderColor = '#10b981';
+      btnSave.style.color = '#34d399';
+    } else {
+      if (iconEl) iconEl.innerText = '📌';
+      if (textEl) textEl.innerText = 'Save';
+      btnSave.style.borderColor = '';
+      btnSave.style.color = '';
     }
-  });
+  }
 }
 
 function initPipelineDrawer() {
@@ -1619,45 +1654,42 @@ function initPipelineDrawer() {
   const btnExportCsv = document.getElementById('btnExportCsv');
   const btnClear = document.getElementById('btnClearPipeline');
 
-  function renderList() {
-    chrome.storage.local.get(['vs_pipeline'], (res) => {
-      const list = res.vs_pipeline || [];
-      if (list.length === 0) {
-        listEl.innerHTML = '<div class="pipeline-empty">No prospects saved yet. Click 📌 Save on any audit to add leads here.</div>';
-        return;
-      }
+  async function renderList() {
+    const res = await storageGet(['vs_pipeline']);
+    const list = res.vs_pipeline || [];
+    if (list.length === 0) {
+      listEl.innerHTML = '<div class="pipeline-empty">No prospects saved yet. Click 📌 Save on any audit to add leads here.</div>';
+      return;
+    }
 
-      listEl.innerHTML = list.map((item, idx) => `
-        <div class="pipeline-item" data-idx="${idx}">
-          <div>
-            <div class="pipeline-item-domain">${item.domain}</div>
-            <div style="font-size: 8.5px; color: #94a3b8; margin-top: 2px;">${item.cms || 'Custom'} &bull; ${item.date}</div>
-          </div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span class="pipeline-item-score ${item.score >= 80 ? 'table-win' : 'table-lose'}" style="background: rgba(255,255,255,0.06);">${item.score}/100</span>
-            <button class="btn-del-lead" data-idx="${idx}" style="background:none; border:none; color:#64748b; font-size:12px; cursor:pointer; padding:2px 4px;">&times;</button>
-          </div>
+    listEl.innerHTML = list.map((item, idx) => `
+      <div class="pipeline-item" data-idx="${idx}">
+        <div>
+          <div class="pipeline-item-domain">${item.domain}</div>
+          <div style="font-size: 8.5px; color: #94a3b8; margin-top: 2px;">${item.cms || 'Custom'} &bull; ${item.date}</div>
         </div>
-      `).join('');
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="pipeline-item-score ${item.score >= 80 ? 'table-win' : 'table-lose'}" style="background: rgba(255,255,255,0.06);">${item.score}/100</span>
+          <button class="btn-del-lead" data-idx="${idx}" style="background:none; border:none; color:#64748b; font-size:12px; cursor:pointer; padding:2px 4px;">&times;</button>
+        </div>
+      </div>
+    `).join('');
 
-      listEl.querySelectorAll('.btn-del-lead').forEach(b => {
-        b.addEventListener('click', (e) => {
-          const idx = parseInt(e.currentTarget.getAttribute('data-idx'), 10);
-          deleteLead(idx);
-        });
+    listEl.querySelectorAll('.btn-del-lead').forEach(b => {
+      b.addEventListener('click', (e) => {
+        const idx = parseInt(e.currentTarget.getAttribute('data-idx'), 10);
+        deleteLead(idx);
       });
     });
   }
 
-  function deleteLead(idx) {
-    chrome.storage.local.get(['vs_pipeline'], (res) => {
-      const list = res.vs_pipeline || [];
-      list.splice(idx, 1);
-      chrome.storage.local.set({ vs_pipeline: list }, () => {
-        updatePipelineBadge();
-        renderList();
-      });
-    });
+  async function deleteLead(idx) {
+    const res = await storageGet(['vs_pipeline']);
+    const list = res.vs_pipeline || [];
+    list.splice(idx, 1);
+    await storageSet({ vs_pipeline: list });
+    updatePipelineBadge();
+    renderList();
   }
 
   if (btnOpen) {
@@ -1675,40 +1707,37 @@ function initPipelineDrawer() {
   if (backdrop) backdrop.addEventListener('click', closeModal);
 
   if (btnSave) {
-    btnSave.addEventListener('click', () => {
+    btnSave.addEventListener('click', async () => {
       if (!currentAuditState.domain) return;
-      chrome.storage.local.get(['vs_pipeline'], (res) => {
-        let list = res.vs_pipeline || [];
-        const existingIdx = list.findIndex(i => i.domain === currentAuditState.domain);
-        if (existingIdx === -1) {
-          list.push({
-            id: 'lead_' + Date.now(),
-            domain: currentAuditState.domain,
-            url: currentAuditState.url,
-            score: currentAuditState.score,
-            cms: currentAuditState.cmsText,
-            primaryFlaw: currentAuditState.flawText,
-            hook: currentAuditState.hook,
-            date: new Date().toLocaleDateString()
-          });
-        } else {
-          list.splice(existingIdx, 1);
-        }
-        chrome.storage.local.set({ vs_pipeline: list }, () => {
-          updatePipelineBadge();
-          renderList();
+      const res = await storageGet(['vs_pipeline']);
+      let list = res.vs_pipeline || [];
+      const existingIdx = list.findIndex(i => i.domain === currentAuditState.domain);
+      if (existingIdx === -1) {
+        list.push({
+          id: 'lead_' + Date.now(),
+          domain: currentAuditState.domain,
+          url: currentAuditState.url,
+          score: currentAuditState.score,
+          cms: currentAuditState.cmsText,
+          primaryFlaw: currentAuditState.flawText,
+          hook: currentAuditState.hook,
+          date: new Date().toLocaleDateString()
         });
-      });
+      } else {
+        list.splice(existingIdx, 1);
+      }
+      await storageSet({ vs_pipeline: list });
+      updatePipelineBadge();
+      renderList();
     });
   }
 
   if (btnClear) {
-    btnClear.addEventListener('click', () => {
+    btnClear.addEventListener('click', async () => {
       if (confirm('Clear all saved prospects from pipeline?')) {
-        chrome.storage.local.set({ vs_pipeline: [] }, () => {
-          updatePipelineBadge();
-          renderList();
-        });
+        await storageSet({ vs_pipeline: [] });
+        updatePipelineBadge();
+        renderList();
       }
     });
   }
