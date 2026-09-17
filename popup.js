@@ -498,8 +498,8 @@ I put together a quick 30-second screen recording showing the exact bottleneck a
 Would you like me to send the clip over to your team?
 
 Best regards,
-Sadikeen Firoz
-Vibe Coder & Digital Architect`;
+Antigravity
+Digital Architect • NB Solutions`;
 
   currentScripts.dm = `Hey [First Name] - noticed ${domain} on mobile while exploring your work. 
 
@@ -509,9 +509,9 @@ I put together a quick 30s screen recording showing how to resolve the bottlenec
 
 Mind if I send the clip link over here?
 
-- Sadikeen Firoz (Vibe Coder & Digital Architect)`;
+- Antigravity (Digital Architect • NB Solutions)`;
 
-  currentScripts.loom = `[0:00 - 0:08] "Hey [Name], Sadikeen here. I was reviewing the mobile experience on ${domain} and wanted to point out one specific technical bottleneck your team might not have caught."
+  currentScripts.loom = `[0:00 - 0:08] "Hey [Name], Antigravity here. I was reviewing the mobile experience on ${domain} and wanted to point out one specific technical bottleneck your team might not have caught."
 
 [0:08 - 0:18] "Right here on mobile: ${loomHook} Affluent clients on iPhone Safari wait several seconds before credentials and imagery render."
 
@@ -583,7 +583,7 @@ Mind if I send the clip link over here?
       healthScore: score,
       telemetry: data,
       primaryFlaw: flawText,
-      auditor: 'Sadikeen Firoz • Vibe Coder & Digital Architect'
+      auditor: 'Antigravity • NB Solutions (Digital Architect)'
     };
     navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => {
       btnCopyJson.innerText = '✓ Copied!';
@@ -822,7 +822,7 @@ Mind if I send the clip link over here?
   </div>
 
   <div class="footer">
-    Prepared by Sadikeen Firoz &bull; Vibe Coder &amp; Digital Architect
+    Prepared by Antigravity &bull; NB Solutions (Digital Architect)
   </div>
   <script>window.print();</script>
 </body>
