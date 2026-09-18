@@ -256,6 +256,21 @@ class StorageService {
         await this.set({ vs_pipeline: leads });
         return leads;
     }
+    static async removePipelineLead(leadId) {
+        const leads = await this.getPipelineLeads();
+        const filtered = leads.filter(l => l.id !== leadId);
+        await this.set({ vs_pipeline: filtered });
+        return filtered;
+    }
+    static async updateLeadStatus(leadId, status) {
+        const leads = await this.getPipelineLeads();
+        const index = leads.findIndex(l => l.id === leadId);
+        if (index >= 0) {
+            leads[index].status = status;
+            await this.set({ vs_pipeline: leads });
+        }
+        return leads;
+    }
     static async clearPipeline() {
         await this.set({ vs_pipeline: [] });
     }
@@ -963,13 +978,62 @@ class ReportService {
       margin-top: 36px; font-size: 11.5px; color: var(--muted);
       text-align: center; border-top: 1px solid var(--border); padding-top: 16px;
     }
+    .action-bar {
+      background: var(--dark);
+      color: #F7F4EE;
+      padding: 10px 16px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .action-bar-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .action-bar-btn {
+      background: #F7F4EE;
+      color: var(--dark);
+      border: none;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+    .action-bar-btn:hover {
+      background: #ffffff;
+    }
+    .action-bar-btn.secondary {
+      background: rgba(255, 255, 255, 0.15);
+      color: #F7F4EE;
+    }
+    .action-bar-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
     @media print {
       body { padding: 0 !important; background: #fff !important; }
+      .no-print { display: none !important; }
       .booking-box { display: none !important; }
     }
   </style>
 </head>
 <body>
+  <div class="action-bar no-print">
+    <div class="action-bar-title">Technical Teardown Dossier: ${escapeHtml(domain)}</div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="action-bar-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+      <button class="action-bar-btn secondary" id="btnCopySummary" onclick="navigator.clipboard.writeText('Technical Audit for ${escapeHtml(domain)}: Score ${score}/100. Primary Finding: ${escapeHtml(finding.title)} (${escapeHtml(finding.explanation)})').then(() => { this.innerText = '✓ Summary Copied'; setTimeout(() => this.innerText = '📋 Copy Summary', 2000); })">📋 Copy Summary</button>
+    </div>
+  </div>
   <div class="header">
     <div>
       ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" alt="${agencyName || 'Agency Logo'}" style="max-height: 40px; max-width: 200px; object-fit: contain; margin-bottom: 8px; display: block;">` : ''}
@@ -2345,7 +2409,7 @@ class OutreachGenerator {
      * Supports 4 distinct tones: Data-Driven, Urgency-Based, Soft-Sell, and Aggressive.
      * Eliminates exaggerated claims, unmeasured causality, and aggressive scareware copy.
      */
-    static generateScripts(domain, finding, data, tone = 'data-driven') {
+    static generateScripts(domain, finding, data, tone = 'data-driven', senderName) {
         const evidenceList = (finding.evidence || []).map(e => `${e.label}: ${e.value}`).join(', ');
         const firstImp = finding.improvements && finding.improvements.length > 0 ? finding.improvements[0] : 'Profile rendering workloads';
         const cmsList = (data.cms || []).filter((c) => ['Elementor', 'Divi', 'WPBakery', 'Avada'].includes(c));
@@ -2963,6 +3027,12 @@ Best regards,
 [0:20 - 0:30] "${finding.recommendation} Happy to share our technical notes if you find this useful!"`;
             }
         }
+        if (senderName && senderName.trim()) {
+            const cleanName = senderName.trim();
+            email = email.split('[Your Name]').join(cleanName);
+            dm = dm.split('[Your Name]').join(cleanName);
+            loom = loom.split('[Your Name]').join(cleanName);
+        }
         return {
             email,
             dm,
@@ -3005,6 +3075,7 @@ let currentScripts = {
 let activeChannel = 'email';
 let activeTone = 'data-driven';
 let isPaidUser = false;
+let configuredAuditorName = '';
 // Safe ExtPay instantiation wrapper
 function getExtPayInstance() {
     if (typeof ExtPay !== 'undefined') {
@@ -3020,6 +3091,8 @@ function getExtPayInstance() {
 // --- EXTENSION INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', async () => {
     await StorageService.initialize();
+    const agencyCfg = await StorageService.getAgencySettings();
+    configuredAuditorName = agencyCfg.auditorName || '';
     await initLicense();
     initSettingsModal();
     initCompetitorModal();
@@ -3039,7 +3112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     const baselineData = { domStats: { totalElements: 1420, maxDepth: 16 }, ttfbMs: 140, cms: [] };
     const baselineDomain = 'example.com';
-    currentScripts = OutreachGenerator.generateScripts(baselineDomain, defaultFinding, baselineData, activeTone);
+    currentScripts = OutreachGenerator.generateScripts(baselineDomain, defaultFinding, baselineData, activeTone, configuredAuditorName);
     currentAuditState.hook = currentScripts.emailHook;
     updateActiveChannelView();
     initActionButtons(baselineDomain, 'https://' + baselineDomain, 78, baselineData, defaultFinding);
@@ -3368,7 +3441,7 @@ function renderAuditData(domain, currentUrl, data) {
         impBox.style.display = primaryFinding.improvements.length > 0 ? 'block' : 'none';
     }
     // 6. AI Interpreter Outreach Copy Generation
-    currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone);
+    currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone, configuredAuditorName);
     currentAuditState.hook = currentScripts.emailHook;
     updateActiveChannelView();
     // Initialize Action Buttons
@@ -3388,7 +3461,7 @@ function updateActiveToneView(domain, primaryFinding, data) {
             }
         }
     });
-    currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone);
+    currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone, configuredAuditorName);
     currentAuditState.hook = currentScripts.emailHook;
     updateActiveChannelView();
 }
@@ -3714,6 +3787,10 @@ function initSettingsModal() {
                 psiApiKey: document.getElementById('cfgPsiApiKey').value.trim()
             };
             await StorageService.saveAgencySettings(settings);
+            configuredAuditorName = settings.auditorName;
+            if (currentAuditState.domain && currentAuditState.scorecard) {
+                updateActiveToneView(currentAuditState.domain, currentAuditState.scorecard.primaryFinding, currentAuditState.data);
+            }
             closeModal();
         };
     }
@@ -3846,25 +3923,81 @@ async function renderPipelineList() {
     }
     container.innerHTML = leads.map(lead => {
         const formattedDate = lead.timestamp ? new Date(lead.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        const scoreClass = lead.score >= 80 ? 'score-green' : (lead.score >= 60 ? 'score-amber' : 'score-red');
+        const safeUrl = isSafeUrl(lead.url) ? escapeHtml(lead.url) : '#';
         return `
-    <div class="pipeline-item">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-        <div>
-          <span class="pipeline-domain">${escapeHtml(lead.domain)}</span>
-          <span class="pipeline-score">${lead.score}/100</span>
+    <div class="pipeline-item" data-id="${lead.id}">
+      <div class="pipeline-item-top">
+        <div class="pipeline-item-domain">
+          <span>${escapeHtml(lead.domain)}</span>
+          <span class="pipeline-item-score ${scoreClass}">${lead.score}/100</span>
         </div>
         <div style="display: flex; align-items: center; gap: 6px;">
-          ${formattedDate ? `<span style="font-size: 10px; color: #64748b;">${escapeHtml(formattedDate)}</span>` : ''}
-          <span class="severity-badge ${lead.severity}" style="font-size: 9.5px; padding: 2px 6px;">${escapeHtml(lead.severity.toUpperCase())}</span>
+          ${formattedDate ? `<span style="font-size: 9.5px; color: #64748b;">${escapeHtml(formattedDate)}</span>` : ''}
+          <span class="severity-badge ${lead.severity}" style="font-size: 8.5px; padding: 2px 6px;">${escapeHtml(lead.severity.toUpperCase())}</span>
         </div>
       </div>
       <div class="pipeline-flaw">${escapeHtml(lead.primaryFinding)}</div>
-      <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
-        LCP: ${escapeHtml(lead.lcpDisplay)} &bull; TTFB: ${escapeHtml(lead.ttfbDisplay)} &bull; Stack: ${escapeHtml(lead.techStack || 'Custom')}
+      <div class="pipeline-meta">
+        <span>LCP: <strong>${escapeHtml(lead.lcpDisplay)}</strong></span>
+        <span>&bull;</span>
+        <span>TTFB: <strong>${escapeHtml(lead.ttfbDisplay)}</strong></span>
+        <span>&bull;</span>
+        <span>Stack: <strong>${escapeHtml(lead.techStack || 'Custom')}</strong></span>
+      </div>
+      <div class="pipeline-item-actions">
+        <select class="pipeline-status-select" data-id="${lead.id}">
+          ${['New', 'Contacted', 'Replied', 'Proposal', 'Won', 'Lost'].map(st => `<option value="${st}" ${lead.status === st ? 'selected' : ''}>${st}</option>`).join('')}
+        </select>
+        <div class="pipeline-btn-group">
+          <button class="btn-pipeline-action btn-copy-pipeline-pitch" data-id="${lead.id}" title="Copy tailored cold email pitch">📋 Pitch</button>
+          <a href="${safeUrl}" target="_blank" class="btn-pipeline-action" title="Open website in new tab">🔗 Visit</a>
+          <button class="btn-pipeline-action delete btn-remove-pipeline-lead" data-id="${lead.id}" title="Delete prospect from CRM">🗑️</button>
+        </div>
       </div>
     </div>
   `;
     }).join('');
+    // Attach status change listeners
+    container.querySelectorAll('.pipeline-status-select').forEach(sel => {
+        sel.addEventListener('change', async (e) => {
+            const target = e.target;
+            const leadId = target.getAttribute('data-id');
+            const newStatus = target.value;
+            if (leadId && newStatus) {
+                await StorageService.updateLeadStatus(leadId, newStatus);
+            }
+        });
+    });
+    // Attach copy pitch listeners
+    container.querySelectorAll('.btn-copy-pipeline-pitch').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const target = e.currentTarget;
+            const leadId = target.getAttribute('data-id');
+            const lead = leads.find(l => l.id === leadId);
+            if (lead) {
+                const textToCopy = lead.pitchSubject
+                    ? `Subject: ${lead.pitchSubject}\n\n${lead.pitchBody || ''}`
+                    : (lead.pitchBody || '');
+                await navigator.clipboard.writeText(textToCopy);
+                const originalText = target.innerText;
+                target.innerText = '✓ Copied';
+                setTimeout(() => { target.innerText = originalText; }, 1800);
+            }
+        });
+    });
+    // Attach delete lead listeners
+    container.querySelectorAll('.btn-remove-pipeline-lead').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const target = e.currentTarget;
+            const leadId = target.getAttribute('data-id');
+            if (leadId) {
+                const remaining = await StorageService.removePipelineLead(leadId);
+                updatePipelineCount(remaining.length);
+                await renderPipelineList();
+            }
+        });
+    });
 }
 // --- BULK PROSPECT AUDIT MODAL ---
 async function initBulkAuditModal() {
@@ -3993,7 +4126,7 @@ async function initBulkAuditModal() {
                     notes: 'Batch Audited',
                     companyName: domain.split('.')[0].toUpperCase(),
                     pitchSubject: `Technical observation on ${domain} mobile performance`,
-                    pitchBody: `Hi [First Name],\n\nWhile running our performance benchmarks across sites in your category, I noticed ${domain} currently scores ${auditScore}/100 with an observation on ${findingTitle.toLowerCase()}.\n\nWould you be open to reviewing the 1-page breakdown?\n\nBest regards,\n[Your Name]`
+                    pitchBody: `Hi [First Name],\n\nWhile running our performance benchmarks across sites in your category, I noticed ${domain} currently scores ${auditScore}/100 with an observation on ${findingTitle.toLowerCase()}.\n\nWould you be open to reviewing the 1-page breakdown?\n\nBest regards,\n${configuredAuditorName || '[Your Name]'}`
                 };
                 bulkLeads.push(lead);
             }

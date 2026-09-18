@@ -1,7 +1,7 @@
 // Storage Service: Type-Safe Wrapper & Backward-Compatible Migration
 // Zero em-dash compliance: strictly hyphens or colons
 
-import { SavedLead, AgencySettings } from '../types/pipeline';
+import { SavedLead, AgencySettings, LeadStatus } from '../types/pipeline';
 import { escapeCsvField } from '../utils/security';
 
 export class StorageService {
@@ -163,6 +163,23 @@ export class StorageService {
     }
 
     await this.set({ vs_pipeline: leads });
+    return leads;
+  }
+
+  public static async removePipelineLead(leadId: string): Promise<SavedLead[]> {
+    const leads = await this.getPipelineLeads();
+    const filtered = leads.filter(l => l.id !== leadId);
+    await this.set({ vs_pipeline: filtered });
+    return filtered;
+  }
+
+  public static async updateLeadStatus(leadId: string, status: LeadStatus): Promise<SavedLead[]> {
+    const leads = await this.getPipelineLeads();
+    const index = leads.findIndex(l => l.id === leadId);
+    if (index >= 0) {
+      leads[index].status = status;
+      await this.set({ vs_pipeline: leads });
+    }
     return leads;
   }
 

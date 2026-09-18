@@ -123,13 +123,62 @@ export class ReportService {
       margin-top: 36px; font-size: 11.5px; color: var(--muted);
       text-align: center; border-top: 1px solid var(--border); padding-top: 16px;
     }
+    .action-bar {
+      background: var(--dark);
+      color: #F7F4EE;
+      padding: 10px 16px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .action-bar-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .action-bar-btn {
+      background: #F7F4EE;
+      color: var(--dark);
+      border: none;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+    .action-bar-btn:hover {
+      background: #ffffff;
+    }
+    .action-bar-btn.secondary {
+      background: rgba(255, 255, 255, 0.15);
+      color: #F7F4EE;
+    }
+    .action-bar-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
     @media print {
       body { padding: 0 !important; background: #fff !important; }
+      .no-print { display: none !important; }
       .booking-box { display: none !important; }
     }
   </style>
 </head>
 <body>
+  <div class="action-bar no-print">
+    <div class="action-bar-title">Technical Teardown Dossier: ${escapeHtml(domain)}</div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="action-bar-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+      <button class="action-bar-btn secondary" id="btnCopySummary" onclick="navigator.clipboard.writeText('Technical Audit for ${escapeHtml(domain)}: Score ${score}/100. Primary Finding: ${escapeHtml(finding.title)} (${escapeHtml(finding.explanation)})').then(() => { this.innerText = '✓ Summary Copied'; setTimeout(() => this.innerText = '📋 Copy Summary', 2000); })">📋 Copy Summary</button>
+    </div>
+  </div>
   <div class="header">
     <div>
       ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" alt="${agencyName || 'Agency Logo'}" style="max-height: 40px; max-width: 200px; object-fit: contain; margin-bottom: 8px; display: block;">` : ''}

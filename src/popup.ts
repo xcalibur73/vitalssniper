@@ -59,6 +59,7 @@ let currentScripts: OutreachScripts = {
 let activeChannel: 'email' | 'dm' | 'loom' = 'email';
 let activeTone: OutreachTone = 'data-driven';
 let isPaidUser = false;
+let configuredAuditorName = '';
 
 // Safe ExtPay instantiation wrapper
 function getExtPayInstance() {
@@ -76,6 +77,9 @@ function getExtPayInstance() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   await StorageService.initialize();
+  const agencyCfg = await StorageService.getAgencySettings();
+  configuredAuditorName = agencyCfg.auditorName || '';
+
   await initLicense();
   initSettingsModal();
   initCompetitorModal();
@@ -96,7 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   const baselineData = { domStats: { totalElements: 1420, maxDepth: 16 }, ttfbMs: 140, cms: [] };
   const baselineDomain = 'example.com';
-  currentScripts = OutreachGenerator.generateScripts(baselineDomain, defaultFinding, baselineData, activeTone);
+  currentScripts = OutreachGenerator.generateScripts(baselineDomain, defaultFinding, baselineData, activeTone, configuredAuditorName);
   currentAuditState.hook = currentScripts.emailHook;
   updateActiveChannelView();
   initActionButtons(baselineDomain, 'https://' + baselineDomain, 78, baselineData, defaultFinding);
@@ -409,7 +413,7 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
   }
 
   // 6. AI Interpreter Outreach Copy Generation
-  currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone);
+  currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone, configuredAuditorName);
   currentAuditState.hook = currentScripts.emailHook;
   updateActiveChannelView();
 
@@ -432,7 +436,7 @@ function updateActiveToneView(domain: string, primaryFinding: Finding, data: any
     }
   });
 
-  currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone);
+  currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone, configuredAuditorName);
   currentAuditState.hook = currentScripts.emailHook;
   updateActiveChannelView();
 }
@@ -770,6 +774,10 @@ function initSettingsModal() {
         psiApiKey: (document.getElementById('cfgPsiApiKey') as HTMLInputElement).value.trim()
       };
       await StorageService.saveAgencySettings(settings);
+      configuredAuditorName = settings.auditorName;
+      if (currentAuditState.domain && currentAuditState.scorecard) {
+        updateActiveToneView(currentAuditState.domain, currentAuditState.scorecard.primaryFinding, currentAuditState.data);
+      }
       closeModal();
     };
   }
@@ -909,25 +917,85 @@ async function renderPipelineList() {
 
   container.innerHTML = leads.map(lead => {
     const formattedDate = lead.timestamp ? new Date(lead.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+    const scoreClass = lead.score >= 80 ? 'score-green' : (lead.score >= 60 ? 'score-amber' : 'score-red');
+    const safeUrl = isSafeUrl(lead.url) ? escapeHtml(lead.url) : '#';
+
     return `
-    <div class="pipeline-item">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-        <div>
-          <span class="pipeline-domain">${escapeHtml(lead.domain)}</span>
-          <span class="pipeline-score">${lead.score}/100</span>
+    <div class="pipeline-item" data-id="${lead.id}">
+      <div class="pipeline-item-top">
+        <div class="pipeline-item-domain">
+          <span>${escapeHtml(lead.domain)}</span>
+          <span class="pipeline-item-score ${scoreClass}">${lead.score}/100</span>
         </div>
         <div style="display: flex; align-items: center; gap: 6px;">
-          ${formattedDate ? `<span style="font-size: 10px; color: #64748b;">${escapeHtml(formattedDate)}</span>` : ''}
-          <span class="severity-badge ${lead.severity}" style="font-size: 9.5px; padding: 2px 6px;">${escapeHtml(lead.severity.toUpperCase())}</span>
+          ${formattedDate ? `<span style="font-size: 9.5px; color: #64748b;">${escapeHtml(formattedDate)}</span>` : ''}
+          <span class="severity-badge ${lead.severity}" style="font-size: 8.5px; padding: 2px 6px;">${escapeHtml(lead.severity.toUpperCase())}</span>
         </div>
       </div>
       <div class="pipeline-flaw">${escapeHtml(lead.primaryFinding)}</div>
-      <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
-        LCP: ${escapeHtml(lead.lcpDisplay)} &bull; TTFB: ${escapeHtml(lead.ttfbDisplay)} &bull; Stack: ${escapeHtml(lead.techStack || 'Custom')}
+      <div class="pipeline-meta">
+        <span>LCP: <strong>${escapeHtml(lead.lcpDisplay)}</strong></span>
+        <span>&bull;</span>
+        <span>TTFB: <strong>${escapeHtml(lead.ttfbDisplay)}</strong></span>
+        <span>&bull;</span>
+        <span>Stack: <strong>${escapeHtml(lead.techStack || 'Custom')}</strong></span>
+      </div>
+      <div class="pipeline-item-actions">
+        <select class="pipeline-status-select" data-id="${lead.id}">
+          ${(['New', 'Contacted', 'Replied', 'Proposal', 'Won', 'Lost'] as const).map(st => `<option value="${st}" ${lead.status === st ? 'selected' : ''}>${st}</option>`).join('')}
+        </select>
+        <div class="pipeline-btn-group">
+          <button class="btn-pipeline-action btn-copy-pipeline-pitch" data-id="${lead.id}" title="Copy tailored cold email pitch">📋 Pitch</button>
+          <a href="${safeUrl}" target="_blank" class="btn-pipeline-action" title="Open website in new tab">🔗 Visit</a>
+          <button class="btn-pipeline-action delete btn-remove-pipeline-lead" data-id="${lead.id}" title="Delete prospect from CRM">🗑️</button>
+        </div>
       </div>
     </div>
   `;
   }).join('');
+
+  // Attach status change listeners
+  container.querySelectorAll('.pipeline-status-select').forEach(sel => {
+    sel.addEventListener('change', async (e) => {
+      const target = e.target as HTMLSelectElement;
+      const leadId = target.getAttribute('data-id');
+      const newStatus = target.value as any;
+      if (leadId && newStatus) {
+        await StorageService.updateLeadStatus(leadId, newStatus);
+      }
+    });
+  });
+
+  // Attach copy pitch listeners
+  container.querySelectorAll('.btn-copy-pipeline-pitch').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const target = e.currentTarget as HTMLButtonElement;
+      const leadId = target.getAttribute('data-id');
+      const lead = leads.find(l => l.id === leadId);
+      if (lead) {
+        const textToCopy = lead.pitchSubject
+          ? `Subject: ${lead.pitchSubject}\n\n${lead.pitchBody || ''}`
+          : (lead.pitchBody || '');
+        await navigator.clipboard.writeText(textToCopy);
+        const originalText = target.innerText;
+        target.innerText = '✓ Copied';
+        setTimeout(() => { target.innerText = originalText; }, 1800);
+      }
+    });
+  });
+
+  // Attach delete lead listeners
+  container.querySelectorAll('.btn-remove-pipeline-lead').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const target = e.currentTarget as HTMLButtonElement;
+      const leadId = target.getAttribute('data-id');
+      if (leadId) {
+        const remaining = await StorageService.removePipelineLead(leadId);
+        updatePipelineCount(remaining.length);
+        await renderPipelineList();
+      }
+    });
+  });
 }
 
 // --- BULK PROSPECT AUDIT MODAL ---
@@ -1056,7 +1124,7 @@ async function initBulkAuditModal() {
           notes: 'Batch Audited',
           companyName: domain.split('.')[0].toUpperCase(),
           pitchSubject: `Technical observation on ${domain} mobile performance`,
-          pitchBody: `Hi [First Name],\n\nWhile running our performance benchmarks across sites in your category, I noticed ${domain} currently scores ${auditScore}/100 with an observation on ${findingTitle.toLowerCase()}.\n\nWould you be open to reviewing the 1-page breakdown?\n\nBest regards,\n[Your Name]`
+          pitchBody: `Hi [First Name],\n\nWhile running our performance benchmarks across sites in your category, I noticed ${domain} currently scores ${auditScore}/100 with an observation on ${findingTitle.toLowerCase()}.\n\nWould you be open to reviewing the 1-page breakdown?\n\nBest regards,\n${configuredAuditorName || '[Your Name]'}`
         };
 
         bulkLeads.push(lead);

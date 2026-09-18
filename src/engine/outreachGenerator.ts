@@ -22,7 +22,8 @@ export class OutreachGenerator {
     domain: string,
     finding: Finding,
     data: any,
-    tone: OutreachTone = 'data-driven'
+    tone: OutreachTone = 'data-driven',
+    senderName?: string
   ): OutreachScripts {
     const evidenceList = (finding.evidence || []).map(e => `${e.label}: ${e.value}`).join(', ');
     const firstImp = finding.improvements && finding.improvements.length > 0 ? finding.improvements[0] : 'Profile rendering workloads';
@@ -642,6 +643,13 @@ Best regards,
 [0:10 - 0:20] "Specifically regarding ${finding.title.toLowerCase()}: ${finding.explanation}"
 [0:20 - 0:30] "${finding.recommendation} Happy to share our technical notes if you find this useful!"`;
       }
+    }
+
+    if (senderName && senderName.trim()) {
+      const cleanName = senderName.trim();
+      email = email.split('[Your Name]').join(cleanName);
+      dm = dm.split('[Your Name]').join(cleanName);
+      loom = loom.split('[Your Name]').join(cleanName);
     }
 
     return {
