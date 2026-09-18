@@ -327,7 +327,7 @@ Best regards,
     // =========================================================================
     // BRANCH 4: DOM BLOAT / EXCESSIVE NESTING
     // =========================================================================
-    } else if (finding.id === 'critical-dom-bloat' || finding.id === 'warning-dom-size') {
+    } else if (finding.id === 'deep-dom-tree' || finding.id === 'critical-dom-bloat' || finding.id === 'warning-dom-size') {
       if (tone === 'urgency') {
         emailHook = `${domain} is rendering ${totalElements.toLocaleString()} DOM elements across ${maxDepth} levels of nesting, triggering severe mobile layout lag and driving up mobile abandonment.`;
         email = `Subject: Critical mobile rendering bottleneck on ${domain}

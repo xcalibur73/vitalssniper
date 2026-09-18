@@ -2041,13 +2041,14 @@ class FindingsEngine {
         // --- 6. DOM Tree Complexity & Depth ---
         if (totalElements > 2800 || maxDepth > 22) {
             findings.push({
-                id: 'critical-dom-bloat',
+                id: 'deep-dom-tree',
                 category: 'performance',
                 severity: 'critical',
                 badge: 'CRITICAL DOM BLOAT',
                 title: 'High DOM Element Count & Deep Tree Hierarchy',
                 evidence: [
                     { label: 'Total DOM Elements', value: totalElements.toLocaleString(), context: 'Standard guideline: < 1,400' },
+                    { label: 'Tree Depth', value: String(maxDepth), context: 'Guideline: < 15 levels' },
                     { label: 'Maximum Tree Depth', value: `${maxDepth} levels`, context: 'Guideline: < 15 levels' },
                     { label: 'Deep Branches (>15)', value: `${data.dom?.deepBranchCount || 0} nodes` }
                 ],
@@ -2063,13 +2064,14 @@ class FindingsEngine {
         }
         else if (totalElements > 1400 || maxDepth > 16) {
             findings.push({
-                id: 'warning-dom-size',
+                id: 'deep-dom-tree',
                 category: 'performance',
                 severity: 'warning',
                 badge: 'PERFORMANCE WARNING',
                 title: 'Elevated DOM Node Count & Hierarchy Depth',
                 evidence: [
                     { label: 'DOM Elements', value: totalElements.toLocaleString(), context: 'Guideline: < 1,400' },
+                    { label: 'Tree Depth', value: String(maxDepth), context: 'Guideline: < 15 levels' },
                     { label: 'Maximum Tree Depth', value: `${maxDepth} levels`, context: 'Guideline: < 15 levels' },
                     { label: 'Serialized Markup', value: `${data.serializedSizeKB || 0} KB` }
                 ],
@@ -2143,7 +2145,7 @@ class FindingsEngine {
                     { label: 'Total Images Scanned', value: String(data.imagesCount || 0) }
                 ],
                 confidence: 'high',
-                explanation: 'Serving image assets significantly larger than their rendered viewport dimensions consumes excess network transfer. In high-DPI displays (DPR 2x-3x), images up to 1.25x the display size are recognized as intentional high-density graphics; assets exceeding this threshold are flagged as potentially oversized. This is a diagnostic heuristic and does not claim images are uncompressed. Omitting explicit width/height attributes can additionally induce cumulative layout shifts.',
+                explanation: 'Serving image assets significantly larger than their rendered viewport dimensions consumes excess network transfer. In high-DPI displays (DPR 2x-3x), images up to 1.25x the display size are recognized as intentional high-density graphics; assets exceeding this threshold are flagged as potentially oversized. This is a diagnostic heuristic based on rendered geometry and does not assess file compression efficiency. Omitting explicit width/height attributes can additionally induce cumulative layout shifts.',
                 recommendation: 'Specify explicit width/height attributes and serve responsive srcset dimensions tailored to mobile viewports.',
                 improvements: [
                     'Add explicit width and height attributes to all <img> tags to reserve layout space and mitigate CLS',
@@ -2197,9 +2199,9 @@ class FindingsEngine {
             });
         }
         // --- 11. Touch Targets (Differentiate Potential WCAG 2.5.8 Concern <24px vs Usability Heuristic <44px) ---
-        if (undersizedCount24px > 5) {
+        if (undersizedCount24px > 0) {
             findings.push({
-                id: 'target-size-concern',
+                id: 'wcag-target-size-concern',
                 category: 'accessibility',
                 severity: 'warning',
                 badge: 'POTENTIAL WCAG 2.5.8 CONCERN',
@@ -2321,7 +2323,7 @@ class FindingsEngine {
             scoreMethodology: 'VitalsSniper proprietary diagnostic heuristic (Not Google Lighthouse or CWV)',
             categoryScores: {
                 performance: Math.max(30, score - (totalElements > 2000 ? 15 : 0) - (ttfbMs > 500 ? 10 : 0)),
-                accessibility: vpMissing ? 40 : (vpLocked ? 70 : (undersizedCount24px > 5 ? 80 : 100)),
+                accessibility: vpMissing ? 40 : (vpLocked ? 70 : (undersizedCount24px > 0 ? 80 : 100)),
                 seo: hasSchema ? (jsonLdValid ? 100 : 70) : 80,
                 architecture: Math.max(40, 100 - (maxDepth > 18 ? 20 : 0) - (horizontalOverflow ? 20 : 0))
             },
@@ -2645,7 +2647,7 @@ Best regards,
             // BRANCH 4: DOM BLOAT / EXCESSIVE NESTING
             // =========================================================================
         }
-        else if (finding.id === 'critical-dom-bloat' || finding.id === 'warning-dom-size') {
+        else if (finding.id === 'deep-dom-tree' || finding.id === 'critical-dom-bloat' || finding.id === 'warning-dom-size') {
             if (tone === 'urgency') {
                 emailHook = `${domain} is rendering ${totalElements.toLocaleString()} DOM elements across ${maxDepth} levels of nesting, triggering severe mobile layout lag and driving up mobile abandonment.`;
                 email = `Subject: Critical mobile rendering bottleneck on ${domain}

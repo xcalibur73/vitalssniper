@@ -111,3 +111,10 @@ fs.writeFileSync(srcPath, finalBundle, 'utf8');
 console.log(`Bundle created successfully:`);
 console.log(`  -> ${prodPath} (${(finalBundle.length / 1024).toFixed(1)} KB)`);
 console.log(`  -> ${srcPath} (${(finalBundle.length / 1024).toFixed(1)} KB)`);
+
+console.log('--- Step 3: Packaging Release Distribution Zip ---');
+try {
+  execSync(`powershell -ExecutionPolicy Bypass -File "${path.resolve(__dirname, 'package_zip.ps1')}"`, { stdio: 'inherit' });
+} catch (err) {
+  console.error('Failed to package release zip:', err.message);
+}
