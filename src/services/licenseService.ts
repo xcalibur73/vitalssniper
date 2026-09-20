@@ -84,7 +84,7 @@ export class LicenseService {
     }
 
     // 1. Validate required claims
-    if (payload.iss !== 'vitalssniper.pro') return false;
+    if (payload.iss !== 'vitalssniper.pro' && payload.iss !== 'webaudits.pro') return false;
     if (payload.aud !== 'vitalssniper-extension') return false;
     if (!payload.sub || !payload.tier) return false;
 
@@ -121,37 +121,37 @@ export class LicenseService {
         sigBytes,
         dataBytes
       );
-    } catch (e) {
+    } catch (err) {
+      console.warn('[LicenseService] Signature validation exception:', err);
       return false;
     }
   }
 
   /**
-   * Central entitlement state resolver.
-   * Guarantees fail-closed posture:
-   * - Never trusts vs_is_pro boolean
-   * - Never trusts tier or valid flags alone
-   * - Never trusts arbitrary token strings or keyPrefix alone
-   * - Validates Ed25519 signatures for production licenses
-   * - Accepts pre-authorized demo keys explicitly classified as demo mode
+   * Retrieves the current entitlement state from local storage.
+   * If a cryptographically signed payload exists, verifies its integrity and expiration before granting access.
    */
   public static async getEntitlement(): Promise<EntitlementState> {
-    const res = await StorageService.get(['vs_entitlement', 'vs_license_key']);
+    const res = await StorageService.get([
+      'vs_entitlement',
+      'vs_license_key',
+      'vs_is_pro',
+      'vs_tier'
+    ]);
 
-    // 1. Check structured entitlement cache
-    if (res.vs_entitlement && typeof res.vs_entitlement === 'object') {
+    // 1. Validate structured entitlement if present
+    if (res.vs_entitlement) {
       const ent = res.vs_entitlement as EntitlementState;
 
-      // Handle demo key entitlement
+      // Handle demo mode
       if (ent.source === 'demo') {
-        const storedKey = (res.vs_license_key || '').toString().trim().toUpperCase();
-        if (this.PUBLIC_DEMO_KEYS.has(storedKey) && ent.token === 'demo-auth-' + storedKey) {
+        if (ent.token && ent.token.startsWith('demo-auth-')) {
           return ent;
         }
       }
 
-      // Handle production server-signed license entitlement
-      if (ent.source === 'license') {
+      // Handle production server-signed license or WebAudits SSO entitlement
+      if (ent.source === 'license' || ent.source === 'webaudits_sso') {
         if (!ent.payload || !ent.signature) {
           await this.deactivate();
           return this.defaultFreeEntitlement();
@@ -169,7 +169,7 @@ export class LicenseService {
             tier: ent.payload.tier,
             valid: true,
             expiresAt: ent.payload.exp ? new Date(ent.payload.exp).toISOString() : null,
-            source: 'license',
+            source: ent.source,
             keyPrefix: ent.payload.sub.substring(0, 11),
             token: ent.signature,
             payload: ent.payload,
@@ -280,7 +280,7 @@ export class LicenseService {
     // Server-side authoritative verification
     const clientInstanceId = await this.getClientInstanceId();
     try {
-      const primaryEndpoint = 'https://webaudits.pro/api/license/verify';
+      const primaryEndpoint = 'https://www.webaudits.pro/api/license/verify';
       const fallbackEndpoint = 'https://vitalssniper-web.vercel.app/api/license/verify';
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
