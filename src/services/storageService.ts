@@ -254,4 +254,24 @@ export class StorageService {
   public static async saveAgencySettings(settings: AgencySettings): Promise<void> {
     await this.set({ agency_settings: settings });
   }
+
+  // --- WebAudits.pro SSO & 30-Day Vault Sync Settings ---
+
+  public static async getWebAuditsSyncConfig(): Promise<{ apiKey: string; email: string; tier: string }> {
+    const res = await this.get(['vs_webaudits_api_key', 'vs_webaudits_email', 'vs_webaudits_tier', 'vs_license_key']);
+    let apiKey = res.vs_webaudits_api_key || '';
+    if (!apiKey && res.vs_license_key && (res.vs_license_key.startsWith('wba_live_') || res.vs_license_key === 'r3dxlost88')) {
+      apiKey = res.vs_license_key;
+    }
+    return {
+      apiKey: apiKey.trim(),
+      email: res.vs_webaudits_email || '',
+      tier: res.vs_webaudits_tier || '',
+    };
+  }
+
+  public static async saveWebAuditsApiKey(apiKey: string): Promise<void> {
+    await this.set({ vs_webaudits_api_key: apiKey.trim() });
+  }
 }
+

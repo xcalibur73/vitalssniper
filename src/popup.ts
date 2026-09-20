@@ -12,6 +12,7 @@ import { StorageService } from './services/storageService';
 import { LicenseService } from './services/licenseService';
 import { CompetitorService } from './services/competitorService';
 import { ReportService } from './services/reportService';
+import { CloudSyncService } from './services/cloudSyncService';
 import { escapeHtml, isSafeUrl } from './utils/security';
 
 // Global Audit State Cache
@@ -419,6 +420,25 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
 
   // Initialize Action Buttons
   initActionButtons(domain, currentUrl, score, data, primaryFinding);
+
+  // 7. Background Cloud Sync to WebAudits 30-Day Vault (Pro/Master)
+  CloudSyncService.syncAudit({
+    domain: currentAuditState.domain,
+    url: currentAuditState.url,
+    score: currentAuditState.score,
+    cmsText: currentAuditState.cmsText,
+    flawBadge: currentAuditState.flawBadge,
+    flawTitle: currentAuditState.flawTitle,
+    flawEvidence: currentAuditState.flawEvidence,
+    scorecard: currentAuditState.scorecard,
+    data: currentAuditState.data,
+  }).then(res => {
+    const badge = document.getElementById('cloudSyncBadge');
+    if (badge && res.saved) {
+      badge.style.display = 'inline-flex';
+      badge.title = 'Audit synced to your WebAudits 30-Day Vault';
+    }
+  }).catch(() => {});
 }
 
 // --- OUTREACH CHANNEL & TONE VIEW UPDATES ---
@@ -756,6 +776,25 @@ function initSettingsModal() {
     (document.getElementById('cfgAuditorName') as HTMLInputElement).value = cfg.auditorName;
     (document.getElementById('cfgBookingUrl') as HTMLInputElement).value = cfg.bookingUrl;
     (document.getElementById('cfgPsiApiKey') as HTMLInputElement).value = cfg.psiApiKey;
+
+    const wbaSync = await StorageService.getWebAuditsSyncConfig();
+    const wbaInput = document.getElementById('cfgWebAuditsApiKey') as HTMLInputElement | null;
+    const wbaStatus = document.getElementById('cfgWebAuditsStatus');
+    if (wbaInput) {
+      wbaInput.value = wbaSync.apiKey;
+    }
+    if (wbaStatus) {
+      if (wbaSync.apiKey) {
+        wbaStatus.innerText = wbaSync.email
+          ? `Connected: ${wbaSync.email} (${(wbaSync.tier || 'pro').toUpperCase()})`
+          : 'API Key saved (Vault sync active)';
+        wbaStatus.style.color = '#10b981';
+      } else {
+        wbaStatus.innerText = 'Not connected. Scans remain local only.';
+        wbaStatus.style.color = '#94a3b8';
+      }
+    }
+
     modal.style.display = 'flex';
   };
 
@@ -774,6 +813,12 @@ function initSettingsModal() {
         psiApiKey: (document.getElementById('cfgPsiApiKey') as HTMLInputElement).value.trim()
       };
       await StorageService.saveAgencySettings(settings);
+
+      const wbaInput = document.getElementById('cfgWebAuditsApiKey') as HTMLInputElement | null;
+      if (wbaInput) {
+        await StorageService.saveWebAuditsApiKey(wbaInput.value.trim());
+      }
+
       configuredAuditorName = settings.auditorName;
       if (currentAuditState.domain && currentAuditState.scorecard) {
         updateActiveToneView(currentAuditState.domain, currentAuditState.scorecard.primaryFinding, currentAuditState.data);
@@ -1184,10 +1229,23 @@ async function initLicense() {
   const formArea = document.getElementById('activationFormArea');
   const detailsArea = document.getElementById('activationDetailsArea');
   const activeKeyDisplay = document.getElementById('activeKeyDisplay');
+  const activeAccountEmailDisplay = document.getElementById('activeAccountEmailDisplay');
   const btnDeactivate = document.getElementById('btnDeactivateKey');
 
   const entitlement = await LicenseService.getEntitlement();
   isPaidUser = entitlement.isPro;
+
+  const updateAccountDisplay = async () => {
+    const wbaSync = await StorageService.getWebAuditsSyncConfig();
+    if (activeAccountEmailDisplay) {
+      if (wbaSync.email) {
+        activeAccountEmailDisplay.innerText = `Connected Account: ${wbaSync.email} (${(wbaSync.tier || 'pro').toUpperCase()})`;
+        activeAccountEmailDisplay.style.display = 'block';
+      } else {
+        activeAccountEmailDisplay.style.display = 'none';
+      }
+    }
+  };
 
   if (proTag) {
     if (isPaidUser) {
@@ -1198,12 +1256,13 @@ async function initLicense() {
       proTag.classList.remove('active');
     }
 
-    proTag.onclick = () => {
+    proTag.onclick = async () => {
       if (modal) {
         if (isPaidUser) {
           if (formArea) formArea.style.display = 'none';
           if (detailsArea) detailsArea.style.display = 'block';
           if (activeKeyDisplay) activeKeyDisplay.innerText = `${entitlement.keyPrefix || 'VS-PRO'}****-****`;
+          await updateAccountDisplay();
         } else {
           if (formArea) formArea.style.display = 'block';
           if (detailsArea) detailsArea.style.display = 'none';
@@ -1237,6 +1296,7 @@ async function initLicense() {
         if (formArea) formArea.style.display = 'none';
         if (detailsArea) detailsArea.style.display = 'block';
         if (activeKeyDisplay) activeKeyDisplay.innerText = rawKey.substring(0, 10) + '****-****';
+        await updateAccountDisplay();
       } else {
         if (errorEl) {
           errorEl.innerText = res.message || 'Invalid key.';

@@ -3,7 +3,7 @@
 
 export type LicenseTier = 'free' | 'pro' | 'agency';
 
-export type LicenseSource = 'appsumo' | 'payment' | 'license' | 'demo';
+export type LicenseSource = 'appsumo' | 'payment' | 'license' | 'demo' | 'webaudits_sso';
 
 export interface SignedEntitlementPayload {
   sub: string;

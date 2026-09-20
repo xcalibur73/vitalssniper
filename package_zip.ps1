@@ -19,6 +19,8 @@ Copy-Item (Join-Path $extDir 'icons\*') (Join-Path $stagingDir 'icons')
 if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 Compress-Archive -Path (Join-Path $stagingDir '*') -DestinationPath $zipPath -CompressionLevel Optimal
 
+$webZipDir = Split-Path $webZipPath
+if (!(Test-Path $webZipDir)) { New-Item -ItemType Directory -Path $webZipDir -Force | Out-Null }
 if (Test-Path $webZipPath) { Remove-Item $webZipPath -Force }
 Copy-Item $zipPath $webZipPath -Force
 

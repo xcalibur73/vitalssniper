@@ -41,6 +41,7 @@
           <img class="site-favicon" id="siteFavicon" src="icons/icon16.png" alt="">
           <span class="domain-text" id="targetDomain">Detecting site...</span>
           <span class="sec-badge" id="secBadge">HTTPS</span>
+          <span class="cloud-sync-badge" id="cloudSyncBadge" style="display:none;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(183,99,69,0.15);color:#ea580c;border:1px solid rgba(234,88,12,0.3);margin-left:6px;align-items:center;gap:3px;">☁️ Synced to Vault</span>
         </div>
         <div class="score-badge" id="scoreBadge" title="VitalsSniper Proprietary Diagnostic Heuristic (Score: 20-100 : Not Google Lighthouse or CWV)">
           <span class="score-number" id="healthScoreVal">--</span>
@@ -226,6 +227,11 @@
             <label class="form-label">Google PageSpeed API Key (Optional)</label>
             <input type="text" id="cfgPsiApiKey" class="form-input" placeholder="AIzaSy... (For high-volume lab audits)">
           </div>
+          <div class="form-group">
+            <label class="form-label">WebAudits.pro API Key (wba_live_...)</label>
+            <input type="text" id="cfgWebAuditsApiKey" class="form-input" placeholder="wba_live_... (Auto-syncs scans to 30-day vault)">
+            <div id="cfgWebAuditsStatus" style="font-size:11px;color:#94a3b8;margin-top:4px;"></div>
+          </div>
           <button type="submit" class="btn-activate">Save Agency Settings</button>
         </form>
       </div>
@@ -296,14 +302,14 @@
         <button class="activation-close" id="activationClose">&times;</button>
         
         <div class="activation-header">
-          <div class="activation-badge">PRO LICENSE</div>
+          <div class="activation-badge">PRO LICENSE &amp; CLOUD SYNC</div>
           <h3 id="activationTitle">Activate VitalsSniper PRO</h3>
-          <p id="activationSub">Enter your AppSumo license key to unlock unlimited audits and cold outreach scripts.</p>
+          <p id="activationSub">Enter your AppSumo license key or WebAudits.pro API key to unlock unlimited audits and auto-sync scans to your 30-day dashboard vault.</p>
         </div>
         
         <div class="activation-form" id="activationFormArea">
-          <label for="licenseKeyInput" class="activation-label">License Key</label>
-          <input type="text" id="licenseKeyInput" class="activation-input" placeholder="VS-PRO-XXXX-XXXX" maxlength="24" autocomplete="off" spellcheck="false">
+          <label for="licenseKeyInput" class="activation-label">License Key or WebAudits.pro API Key</label>
+          <input type="text" id="licenseKeyInput" class="activation-input" placeholder="VS-PRO-XXXX-XXXX or wba_live_..." maxlength="48" autocomplete="off" spellcheck="false">
           <div id="activationError" class="activation-error" style="display:none;"></div>
           <button id="btnActivateLicense" class="btn-activate">
             <span>Unlock PRO Features</span>
@@ -313,15 +319,16 @@
         <div class="activation-details" id="activationDetailsArea" style="display:none;">
           <div class="activation-status-row">
             <span class="status-indicator active"></span>
-            <span class="status-name">PRO Lifetime License Active</span>
+            <span class="status-name" id="activeStatusName">PRO Lifetime License Active</span>
           </div>
           <div class="active-key-display" id="activeKeyDisplay">VS-PRO-****-****</div>
-          <p class="activation-foot">Unlimited forensic web audits &bull; 0 server limits</p>
+          <div id="activeAccountEmailDisplay" style="font-size:11px;color:#94a3b8;margin-top:4px;display:none;"></div>
+          <p class="activation-foot">Unlimited forensic web audits &bull; 30-day cloud vault sync enabled</p>
           <button id="btnDeactivateKey" class="btn-deactivate" style="margin-top:10px;background:none;border:1px solid #334155;color:#94a3b8;border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer;">Deactivate Key</button>
         </div>
 
         <div class="activation-footer">
-          <a href="https://appsumo.com/products/vitalssniper" target="_blank" class="activation-link">Need a license key? Get on AppSumo &rarr;</a>
+          <a href="https://webaudits.pro/dashboard" target="_blank" class="activation-link">Get your API key at WebAudits.pro Dashboard &rarr;</a>
         </div>
       </div>
     </div>
@@ -363,7 +370,7 @@
     <!-- Footer -->
     <footer class="footer">
       <span>Engineered by <a href="https://webaudits.pro" target="_blank" class="footer-link">WebAudits.pro</a></span>
-      <span class="footer-ver">v1.2.0 PRO</span>
+      <span class="footer-ver">v1.3.0 PRO</span>
     </footer>
   </div>
 
