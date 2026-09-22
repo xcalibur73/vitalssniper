@@ -222,6 +222,55 @@ body {
   border-color: rgba(168, 85, 247, 0.2);
 }
 
+.manual-target-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.manual-target-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  color: #f1f5f9;
+  font-size: 11px;
+  padding: 4px 8px;
+  outline: none;
+  font-family: monospace;
+  transition: border-color 0.15s;
+}
+
+.manual-target-input:focus {
+  border-color: #b76345;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.manual-target-btn {
+  background: #b76345;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: opacity 0.15s, background-color 0.15s;
+  flex-shrink: 0;
+}
+
+.manual-target-btn:hover {
+  background: #9a5238;
+}
+
+.manual-target-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ==========================================================================
    6 Diagnostic Metrics Grid
    ========================================================================== */
