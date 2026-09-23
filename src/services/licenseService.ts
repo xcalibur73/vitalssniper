@@ -268,11 +268,27 @@ export class LicenseService {
         keyPrefix: key.substring(0, 11),
         token: 'demo-auth-' + key
       };
+      const demoSub = {
+        status: 'active',
+        tier: 'pro',
+        planName: 'Pro QA Demo Voucher',
+        interval: 'monthly',
+        totalDays: 30,
+        daysRemaining: 30,
+        daysElapsed: 0,
+        percentRemaining: 100,
+        periodStart: new Date().toISOString(),
+        periodEnd: new Date(Date.now() + 30 * 86400000).toISOString(),
+        isMaster: false,
+        formattedStatus: '30-Day QA Evaluation Active',
+        formattedRenewal: 'QA Sandbox Cycle'
+      };
       await StorageService.set({
         vs_license_key: key,
         vs_is_pro: true,
         vs_tier: 'pro',
-        vs_entitlement: ent
+        vs_entitlement: ent,
+        vs_subscription: demoSub
       });
       return { valid: true, tier: 'pro', message: 'PRO Demo Mode Active (Public QA Voucher)' };
     }
@@ -354,6 +370,10 @@ export class LicenseService {
             vs_entitlement: ent
           };
 
+          if (data.subscription) {
+            storageUpdates.vs_subscription = data.subscription;
+          }
+
           if (isWebAuditsSso) {
             storageUpdates.vs_webaudits_api_key = key;
             storageUpdates.vs_webaudits_email = data.email || data.payload.email || '';
@@ -397,7 +417,8 @@ export class LicenseService {
       'vs_entitlement',
       'vs_webaudits_api_key',
       'vs_webaudits_email',
-      'vs_webaudits_tier'
+      'vs_webaudits_tier',
+      'vs_subscription'
     ]);
   }
 

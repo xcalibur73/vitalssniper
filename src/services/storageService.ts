@@ -4,6 +4,22 @@
 import { SavedLead, AgencySettings, LeadStatus } from '../types/pipeline';
 import { escapeCsvField } from '../utils/security';
 
+export interface StoredSubscriptionTimeframe {
+  status: 'active' | 'trial' | 'lifetime' | 'free' | 'expired';
+  tier: string;
+  planName: string;
+  interval: 'monthly' | 'annual' | 'lifetime' | 'trial' | 'free';
+  totalDays: number;
+  daysRemaining: number;
+  daysElapsed: number;
+  percentRemaining: number;
+  periodStart: string;
+  periodEnd: string | null;
+  isMaster: boolean;
+  formattedStatus: string;
+  formattedRenewal: string;
+}
+
 export class StorageService {
   private static migrationDone = false;
 
@@ -272,6 +288,18 @@ export class StorageService {
 
   public static async saveWebAuditsApiKey(apiKey: string): Promise<void> {
     await this.set({ vs_webaudits_api_key: apiKey.trim() });
+  }
+
+  // --- Subscription Timeframe Persistence ---
+
+  public static async getSubscriptionTimeframe(): Promise<StoredSubscriptionTimeframe | null> {
+    const res = await this.get(['vs_subscription']);
+    return (res.vs_subscription as StoredSubscriptionTimeframe) || null;
+  }
+
+  public static async saveSubscriptionTimeframe(sub: StoredSubscriptionTimeframe): Promise<void> {
+    if (!sub) return;
+    await this.set({ vs_subscription: sub });
   }
 }
 

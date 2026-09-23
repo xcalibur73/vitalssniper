@@ -123,6 +123,9 @@ export class CloudSyncService {
       }
 
       const resData = await resp.json().catch(() => ({}));
+      if (resData.subscription) {
+        await StorageService.saveSubscriptionTimeframe(resData.subscription);
+      }
       return {
         attempted: true,
         success: Boolean(resData.success),

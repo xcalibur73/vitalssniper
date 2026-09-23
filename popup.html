@@ -249,15 +249,47 @@
       <div class="activation-box competitor-box">
         <button class="activation-close" id="competitorClose">&times;</button>
         <div class="activation-header">
-          <div class="activation-badge">HEAD-TO-HEAD AUDIT</div>
-          <h3>Competitor Comparison Mode</h3>
-          <p>Compare this site vs. their #1 competitor to generate high-converting comparison cold pitches.</p>
+          <div class="activation-badge">SIMILARWEB-STYLE HEAD-TO-HEAD</div>
+          <h3>Competitor Benchmarking</h3>
+          <div class="competitor-sector-pill" id="compSectorPill">Sector: Analyzing...</div>
+          <p>Benchmark against direct rivals to uncover structural performance and SEO gaps.</p>
         </div>
+
+        <!-- Suggested Competitors Row (SimilarWeb Auto-Discovery Principle) -->
+        <div class="suggested-competitors-bar" id="suggestedCompetitorsBar">
+          <div class="suggested-bar-header">
+            <span class="suggested-bar-label">SIMILAR SITES &amp; RIVALS</span>
+            <span class="suggested-hint">1-click compare</span>
+          </div>
+          <div class="competitor-chips" id="competitorChips"></div>
+        </div>
+
         <div class="competitor-input-row">
           <input type="text" id="competitorUrlInput" class="form-input" placeholder="e.g. competitor.com">
           <button id="btnRunComparison" class="btn-compare">Compare</button>
         </div>
+
         <div id="comparisonResultsArea" style="display:none;" class="comparison-results">
+          <!-- Dual Battle Card Header -->
+          <div class="battle-card-header" id="battleCardHeader">
+            <div class="battle-card-col prospect-card">
+              <span class="battle-role">Prospect</span>
+              <span class="battle-domain" id="battleProspectDomain">target.com</span>
+            </div>
+            <div class="battle-vs-badge">VS</div>
+            <div class="battle-card-col competitor-card">
+              <span class="battle-role">Competitor</span>
+              <span class="battle-domain" id="battleCompetitorDomain">competitor.com</span>
+            </div>
+          </div>
+
+          <!-- Sector Benchmark Callout -->
+          <div class="sector-benchmark-box" id="sectorBenchmarkBox">
+            <span class="benchmark-label">INDUSTRY BENCHMARK</span>
+            <p class="benchmark-text" id="sectorBenchmarkText">Evaluating sector...</p>
+          </div>
+
+          <!-- Delta Comparison Table -->
           <div class="comparison-table-wrapper">
             <table class="comparison-table">
               <thead>
@@ -265,14 +297,19 @@
                   <th>Metric</th>
                   <th id="thProspect">Prospect</th>
                   <th id="thCompetitor">Competitor</th>
+                  <th>Delta / Status</th>
                 </tr>
               </thead>
               <tbody id="comparisonTableBody"></tbody>
             </table>
           </div>
+
+          <!-- Overall Verdict Banner -->
+          <div class="verdict-banner" id="compVerdictBanner" style="display:none;"></div>
+
           <div class="competitor-pitch-box">
             <div class="flaw-banner-header">
-              <span class="flaw-title">COMPETITOR COMPARISON HOOK</span>
+              <span class="flaw-title">COMPETITIVE OUTREACH HOOK</span>
               <button class="btn-copy-hook" id="btnCopyCompHook">Copy Hook</button>
             </div>
             <pre class="comp-pitch-text" id="compPitchText"></pre>
@@ -328,13 +365,28 @@
             <span class="status-name" id="activeStatusName">PRO Lifetime License Active</span>
           </div>
           <div class="active-key-display" id="activeKeyDisplay">VS-PRO-****-****</div>
-          <div id="activeAccountEmailDisplay" style="font-size:11px;color:#94a3b8;margin-top:4px;display:none;"></div>
-          <p class="activation-foot">Unlimited forensic web audits &bull; 30-day cloud vault sync enabled</p>
-          <button id="btnDeactivateKey" class="btn-deactivate" style="margin-top:10px;background:none;border:1px solid #334155;color:#94a3b8;border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer;">Deactivate Key</button>
+          <div id="activeAccountEmailDisplay" class="active-account-pill" style="display:none;"></div>
+
+          <div id="activationTimeframeBox" class="activation-timeframe-box" style="display:none;">
+            <div class="timeframe-row">
+              <span class="timeframe-label" id="timeframePlanLabel">Subscription Cycle</span>
+              <span class="timeframe-days-badge" id="timeframeDaysBadge">30 Days Remaining</span>
+            </div>
+            <div class="timeframe-progress-track" id="timeframeProgressTrack">
+              <div class="timeframe-progress-bar" id="timeframeProgressBar" style="width: 100%;"></div>
+            </div>
+            <div class="timeframe-subrow">
+              <span class="timeframe-detail" id="timeframeDetail">Active Period</span>
+              <span class="timeframe-renewal" id="timeframeRenewal">Renews: Active</span>
+            </div>
+          </div>
+
+          <p class="activation-foot">Unlimited forensic web audits - 30-day cloud vault sync enabled</p>
+          <button id="btnDeactivateKey" class="btn-deactivate">Deactivate Key</button>
         </div>
 
         <div class="activation-footer">
-          <a href="https://webaudits.pro/dashboard" target="_blank" class="activation-link">Get your API key at WebAudits.pro Dashboard &rarr;</a>
+          <a href="https://webaudits.pro/dashboard" target="_blank" class="activation-link" id="activationFooterLink">Get your API key at WebAudits.pro Dashboard &rarr;</a>
         </div>
       </div>
     </div>
@@ -376,7 +428,7 @@
     <!-- Footer -->
     <footer class="footer">
       <span>Engineered by <a href="https://webaudits.pro" target="_blank" class="footer-link">WebAudits.pro</a></span>
-      <span class="footer-ver">v1.3.1 PRO</span>
+      <span class="footer-ver">v1.4.1 PRO</span>
     </footer>
   </div>
 

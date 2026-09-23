@@ -28,3 +28,9 @@ Remove-Item -Recurse -Force $stagingDir
 
 Write-Host "Successfully packaged: $zipPath"
 Write-Host "Successfully synced: $webZipPath"
+
+$desktopZip = 'C:\Users\sfsad\OneDrive\Desktop\vitalssniper_pro.zip'
+$desktopVerZip = 'C:\Users\sfsad\OneDrive\Desktop\vitalssniper_v1.4.1_pro.zip'
+Copy-Item $zipPath $desktopZip -Force
+Copy-Item $zipPath $desktopVerZip -Force
+Write-Host "Successfully updated Desktop zips: $desktopZip and $desktopVerZip"

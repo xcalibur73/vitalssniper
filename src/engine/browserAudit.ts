@@ -281,16 +281,24 @@ export async function inspectPageForensics() {
 
     let format = 'unknown';
     try {
-      const pathname = new URL(rawSrc, window.location.href).pathname.toLowerCase();
-      if (pathname.endsWith('.webp')) format = 'webp';
-      else if (pathname.endsWith('.avif')) format = 'avif';
-      else if (pathname.endsWith('.svg')) format = 'svg';
-      else if (pathname.endsWith('.png')) format = 'png';
-      else if (pathname.endsWith('.jpg') || pathname.endsWith('.jpeg')) format = 'jpeg';
-      else if (pathname.endsWith('.gif')) format = 'gif';
+      const urlObj = new URL(rawSrc, window.location.href);
+      const pathname = urlObj.pathname.toLowerCase();
+      const search = urlObj.search.toLowerCase();
+      const hostname = urlObj.hostname.toLowerCase();
+
+      if (pathname.endsWith('.webp') || search.includes('format=webp') || search.includes('fm=webp') || search.includes('output=webp')) format = 'webp';
+      else if (pathname.endsWith('.avif') || search.includes('format=avif') || search.includes('fm=avif') || search.includes('output=avif')) format = 'avif';
+      else if (pathname.endsWith('.svg') || search.includes('format=svg')) format = 'svg';
+      else if (pathname.endsWith('.png') || search.includes('format=png')) format = 'png';
+      else if (pathname.endsWith('.jpg') || pathname.endsWith('.jpeg') || search.includes('format=jpg') || search.includes('format=jpeg')) format = 'jpeg';
+      else if (pathname.endsWith('.gif') || search.includes('format=gif')) format = 'gif';
+      else if (hostname.includes('shopify.com') || hostname.includes('wixstatic.com') || hostname.includes('.wp.com')) {
+        // Modern CDN dynamic format auto-negotiation
+        format = 'webp';
+      }
     } catch (e) {
-      if (/\.webp($|\?)/i.test(rawSrc)) format = 'webp';
-      else if (/\.avif($|\?)/i.test(rawSrc)) format = 'avif';
+      if (/\.webp($|\?)/i.test(rawSrc) || /(?:format|fm|output)=webp/i.test(rawSrc)) format = 'webp';
+      else if (/\.avif($|\?)/i.test(rawSrc) || /(?:format|fm|output)=avif/i.test(rawSrc)) format = 'avif';
       else if (/\.svg($|\?)/i.test(rawSrc)) format = 'svg';
       else if (/\.png($|\?)/i.test(rawSrc)) format = 'png';
       else if (/\.(jpg|jpeg)($|\?)/i.test(rawSrc)) format = 'jpeg';
@@ -350,7 +358,16 @@ export async function inspectPageForensics() {
     const text = s.textContent || '';
     if (!text.trim()) return;
     try {
-      const parsed = JSON.parse(text);
+      const cleanText = text
+        .replace(/<!--[\s\S]*?-->/g, '')
+        .replace(/\/\*\s*<!\[CDATA\[[\s\S]*?\*\//g, '')
+        .replace(/\/\*\s*\]\]>[\s\S]*?\*\//g, '')
+        .replace(/\/\/<!\[CDATA\[/g, '')
+        .replace(/\/\/\]\]>/g, '')
+        .replace(/<!\[CDATA\[/g, '')
+        .replace(/\]\]>/g, '')
+        .trim();
+      const parsed = JSON.parse(cleanText);
       if (parsed['@type']) {
         if (Array.isArray(parsed['@type'])) schemaTypes.push(...parsed['@type']);
         else schemaTypes.push(String(parsed['@type']));
@@ -370,32 +387,30 @@ export async function inspectPageForensics() {
   });
 
   const titleEl = document.querySelector('title');
-  const metaDescEl = document.querySelector('meta[name="description"]');
-  const canonicalEl = document.querySelector('link[rel="canonical"]');
-  const robotsEl = document.querySelector('meta[name="robots"]');
+  const metaDescEl = document.querySelector('meta[name="description" i]');
+  const canonicalEl = document.querySelector('link[rel="canonical" i]');
+  const robotsEl = document.querySelector('meta[name="robots" i]');
   const h1Elements = Array.from(document.querySelectorAll('h1'));
 
   const openGraph: Record<string, string> = {};
-  Array.from(document.querySelectorAll('meta[property^="og:"]')).forEach(el => {
+  Array.from(document.querySelectorAll('meta[property^="og:" i]')).forEach(el => {
     const prop = el.getAttribute('property');
     const content = el.getAttribute('content');
     if (prop && content) openGraph[prop] = content;
   });
 
   const twitter: Record<string, string> = {};
-  Array.from(document.querySelectorAll('meta[name^="twitter:"]')).forEach(el => {
+  Array.from(document.querySelectorAll('meta[name^="twitter:" i]')).forEach(el => {
     const name = el.getAttribute('name');
     const content = el.getAttribute('content');
     if (name && content) twitter[name] = content;
   });
 
   // --- 6. ACCESSIBILITY & VIEWPORT ---
-  const vpMeta = document.querySelector('meta[name="viewport"]');
+  const vpMeta = document.querySelector('meta[name="viewport" i]');
   const vpContent = vpMeta ? (vpMeta.getAttribute('content') || '') : '';
   const vpMissing = !vpMeta;
-  const vpLocked = vpContent.includes('user-scalable=0') ||
-                   vpContent.includes('user-scalable=no') ||
-                   vpContent.includes('maximum-scale=1');
+  const vpLocked = /user-scalable=(?:no|0)|maximum-scale=(?:1|1\.0)(?![0-9])/i.test(vpContent);
 
   // Horizontal layout overflow
   const horizontalOverflow = document.documentElement.scrollWidth > window.innerWidth;
@@ -417,7 +432,7 @@ export async function inspectPageForensics() {
     }
   });
 
-  const missingAltCount = Array.from(document.querySelectorAll('img:not([alt])')).length;
+  const missingAltCount = Array.from(document.querySelectorAll('img:not([alt]):not([aria-label]):not([aria-labelledby])')).length;
   let emptyInteractiveCount = 0;
   interactiveElements.forEach(el => {
     const text = (el.textContent || '').trim();

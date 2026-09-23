@@ -996,10 +996,50 @@ function initCompetitorModal() {
   const backdrop = document.getElementById('competitorBackdrop');
   const btnCompare = document.getElementById('btnRunComparison');
   const input = document.getElementById('competitorUrlInput') as HTMLInputElement | null;
+  const sectorPill = document.getElementById('compSectorPill');
+  const chipsContainer = document.getElementById('competitorChips');
 
   if (!modal || !btnOpen) return;
 
-  btnOpen.onclick = () => { modal.style.display = 'flex'; };
+  const refreshCompetitorSuggestions = () => {
+    const domain = currentAuditState.domain || (currentAuditState.data?.domain) || 'Target Site';
+    const title = currentAuditState.data?.seo?.title || '';
+    const desc = currentAuditState.data?.seo?.metaDescription || '';
+    const cms = currentAuditState.data?.cms || [];
+
+    const suggestedInfo = CompetitorService.getSuggestedCompetitors(domain, title, desc, cms);
+
+    if (sectorPill) {
+      sectorPill.innerText = `Sector: ${suggestedInfo.category}`;
+    }
+
+    if (chipsContainer) {
+      chipsContainer.innerHTML = '';
+      suggestedInfo.competitors.forEach(comp => {
+        const chipBtn = document.createElement('button');
+        chipBtn.className = 'comp-chip';
+        chipBtn.innerText = comp.domain;
+        chipBtn.title = `Audit vs ${comp.name} (${comp.domain})`;
+        chipBtn.onclick = () => {
+          if (input) {
+            input.value = comp.domain;
+            chipsContainer.querySelectorAll('.comp-chip').forEach(c => c.classList.remove('active'));
+            chipBtn.classList.add('active');
+            if (btnCompare) {
+              btnCompare.click();
+            }
+          }
+        };
+        chipsContainer.appendChild(chipBtn);
+      });
+    }
+  };
+
+  btnOpen.onclick = () => {
+    refreshCompetitorSuggestions();
+    modal.style.display = 'flex';
+  };
+
   const closeModal = () => { modal.style.display = 'none'; };
   if (btnClose) btnClose.onclick = closeModal;
   if (backdrop) backdrop.onclick = closeModal;
@@ -1013,28 +1053,68 @@ function initCompetitorModal() {
       const resultsArea = document.getElementById('comparisonResultsArea');
       const tableBody = document.getElementById('comparisonTableBody');
       const hookText = document.getElementById('compPitchText');
+      const prospectDomainEl = document.getElementById('battleProspectDomain');
+      const compDomainEl = document.getElementById('battleCompetitorDomain');
+      const benchmarkTextEl = document.getElementById('sectorBenchmarkText');
+      const verdictBannerEl = document.getElementById('compVerdictBanner');
 
       const result = await CompetitorService.compareWithCompetitor(currentAuditState.data || {}, url);
       btnCompare.innerText = 'Compare';
 
       if (resultsArea && tableBody) {
         resultsArea.style.display = 'block';
+
         if (result.success && result.competitor) {
-          tableBody.innerHTML = `
-            <tr><td>DOM Elements</td><td>${result.prospect.domElements.toLocaleString()}</td><td>${result.competitor.domElements.toLocaleString()}</td></tr>
-            <tr><td>Serialized Markup</td><td>${result.prospect.serializedSizeKB} KB</td><td>${result.competitor.serializedSizeKB} KB</td></tr>
-            <tr><td>Mobile Viewport</td><td>${result.prospect.viewportStatus}</td><td>${result.competitor.viewportStatus}</td></tr>
-            <tr><td>Structured Data</td><td>${result.prospect.schemaStatus}</td><td>${result.competitor.schemaStatus}</td></tr>
-            <tr><td>Tech Stack</td><td>${result.prospect.cms}</td><td>${result.competitor.cms}</td></tr>
-            <tr><td colspan="3" style="padding: 8px 10px; font-size: 10px; color: #94a3b8; border-top: 1px dashed #334155;">
-              <strong>Methodology Note:</strong> Observed difference based on static HTML snapshot (competitor) vs. live rendered DOM (prospect). JavaScript-rendered SPAs may have different rendered nodes.
+          if (prospectDomainEl) prospectDomainEl.innerText = result.prospect.domain;
+          if (compDomainEl) compDomainEl.innerText = result.competitor.domain;
+
+          if (benchmarkTextEl && result.benchmark) {
+            benchmarkTextEl.innerText = `${result.benchmark.note}. Prospect registers ${result.prospect.domElements.toLocaleString()} nodes vs Competitor ${result.competitor.domElements.toLocaleString()} nodes.`;
+          }
+
+          // Render Delta Rows
+          let rowsHtml = '';
+          if (result.deltas && result.deltas.length > 0) {
+            result.deltas.forEach(delta => {
+              rowsHtml += `
+                <tr>
+                  <td><strong>${escapeHtml(delta.metric)}</strong></td>
+                  <td>${escapeHtml(String(delta.prospectVal))}</td>
+                  <td>${escapeHtml(String(delta.competitorVal))}</td>
+                  <td><span class="delta-pill delta-${delta.verdict}">${escapeHtml(delta.deltaText)}</span></td>
+                </tr>
+              `;
+            });
+          } else {
+            rowsHtml = `
+              <tr><td>DOM Elements</td><td>${result.prospect.domElements.toLocaleString()}</td><td>${result.competitor.domElements.toLocaleString()}</td><td><span class="delta-pill delta-tie">DOM</span></td></tr>
+              <tr><td>Serialized Markup</td><td>${result.prospect.serializedSizeKB} KB</td><td>${result.competitor.serializedSizeKB} KB</td><td><span class="delta-pill delta-tie">Payload</span></td></tr>
+              <tr><td>Mobile Viewport</td><td>${result.prospect.viewportStatus}</td><td>${result.competitor.viewportStatus}</td><td><span class="delta-pill delta-tie">Viewport</span></td></tr>
+              <tr><td>Structured Data</td><td>${result.prospect.schemaStatus}</td><td>${result.competitor.schemaStatus}</td><td><span class="delta-pill delta-tie">Schema</span></td></tr>
+              <tr><td>Tech Stack</td><td>${result.prospect.cms}</td><td>${result.competitor.cms}</td><td><span class="delta-pill delta-tie">Stack</span></td></tr>
+            `;
+          }
+
+          rowsHtml += `
+            <tr><td colspan="4" style="padding: 6px 8px; font-size: 8.5px; color: var(--color-muted); border-top: 1px dashed var(--color-border);">
+              <strong>Methodology Note:</strong> Prospect measured via live browser DOM recursion. Competitor measured via raw HTML snapshot without JavaScript execution.
             </td></tr>
           `;
-          if (hookText) hookText.innerText = result.comparisonHook || '';
+          tableBody.innerHTML = rowsHtml;
+
+          if (verdictBannerEl && result.overallVerdict) {
+            verdictBannerEl.style.display = 'block';
+            verdictBannerEl.innerText = `Verdict: ${result.overallVerdict}`;
+          }
+
+          if (hookText) {
+            hookText.innerText = result.comparisonHook || '';
+          }
         } else {
           tableBody.innerHTML = `
-            <tr><td colspan="3" style="color: #f87171; padding: 12px; font-size: 12px;">${escapeHtml(result.errorReason || 'Competitor scan unavailable.')}</td></tr>
+            <tr><td colspan="4" style="color: var(--red-text); padding: 12px; font-size: 11px;">${escapeHtml(result.errorReason || 'Competitor scan unavailable.')}</td></tr>
           `;
+          if (verdictBannerEl) verdictBannerEl.style.display = 'none';
           if (hookText) hookText.innerText = 'Cannot generate comparison pitch: competitor data is unavailable due to browser cross-origin policy.';
         }
       }
@@ -1396,15 +1476,100 @@ async function initLicense() {
   const entitlement = await LicenseService.getEntitlement();
   isPaidUser = entitlement.isPro;
 
+  const titleEl = document.getElementById('activationTitle');
+  const subEl = document.getElementById('activationSub');
+  const footerLink = document.getElementById('activationFooterLink') as HTMLAnchorElement | null;
+  const timeframeBox = document.getElementById('activationTimeframeBox');
+  const timeframePlanLabel = document.getElementById('timeframePlanLabel');
+  const timeframeDaysBadge = document.getElementById('timeframeDaysBadge');
+  const timeframeProgressBar = document.getElementById('timeframeProgressBar');
+  const timeframeDetail = document.getElementById('timeframeDetail');
+  const timeframeRenewal = document.getElementById('timeframeRenewal');
+
   const updateAccountDisplay = async () => {
     const wbaSync = await StorageService.getWebAuditsSyncConfig();
     if (activeAccountEmailDisplay) {
       if (wbaSync.email) {
         activeAccountEmailDisplay.innerText = `Connected Account: ${wbaSync.email} (${(wbaSync.tier || 'pro').toUpperCase()})`;
-        activeAccountEmailDisplay.style.display = 'block';
+        activeAccountEmailDisplay.style.display = 'inline-block';
       } else {
         activeAccountEmailDisplay.style.display = 'none';
       }
+    }
+  };
+
+  const updateSubscriptionDisplay = async () => {
+    if (!timeframeBox) return;
+    const sub = await StorageService.getSubscriptionTimeframe();
+    if (!sub) {
+      timeframeBox.style.display = 'none';
+      if (isPaidUser) {
+        const config = await StorageService.getWebAuditsSyncConfig();
+        if (config.apiKey) {
+          LicenseService.activate(config.apiKey).then(res => {
+            if (res.valid) {
+              StorageService.getSubscriptionTimeframe().then(refreshedSub => {
+                if (refreshedSub) updateSubscriptionDisplay();
+              });
+            }
+          }).catch(() => {});
+        }
+      }
+      return;
+    }
+    if (!isPaidUser) {
+      timeframeBox.style.display = 'none';
+      return;
+    }
+
+    timeframeBox.style.display = 'block';
+    if (timeframePlanLabel) {
+      timeframePlanLabel.innerText = sub.planName || (sub.isMaster ? 'Master Lifetime' : 'Subscription Cycle');
+    }
+
+    if (sub.isMaster) {
+      if (timeframeDaysBadge) timeframeDaysBadge.innerText = 'Lifetime Unlimited';
+      if (timeframeProgressBar) timeframeProgressBar.style.width = '100%';
+      if (timeframeDetail) timeframeDetail.innerText = 'Master Account';
+      if (timeframeRenewal) timeframeRenewal.innerText = 'Permanent (No Expiration)';
+    } else {
+      const remaining = typeof sub.daysRemaining === 'number' ? sub.daysRemaining : 0;
+      const total = sub.totalDays || 30;
+      const elapsed = typeof sub.daysElapsed === 'number' ? sub.daysElapsed : Math.max(0, total - remaining);
+      const fillPercent = Math.min(100, Math.max(4, Math.round((elapsed / total) * 100)));
+
+      if (timeframeDaysBadge) {
+        timeframeDaysBadge.innerText = `${remaining} Days Remaining`;
+      }
+      if (timeframeProgressBar) {
+        timeframeProgressBar.style.width = `${fillPercent}%`;
+      }
+      if (timeframeDetail) {
+        timeframeDetail.innerText = `Day ${elapsed} of ${total} (${sub.interval === 'annual' ? '365-Day Annual' : '30-Day Monthly'})`;
+      }
+      if (timeframeRenewal) {
+        timeframeRenewal.innerText = `Renews: ${sub.formattedRenewal || 'Active'}`;
+      }
+    }
+  };
+
+  const syncModalState = async () => {
+    if (isPaidUser) {
+      if (formArea) formArea.style.display = 'none';
+      if (detailsArea) detailsArea.style.display = 'block';
+      if (activeKeyDisplay) activeKeyDisplay.innerText = `${entitlement.keyPrefix || 'VS-PRO'}****-****`;
+      if (titleEl) titleEl.innerText = 'VitalsSniper PRO Active';
+      if (subEl) subEl.innerText = 'Connected to WebAudits.pro. Unlimited audits and automated cloud vault synchronization active.';
+      if (footerLink) footerLink.innerText = 'Manage account & scans at WebAudits.pro Dashboard \u2192';
+      await updateAccountDisplay();
+      await updateSubscriptionDisplay();
+    } else {
+      if (formArea) formArea.style.display = 'block';
+      if (detailsArea) detailsArea.style.display = 'none';
+      if (titleEl) titleEl.innerText = 'Activate VitalsSniper PRO';
+      if (subEl) subEl.innerText = 'Enter your WebAudits.pro API key or license voucher to unlock unlimited audits and auto-sync scans to your 30-day dashboard vault.';
+      if (footerLink) footerLink.innerText = 'Get your API key at WebAudits.pro Dashboard \u2192';
+      if (timeframeBox) timeframeBox.style.display = 'none';
     }
   };
 
@@ -1419,15 +1584,7 @@ async function initLicense() {
 
     proTag.onclick = async () => {
       if (modal) {
-        if (isPaidUser) {
-          if (formArea) formArea.style.display = 'none';
-          if (detailsArea) detailsArea.style.display = 'block';
-          if (activeKeyDisplay) activeKeyDisplay.innerText = `${entitlement.keyPrefix || 'VS-PRO'}****-****`;
-          await updateAccountDisplay();
-        } else {
-          if (formArea) formArea.style.display = 'block';
-          if (detailsArea) detailsArea.style.display = 'none';
-        }
+        await syncModalState();
         modal.style.display = 'flex';
       }
     };
@@ -1454,10 +1611,8 @@ async function initLicense() {
           proTag.innerText = 'PRO';
           proTag.classList.add('active');
         }
-        if (formArea) formArea.style.display = 'none';
-        if (detailsArea) detailsArea.style.display = 'block';
+        await syncModalState();
         if (activeKeyDisplay) activeKeyDisplay.innerText = rawKey.substring(0, 10) + '****-****';
-        await updateAccountDisplay();
       } else {
         if (errorEl) {
           errorEl.innerText = res.message || 'Invalid key.';
@@ -1476,6 +1631,7 @@ async function initLicense() {
           proTag.innerText = 'ACTIVATE';
           proTag.classList.remove('active');
         }
+        await syncModalState();
         closeModal();
       }
     };
