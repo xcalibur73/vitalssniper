@@ -39,10 +39,10 @@
     <section class="site-card">
       <div class="site-card-top">
         <div class="domain-area">
-          <img class="site-favicon" id="siteFavicon" src="icons/icon16.png" alt="">
+          <img class="site-favicon" id="siteFavicon" src="icons/icon16.png" alt="Target site favicon">
           <span class="domain-text" id="targetDomain">Detecting site...</span>
           <span class="sec-badge" id="secBadge">HTTPS</span>
-          <span class="cloud-sync-badge" id="cloudSyncBadge" style="display:none;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(183,99,69,0.15);color:#ea580c;border:1px solid rgba(234,88,12,0.3);margin-left:6px;align-items:center;gap:3px;">☁️ Synced to Vault</span>
+          <span class="cloud-sync-badge" id="cloudSyncBadge" style="display:none;">☁️ Synced to Vault</span>
         </div>
         <div class="score-badge" id="scoreBadge" title="VitalsSniper Proprietary Diagnostic Heuristic (Score: 20-100 : Not Google Lighthouse or CWV)">
           <span class="score-number" id="healthScoreVal">--</span>
@@ -125,7 +125,7 @@
     <!-- Primary Vulnerability Callout -->
     <section class="flaw-banner" id="flawBanner">
       <div class="flaw-banner-header">
-        <div style="display: flex; align-items: center; gap: 6px;">
+        <div class="flaw-header-left">
           <span class="flaw-title">EVIDENCE ENGINE</span>
           <span class="severity-badge critical" id="flawSeverityBadge">CRITICAL</span>
         </div>
@@ -203,13 +203,13 @@
     <div id="healthTier" style="display:none;"></div>
 
     <!-- 1. White-Label Agency Branding Settings Modal -->
-    <div id="settingsModal" class="activation-modal" style="display:none;">
+    <div id="settingsModal" class="activation-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <div class="activation-backdrop" id="settingsBackdrop"></div>
       <div class="activation-box settings-box">
-        <button class="activation-close" id="settingsClose">&times;</button>
+        <button class="activation-close" id="settingsClose" aria-label="Close settings">&times;</button>
         <div class="activation-header">
           <div class="activation-badge">WHITE-LABEL AGENCY</div>
-          <h3>Report Branding &amp; Booking</h3>
+          <h3 id="settingsTitle">Report Branding &amp; Booking</h3>
           <p>Customize the 1-Page Teardown Dossier with your agency logo and booking link.</p>
         </div>
         <form id="settingsForm" class="settings-form">
@@ -244,13 +244,13 @@
     </div>
 
     <!-- 2. Competitor Comparison Modal -->
-    <div id="competitorModal" class="activation-modal" style="display:none;">
+    <div id="competitorModal" class="activation-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="competitorTitle">
       <div class="activation-backdrop" id="competitorBackdrop"></div>
       <div class="activation-box competitor-box">
-        <button class="activation-close" id="competitorClose">&times;</button>
+        <button class="activation-close" id="competitorClose" aria-label="Close comparison">&times;</button>
         <div class="activation-header">
           <div class="activation-badge">SIMILARWEB-STYLE HEAD-TO-HEAD</div>
-          <h3>Competitor Benchmarking</h3>
+          <h3 id="competitorTitle">Competitor Benchmarking</h3>
           <div class="competitor-sector-pill" id="compSectorPill">Sector: Analyzing...</div>
           <p>Benchmark against direct rivals to uncover structural performance and SEO gaps.</p>
         </div>
@@ -319,13 +319,13 @@
     </div>
 
     <!-- 3. Lead Pipeline Modal / Drawer -->
-    <div id="pipelineModal" class="activation-modal" style="display:none;">
+    <div id="pipelineModal" class="activation-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="pipelineTitle">
       <div class="activation-backdrop" id="pipelineBackdrop"></div>
       <div class="activation-box pipeline-box">
-        <button class="activation-close" id="pipelineClose">&times;</button>
+        <button class="activation-close" id="pipelineClose" aria-label="Close pipeline">&times;</button>
         <div class="activation-header">
           <div class="activation-badge">LEAD CRM</div>
-          <h3>Saved Prospect Pipeline</h3>
+          <h3 id="pipelineTitle">Saved Prospect Pipeline</h3>
           <p>Export all audited prospects to CSV for your cold outreach campaigns.</p>
         </div>
         <div class="pipeline-actions-top">
@@ -339,10 +339,10 @@
     </div>
 
     <!-- 4. License Activation Modal -->
-    <div id="activationModal" class="activation-modal" style="display:none;">
+    <div id="activationModal" class="activation-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="activationTitle">
       <div class="activation-backdrop" id="activationBackdrop"></div>
       <div class="activation-box">
-        <button class="activation-close" id="activationClose">&times;</button>
+        <button class="activation-close" id="activationClose" aria-label="Close license activation">&times;</button>
         
         <div class="activation-header">
           <div class="activation-badge">PRO LICENSE &amp; CLOUD SYNC</div>
@@ -392,13 +392,13 @@
     </div>
 
     <!-- 5. Bulk Prospect Audit Modal -->
-    <div id="bulkAuditModal" class="activation-modal" style="display:none;">
+    <div id="bulkAuditModal" class="activation-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="bulkAuditTitle">
       <div class="activation-backdrop" id="bulkAuditBackdrop"></div>
       <div class="activation-box bulk-box">
-        <button class="activation-close" id="bulkAuditClose">&times;</button>
+        <button class="activation-close" id="bulkAuditClose" aria-label="Close bulk audit">&times;</button>
         <div class="activation-header">
           <div class="activation-badge">BATCH ENGINE</div>
-          <h3>Bulk Prospect Audit</h3>
+          <h3 id="bulkAuditTitle">Bulk Prospect Audit</h3>
           <p>Paste up to 50 URLs (one per line) to audit and rank prospects by technical flaw severity.</p>
         </div>
         
