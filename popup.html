@@ -12,12 +12,14 @@
     <header class="header">
       <div class="brand">
         <div class="brand-logo">
-          <img src="icons/icon16.png" alt="VitalsSniper" class="brand-icon">
+          <img src="icons/icon16.png" alt="VitalsSniper" class="brand-icon" width="20" height="20">
         </div>
         <div class="brand-text">
-          <span class="brand-name">WebAudits<span class="brand-dot">.pro</span></span>
+          <div class="brand-title-row">
+            <span class="brand-name">WebAudits<span class="brand-dot">.pro</span></span>
+            <button class="pro-tag" id="proTag" title="Click to upgrade or manage subscription">PRO</button>
+          </div>
           <span class="brand-sub">VitalsSniper</span>
-          <button class="pro-tag" id="proTag" title="Click to upgrade or manage subscription">PRO</button>
         </div>
       </div>
       <div class="header-tools">
@@ -39,7 +41,7 @@
     <section class="site-card">
       <div class="site-card-top">
         <div class="domain-area">
-          <img class="site-favicon" id="siteFavicon" src="icons/icon16.png" alt="Target site favicon">
+          <img class="site-favicon" id="siteFavicon" src="icons/icon16.png" alt="Target site favicon" width="14" height="14">
           <span class="domain-text" id="targetDomain">Detecting site...</span>
           <span class="sec-badge" id="secBadge">HTTPS</span>
           <span class="cloud-sync-badge" id="cloudSyncBadge" style="display:none;">☁️ Synced to Vault</span>
@@ -54,7 +56,7 @@
       </div>
       <!-- Quick Manual Target Bar for Standalone / Demo or Instant Lookup -->
       <div class="manual-target-bar" id="manualTargetBar" style="display:none;">
-        <input type="text" id="manualTargetInput" placeholder="Audit custom URL (e.g. ananna.free.je)..." class="manual-target-input">
+        <input type="text" id="manualTargetInput" placeholder="Audit custom URL (e.g. ananna.free.je)..." class="manual-target-input" aria-label="Target URL to audit">
         <button type="button" id="btnRunManualTarget" class="manual-target-btn">Inspect</button>
       </div>
     </section>
@@ -214,29 +216,29 @@
         </div>
         <form id="settingsForm" class="settings-form">
           <div class="form-group">
-            <label class="form-label">Agency / Brand Name</label>
+            <label class="form-label" for="cfgAgencyName">Agency / Brand Name</label>
             <input type="text" id="cfgAgencyName" class="form-input" placeholder="e.g. Apex Digital Architecture">
           </div>
           <div class="form-group">
-            <label class="form-label">Agency Logo Image URL (PNG/SVG)</label>
+            <label class="form-label" for="cfgLogoUrl">Agency Logo Image URL (PNG/SVG)</label>
             <input type="url" id="cfgLogoUrl" class="form-input" placeholder="https://youragency.com/logo.png">
           </div>
           <div class="form-group">
-            <label class="form-label">Auditor Name &amp; Title</label>
+            <label class="form-label" for="cfgAuditorName">Auditor Name &amp; Title</label>
             <input type="text" id="cfgAuditorName" class="form-input" placeholder="e.g. Alex Morgan, Lead Web Architect">
           </div>
           <div class="form-group">
-            <label class="form-label">Calendly / Booking Link (Clickable on PDF)</label>
+            <label class="form-label" for="cfgBookingUrl">Calendly / Booking Link (Clickable on PDF)</label>
             <input type="url" id="cfgBookingUrl" class="form-input" placeholder="https://calendly.com/yourname/15min">
           </div>
           <div class="form-group">
-            <label class="form-label">Google PageSpeed API Key (Optional)</label>
+            <label class="form-label" for="cfgPsiApiKey">Google PageSpeed API Key (Optional)</label>
             <input type="text" id="cfgPsiApiKey" class="form-input" placeholder="AIzaSy... (For high-volume lab audits)">
           </div>
           <div class="form-group">
-            <label class="form-label">WebAudits.pro API Key (wba_live_...)</label>
+            <label class="form-label" for="cfgWebAuditsApiKey">WebAudits.pro API Key (wba_live_...)</label>
             <input type="text" id="cfgWebAuditsApiKey" class="form-input" placeholder="wba_live_... (Auto-syncs scans to 30-day vault)">
-            <div id="cfgWebAuditsStatus" style="font-size:11px;color:#94a3b8;margin-top:4px;"></div>
+            <div id="cfgWebAuditsStatus" style="font-size:11px;color:var(--color-muted);margin-top:4px;"></div>
           </div>
           <button type="submit" class="btn-activate">Save Agency Settings</button>
         </form>
@@ -265,7 +267,7 @@
         </div>
 
         <div class="competitor-input-row">
-          <input type="text" id="competitorUrlInput" class="form-input" placeholder="e.g. competitor.com">
+          <input type="text" id="competitorUrlInput" class="form-input" placeholder="e.g. competitor.com" aria-label="Competitor URL to benchmark">
           <button id="btnRunComparison" class="btn-compare">Compare</button>
         </div>
 
@@ -403,7 +405,7 @@
         </div>
         
         <div class="bulk-form">
-          <textarea id="bulkUrlsInput" class="bulk-textarea" placeholder="https://example.com&#10;https://competitor.com&#10;targetstore.com" rows="4"></textarea>
+          <textarea id="bulkUrlsInput" class="bulk-textarea" placeholder="https://example.com&#10;https://competitor.com&#10;targetstore.com" rows="4" aria-label="Bulk URLs to audit"></textarea>
           <div class="bulk-actions">
             <button id="btnRunBulkAudit" class="btn-activate">
               <span id="bulkRunText">🚀 Run Batch Audit</span>

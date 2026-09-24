@@ -3894,8 +3894,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         else {
             secBadge.innerText = 'HTTP (INSECURE)';
-            secBadge.style.color = '#fb7185';
-            secBadge.style.borderColor = '#fb7185';
+            secBadge.style.color = 'var(--red-text)';
+            secBadge.style.borderColor = 'var(--red-border)';
         }
     }
     // Execute in-page forensic audit script
@@ -4148,9 +4148,9 @@ function renderAuditData(domain, currentUrl, data) {
     if (flawDescEl) {
         const isHealthy = primaryFinding.severity === 'healthy';
         flawDescEl.innerHTML = `
-      <div style="font-weight: 600; color: #f8fafc; margin-bottom: 4px;">${escapeHtml(primaryFinding.title)}</div>
-      <div style="color: #94a3b8; font-size: 11.5px; margin-bottom: 4px;"><strong>${isHealthy ? 'Baseline Status:' : 'Evidence:'}</strong> ${escapeHtml(currentAuditState.flawEvidence)}</div>
-      <div style="color: #cbd5e1; font-size: 11px;">${escapeHtml(primaryFinding.explanation)}</div>
+      <div style="font-weight: 600; color: var(--color-text); margin-bottom: 4px;">${escapeHtml(primaryFinding.title)}</div>
+      <div style="color: var(--color-muted); font-size: 11.5px; margin-bottom: 4px;"><strong>${isHealthy ? 'Baseline Status:' : 'Evidence:'}</strong> ${escapeHtml(currentAuditState.flawEvidence)}</div>
+      <div style="color: var(--color-muted); font-size: 11px;">${escapeHtml(primaryFinding.explanation)}</div>
     `;
     }
     // Actionable Improvements List
@@ -4377,7 +4377,7 @@ function initActionButtons(domain, currentUrl, score, data, primaryFinding) {
                 currentAuditState.externalMetrics = psiData;
                 btnPageSpeed.innerText = `PSI: ${psiData.lighthouseScore}/100`;
                 btnPageSpeed.style.opacity = '1';
-                btnPageSpeed.style.borderColor = psiData.lighthouseScore >= 80 ? '#4ade80' : (psiData.lighthouseScore >= 50 ? '#facc15' : '#f87171');
+                btnPageSpeed.style.borderColor = psiData.lighthouseScore >= 80 ? 'var(--green-text)' : (psiData.lighthouseScore >= 50 ? 'var(--amber-text)' : 'var(--red-text)');
             }
             else {
                 const psiUrl = `https://pagespeed.web.dev/analysis?url=${encodeURIComponent(currentUrl)}`;
@@ -4489,8 +4489,8 @@ function highlightLcpInTab(selector) {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         const originalOutline = target.style.outline;
         const originalBoxShadow = target.style.boxShadow;
-        target.style.outline = '3px solid #f43f5e';
-        target.style.boxShadow = '0 0 20px rgba(244, 63, 94, 0.6)';
+        target.style.outline = '3px solid #B76345';
+        target.style.boxShadow = '0 0 20px rgba(183, 99, 69, 0.6)';
         setTimeout(() => {
             if (target) {
                 target.style.outline = originalOutline;
@@ -4529,11 +4529,11 @@ function initSettingsModal() {
                 wbaStatus.innerText = wbaSync.email
                     ? `Connected: ${wbaSync.email} (${(wbaSync.tier || 'pro').toUpperCase()})`
                     : 'API Key saved (Vault sync active)';
-                wbaStatus.style.color = '#10b981';
+                wbaStatus.style.color = 'var(--green-text)';
             }
             else {
                 wbaStatus.innerText = 'Not connected. Scans remain local only.';
-                wbaStatus.style.color = '#94a3b8';
+                wbaStatus.style.color = 'var(--color-muted)';
             }
         }
         modal.style.display = 'flex';
@@ -4776,7 +4776,7 @@ async function renderPipelineList() {
           <span class="pipeline-item-score ${scoreClass}">${lead.score}/100</span>
         </div>
         <div style="display: flex; align-items: center; gap: 6px;">
-          ${formattedDate ? `<span style="font-size: 9.5px; color: #64748b;">${escapeHtml(formattedDate)}</span>` : ''}
+          ${formattedDate ? `<span style="font-size: 9.5px; color: var(--color-muted);">${escapeHtml(formattedDate)}</span>` : ''}
           <span class="severity-badge ${lead.severity}" style="font-size: 8.5px; padding: 2px 6px;">${escapeHtml(lead.severity.toUpperCase())}</span>
         </div>
       </div>
@@ -4981,7 +4981,7 @@ async function initBulkAuditModal() {
           <div class="bulk-result-row">
             <div>
               <div class="bulk-res-domain">${escapeHtml(item.domain)}</div>
-              <div style="font-size: 8.5px; color: #94a3b8;">${escapeHtml(item.primaryFinding)}</div>
+              <div style="font-size: 8.5px; color: var(--color-muted);">${escapeHtml(item.primaryFinding)}</div>
             </div>
             <div style="display: flex; align-items: center; gap: 6px;">
               <span class="bulk-res-score ${item.severity}">${item.score}/100</span>

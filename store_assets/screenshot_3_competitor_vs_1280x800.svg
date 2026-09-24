@@ -69,7 +69,8 @@
        ====================================================================== -->
   <g transform="translate(80, 80)">
     <rect width="280" height="26" rx="13" fill="#20201E"/>
-    <text x="140" y="17" class="font-sans" font-size="10.5" font-weight="800" fill="#B76345" text-anchor="middle" letter-spacing="0.06em">SCREENSHOT 3 : COMPETITOR VS</text>
+    <circle cx="15" cy="13" r="3.5" fill="#B76345"/>
+    <text x="26" y="17" class="font-sans" font-size="10.5" font-weight="800" fill="#F7F4EE" letter-spacing="0.06em">SCREENSHOT 3 : COMPETITOR VS</text>
 
     <!-- Headline -->
     <g transform="translate(0, 40)">
@@ -79,7 +80,7 @@
 
     <!-- Subtitle -->
     <g transform="translate(0, 126)">
-      <text x="0" y="0" class="font-sans" font-size="13.5" font-weight="500" fill="#666159" line-height="1.5">
+      <text x="0" y="0" class="font-sans" font-size="13.5" font-weight="500" fill="#716C64" line-height="1.5">
         <tspan x="0" dy="0">Show clients why their rivals outrank them. Generate</tspan>
         <tspan x="0" dy="20">hard win/loss delta tables and white-label 1-page</tspan>
         <tspan x="0" dy="20">teardown PDFs branded with your agency logo.</tspan>
@@ -101,18 +102,18 @@
       <!-- Audit Target Meta -->
       <g transform="translate(16, 58)">
         <text x="0" y="14" class="font-sans" font-size="12" font-weight="700" fill="#20201E">Website Forensic Health Dossier</text>
-        <text x="0" y="28" class="font-sans" font-size="9" fill="#666159">Target: ecoliving-goods.com   |   Rival: purehome.com</text>
+        <text x="0" y="28" class="font-sans" font-size="9" fill="#716C64">Target: ecoliving-goods.com   |   Rival: purehome.com</text>
       </g>
 
       <!-- Mini Scorecard -->
       <g transform="translate(16, 100)">
         <rect width="156" height="52" rx="4" fill="#FDF1F0" stroke="#F7BDB9" stroke-width="0.8"/>
-        <text x="10" y="18" class="font-sans" font-size="8" font-weight="700" fill="#666159">PROSPECT SCORE</text>
-        <text x="10" y="42" class="font-mono" font-size="20" font-weight="900" fill="#A8231B">38<tspan font-size="10" font-weight="600" fill="#666159">/100</tspan></text>
+        <text x="10" y="18" class="font-sans" font-size="8" font-weight="700" fill="#716C64">PROSPECT SCORE</text>
+        <text x="10" y="42" class="font-mono" font-size="20" font-weight="900" fill="#A8231B">38<tspan font-size="10" font-weight="600" fill="#716C64">/100</tspan></text>
 
         <rect x="170" y="0" width="158" height="52" rx="4" fill="#EAF7EE" stroke="#BCE6C8" stroke-width="0.8"/>
-        <text x="180" y="18" class="font-sans" font-size="8" font-weight="700" fill="#666159">RIVAL SCORE</text>
-        <text x="180" y="42" class="font-mono" font-size="20" font-weight="900" fill="#1B6E38">84<tspan font-size="10" font-weight="600" fill="#666159">/100</tspan></text>
+        <text x="180" y="18" class="font-sans" font-size="8" font-weight="700" fill="#716C64">RIVAL SCORE</text>
+        <text x="180" y="42" class="font-mono" font-size="20" font-weight="900" fill="#1B6E38">84<tspan font-size="10" font-weight="600" fill="#716C64">/100</tspan></text>
       </g>
 
       <!-- Mini Delta Overview -->
@@ -131,7 +132,7 @@
       <g transform="translate(16, 336)">
         <line x1="0" y1="0" x2="328" y2="0" stroke="#DDD7CE" stroke-width="0.8"/>
         <text x="0" y="18" class="font-sans" font-size="9" font-weight="700" fill="#20201E">Auditor: Alex Morgan, Lead Web Architect</text>
-        <text x="0" y="32" class="font-sans" font-size="8.5" fill="#666159">Book 15-min strategy call: calendly.com/apex-audit/15min</text>
+        <text x="0" y="32" class="font-sans" font-size="8.5" fill="#716C64">Book 15-min strategy call: calendly.com/apex-audit/15min</text>
         <rect y="44" width="328" height="26" rx="4" fill="#20201E"/>
         <text x="164" y="61" class="font-sans" font-size="9.5" font-weight="700" fill="#F7F4EE" text-anchor="middle">Click to Schedule Free Diagnostic Walkthrough</text>
       </g>
@@ -153,13 +154,13 @@
       
       <!-- Modal Title -->
       <text x="0" y="42" class="font-sans" font-size="18" font-weight="800" fill="#20201E">Competitor Benchmarking</text>
-      <text x="0" y="58" class="font-sans" font-size="11" fill="#666159">Compare structural speed and SEO metrics against direct industry rivals.</text>
+      <text x="0" y="58" class="font-sans" font-size="11" fill="#716C64">Compare structural speed and SEO metrics against direct industry rivals.</text>
 
       <!-- Similar Sites / Rival Quick Picker Bar (width: 680) -->
       <g transform="translate(0, 72)">
         <rect width="680" height="42" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <g transform="translate(14, 8)">
-          <text x="0" y="11" class="font-sans" font-size="8" font-weight="800" fill="#666159" letter-spacing="0.05em">RIVAL SUGGESTIONS:</text>
+          <text x="0" y="11" class="font-sans" font-size="8" font-weight="800" fill="#716C64" letter-spacing="0.05em">RIVAL SUGGESTIONS:</text>
           <g transform="translate(0, 16)">
             <!-- Chip 1 (Active) -->
             <rect x="0" y="0" width="120" height="20" rx="10" fill="#20201E"/>
@@ -180,7 +181,7 @@
       <g transform="translate(0, 126)">
         <!-- Prospect Card -->
         <rect width="310" height="52" rx="6" fill="#FFFFFF" stroke="#F7BDB9" stroke-width="1.2"/>
-        <text x="16" y="18" class="font-sans" font-size="8.5" font-weight="700" fill="#666159">PROSPECT</text>
+        <text x="16" y="18" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">PROSPECT</text>
         <text x="16" y="38" class="font-sans" font-size="13" font-weight="800" fill="#20201E">ecoliving-goods.com</text>
 
         <!-- VS Badge -->
@@ -189,7 +190,7 @@
 
         <!-- Competitor Card -->
         <rect x="370" y="0" width="310" height="52" rx="6" fill="#FFFFFF" stroke="#BCE6C8" stroke-width="1.2"/>
-        <text x="386" y="18" class="font-sans" font-size="8.5" font-weight="700" fill="#666159">COMPETITOR</text>
+        <text x="386" y="18" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">COMPETITOR</text>
         <text x="386" y="38" class="font-sans" font-size="13" font-weight="800" fill="#20201E">purehome.com</text>
       </g>
 
@@ -200,10 +201,10 @@
         <!-- Table Header -->
         <rect width="680" height="28" rx="6" fill="#F4EFEA"/>
         <rect y="22" width="680" height="6" fill="#F4EFEA"/>
-        <text x="16" y="18" class="font-sans" font-size="8.5" font-weight="800" fill="#666159">METRIC</text>
-        <text x="200" y="18" class="font-sans" font-size="8.5" font-weight="800" fill="#666159">PROSPECT</text>
-        <text x="360" y="18" class="font-sans" font-size="8.5" font-weight="800" fill="#666159">COMPETITOR</text>
-        <text x="520" y="18" class="font-sans" font-size="8.5" font-weight="800" fill="#666159">DELTA / STATUS</text>
+        <text x="16" y="18" class="font-sans" font-size="8.5" font-weight="800" fill="#716C64">METRIC</text>
+        <text x="200" y="18" class="font-sans" font-size="8.5" font-weight="800" fill="#716C64">PROSPECT</text>
+        <text x="360" y="18" class="font-sans" font-size="8.5" font-weight="800" fill="#716C64">COMPETITOR</text>
+        <text x="520" y="18" class="font-sans" font-size="8.5" font-weight="800" fill="#716C64">DELTA / STATUS</text>
 
         <!-- Row 1: DOM Elements -->
         <g transform="translate(16, 34)">

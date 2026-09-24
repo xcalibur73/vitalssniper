@@ -13,7 +13,10 @@ const { chromium } = require(playwrightPath);
 async function renderAssets() {
   console.log('--- Rendering Store Visual Assets to PNG via Chromium ---');
   const browser = await chromium.launch();
-  const page = await browser.newPage();
+  const context = await browser.newContext({
+    deviceScaleFactor: 1
+  });
+  const page = await context.newPage();
 
   const assets = [
     {
@@ -70,6 +73,7 @@ async function renderAssets() {
 </html>`;
 
     await page.setContent(htmlContent, { waitUntil: 'load' });
+    await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: outputPath, type: 'png', omitBackground: false });
     const stats = fs.statSync(outputPath);
     console.log(`Rendered: ${asset.output} (${asset.width}x${asset.height}px, ${(stats.size / 1024).toFixed(1)} KB)`);

@@ -72,12 +72,12 @@
       <!-- Site Nav -->
       <rect width="1180" height="50" fill="#FAF8F3" stroke="#DDD7CE" stroke-width="0.8"/>
       <text x="40" y="32" class="font-sans" font-size="15" font-weight="800" fill="#20201E">APEX LIVING</text>
-      <text x="180" y="31" class="font-sans" font-size="12" fill="#666159">Shop Furniture   |   Collections   |   Architectural Design   |   Journal</text>
+      <text x="180" y="31" class="font-sans" font-size="12" fill="#716C64">Shop Furniture   |   Collections   |   Architectural Design   |   Journal</text>
 
       <!-- Site Hero Banner -->
       <rect y="50" width="1180" height="230" fill="#EFECE6"/>
       <text x="40" y="120" class="font-sans" font-size="28" font-weight="900" fill="#20201E">Artisan Crafted Oak Chairs</text>
-      <text x="40" y="148" class="font-sans" font-size="14" fill="#666159">Built with heavy page builders: 4,820 nested DOM nodes slowing page load</text>
+      <text x="40" y="148" class="font-sans" font-size="14" fill="#716C64">Built with heavy page builders: 4,820 nested DOM nodes slowing page load</text>
       <rect x="40" y="170" width="130" height="36" rx="4" fill="#20201E"/>
       <text x="105" y="193" class="font-sans" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">Order Now - $340</text>
 
@@ -87,21 +87,21 @@
         <rect width="210" height="240" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <rect x="15" y="15" width="180" height="130" rx="4" fill="#E8E4DC"/>
         <text x="15" y="165" class="font-sans" font-size="13" font-weight="700" fill="#20201E">Nordic High Stool</text>
-        <text x="15" y="184" class="font-sans" font-size="11" fill="#666159">Solid ash wood frame</text>
+        <text x="15" y="184" class="font-sans" font-size="11" fill="#716C64">Solid ash wood frame</text>
         <text x="15" y="210" class="font-sans" font-size="13" font-weight="800" fill="#B76345">$280</text>
 
         <!-- Product 2 -->
         <rect x="230" y="0" width="210" height="240" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <rect x="245" y="15" width="180" height="130" rx="4" fill="#E8E4DC"/>
         <text x="245" y="165" class="font-sans" font-size="13" font-weight="700" fill="#20201E">Lounge Armchair</text>
-        <text x="245" y="184" class="font-sans" font-size="11" fill="#666159">Boucle upholstery</text>
+        <text x="245" y="184" class="font-sans" font-size="11" fill="#716C64">Boucle upholstery</text>
         <text x="245" y="210" class="font-sans" font-size="13" font-weight="800" fill="#B76345">$520</text>
 
         <!-- Product 3 -->
         <rect x="460" y="0" width="210" height="240" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <rect x="475" y="15" width="180" height="130" rx="4" fill="#E8E4DC"/>
         <text x="475" y="165" class="font-sans" font-size="13" font-weight="700" fill="#20201E">Dining Table Low</text>
-        <text x="475" y="184" class="font-sans" font-size="11" fill="#666159">Natural walnut finish</text>
+        <text x="475" y="184" class="font-sans" font-size="11" fill="#716C64">Natural walnut finish</text>
         <text x="475" y="210" class="font-sans" font-size="13" font-weight="800" fill="#B76345">$740</text>
       </g>
     </g>
@@ -113,7 +113,8 @@
   <g transform="translate(80, 100)">
     <!-- Top Pill -->
     <rect width="250" height="26" rx="13" fill="#20201E"/>
-    <text x="125" y="17" class="font-sans" font-size="10.5" font-weight="800" fill="#B76345" text-anchor="middle" letter-spacing="0.06em">SCREENSHOT 1 : DOM BLOAT AUDIT</text>
+    <circle cx="15" cy="13" r="3.5" fill="#B76345"/>
+    <text x="26" y="17" class="font-sans" font-size="10.5" font-weight="800" fill="#F7F4EE" letter-spacing="0.06em">SCREENSHOT 1 : DOM BLOAT AUDIT</text>
 
     <!-- Headline -->
     <g transform="translate(0, 44)">
@@ -123,7 +124,7 @@
 
     <!-- Subtitle -->
     <g transform="translate(0, 140)">
-      <text x="0" y="0" class="font-sans" font-size="14.5" font-weight="500" fill="#666159" line-height="1.5">
+      <text x="0" y="0" class="font-sans" font-size="14.5" font-weight="500" fill="#716C64" line-height="1.5">
         <tspan x="0" dy="0">Instantly inspect live client-side DOM structure without</tspan>
         <tspan x="0" dy="22">third-party server queues. Detect bloated Elementor, Divi,</tspan>
         <tspan x="0" dy="22">and WooCommerce templates choking browser layouts.</tspan>
@@ -137,7 +138,7 @@
         <rect width="520" height="66" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <rect x="0" y="0" width="5" height="66" rx="2" fill="#B76345"/>
         <text x="20" y="24" class="font-sans" font-size="13" font-weight="800" fill="#20201E">1-Click CMS &amp; Page Builder Fingerprinting</text>
-        <text x="20" y="44" class="font-sans" font-size="11" fill="#666159">Detects WordPress, Elementor, Divi, Shopify, and Next.js live signatures.</text>
+        <text x="20" y="44" class="font-sans" font-size="11" fill="#716C64">Detects WordPress, Elementor, Divi, Shopify, and Next.js live signatures.</text>
       </g>
 
       <!-- Card 2 -->
@@ -145,7 +146,7 @@
         <rect width="520" height="66" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <rect x="0" y="0" width="5" height="66" rx="2" fill="#E63946"/>
         <text x="20" y="24" class="font-sans" font-size="13" font-weight="800" fill="#20201E">DOM Tree Depth &amp; Node Count Analysis</text>
-        <text x="20" y="44" class="font-sans" font-size="11" fill="#666159">Flags branches exceeding 15 nesting levels that degrade mobile interaction.</text>
+        <text x="20" y="44" class="font-sans" font-size="11" fill="#716C64">Flags branches exceeding 15 nesting levels that degrade mobile interaction.</text>
       </g>
 
       <!-- Card 3 -->
@@ -153,7 +154,7 @@
         <rect width="520" height="66" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <rect x="0" y="0" width="5" height="66" rx="2" fill="#1B6E38"/>
         <text x="20" y="24" class="font-sans" font-size="13" font-weight="800" fill="#20201E">100% In-Browser Sandbox Execution</text>
-        <text x="20" y="44" class="font-sans" font-size="11" fill="#666159">Zero external telemetry, zero latency, and zero data leakage.</text>
+        <text x="20" y="44" class="font-sans" font-size="11" fill="#716C64">Zero external telemetry, zero latency, and zero data leakage.</text>
       </g>
     </g>
   </g>
@@ -174,7 +175,7 @@
         <circle cx="11" cy="11" r="2" fill="#F7F4EE"/>
 
         <text x="28" y="16" class="font-sans" font-size="14.5" font-weight="800" fill="#20201E" letter-spacing="-0.3">WebAudits<tspan fill="#E63946">.pro</tspan></text>
-        <text x="116" y="16" class="font-sans" font-size="9.5" font-weight="600" fill="#666159" letter-spacing="0.05em">VITALSSNIPER</text>
+        <text x="116" y="16" class="font-sans" font-size="9.5" font-weight="600" fill="#716C64" letter-spacing="0.05em">VITALSSNIPER</text>
         
         <rect x="190" y="4" width="30" height="15" rx="3.5" fill="#20201E"/>
         <text x="205" y="15" class="font-sans" font-size="8.5" font-weight="800" fill="#F7F4EE" text-anchor="middle" letter-spacing="0.05em">PRO</text>
@@ -209,7 +210,7 @@
           <g transform="translate(276, -2)">
             <rect width="60" height="24" rx="5" fill="#FDF1F0" stroke="#F7BDB9" stroke-width="1"/>
             <text x="24" y="17" class="font-mono" font-size="15" font-weight="800" fill="#A8231B" text-anchor="end">36</text>
-            <text x="27" y="16" class="font-sans" font-size="9" font-weight="600" fill="#666159">/100</text>
+            <text x="27" y="16" class="font-sans" font-size="9" font-weight="600" fill="#716C64">/100</text>
           </g>
         </g>
 
@@ -231,61 +232,61 @@
         <!-- Metric 1: DOM Elements (CRITICAL) -->
         <g transform="translate(0, 0)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7BDB9" stroke-width="1.4"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#666159">DOM ELEMENTS</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">DOM ELEMENTS</text>
           <rect x="124" y="6" width="42" height="12" rx="2.5" fill="#FDF1F0"/>
           <text x="145" y="15" class="font-sans" font-size="7" font-weight="800" fill="#A8231B" text-anchor="middle">CRITICAL</text>
           <text x="8" y="38" class="font-mono" font-size="16" font-weight="800" fill="#A8231B">4,820</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#666159">Standard: &lt; 1,400</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">Standard: &lt; 1,400</text>
         </g>
 
         <!-- Metric 2: Page Payload -->
         <g transform="translate(184, 0)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7DCA8" stroke-width="1"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#666159">PAGE PAYLOAD</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">PAGE PAYLOAD</text>
           <rect x="132" y="6" width="34" height="12" rx="2.5" fill="#FEF7EA"/>
           <text x="149" y="15" class="font-sans" font-size="7" font-weight="800" fill="#8A5308" text-anchor="middle">WARN</text>
           <text x="8" y="38" class="font-mono" font-size="16" font-weight="800" fill="#20201E">3.1 MB</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#666159">Budget: &lt; 45 KB</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">Budget: &lt; 45 KB</text>
         </g>
 
         <!-- Metric 3: Mobile Scaling -->
         <g transform="translate(0, 68)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7BDB9" stroke-width="1"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#666159">MOBILE SCALING</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">MOBILE SCALING</text>
           <rect x="136" y="6" width="30" height="12" rx="2.5" fill="#FDF1F0"/>
           <text x="151" y="15" class="font-sans" font-size="7" font-weight="800" fill="#A8231B" text-anchor="middle">FAIL</text>
           <text x="8" y="38" class="font-sans" font-size="13.5" font-weight="800" fill="#A8231B">Blocked</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#666159">WCAG 2.2 Pinch Zoom</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">WCAG 2.2 Pinch Zoom</text>
         </g>
 
         <!-- Metric 4: AI & Schema -->
         <g transform="translate(184, 68)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7DCA8" stroke-width="1"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#666159">AI &amp; SCHEMA</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">AI &amp; SCHEMA</text>
           <rect x="132" y="6" width="34" height="12" rx="2.5" fill="#FEF7EA"/>
           <text x="149" y="15" class="font-sans" font-size="7" font-weight="800" fill="#8A5308" text-anchor="middle">WARN</text>
           <text x="8" y="38" class="font-sans" font-size="13.5" font-weight="800" fill="#8A5308">Missing</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#666159">No Product Schema</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">No Product Schema</text>
         </g>
 
         <!-- Metric 5: Scripts & Bloat -->
         <g transform="translate(0, 136)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7BDB9" stroke-width="1"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#666159">SCRIPTS &amp; BLOAT</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">SCRIPTS &amp; BLOAT</text>
           <rect x="124" y="6" width="42" height="12" rx="2.5" fill="#FDF1F0"/>
           <text x="145" y="15" class="font-sans" font-size="7" font-weight="800" fill="#A8231B" text-anchor="middle">CRITICAL</text>
           <text x="8" y="38" class="font-mono" font-size="16" font-weight="800" fill="#20201E">52 Scripts</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#666159">3.4s Execution Latency</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">3.4s Execution Latency</text>
         </g>
 
         <!-- Metric 6: Server TTFB -->
         <g transform="translate(184, 136)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7DCA8" stroke-width="1"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#666159">SERVER TTFB</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">SERVER TTFB</text>
           <rect x="132" y="6" width="34" height="12" rx="2.5" fill="#FEF7EA"/>
           <text x="149" y="15" class="font-sans" font-size="7" font-weight="800" fill="#8A5308" text-anchor="middle">SLOW</text>
           <text x="8" y="38" class="font-mono" font-size="16" font-weight="800" fill="#20201E">920ms</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#666159">Target: &lt; 200ms</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">Target: &lt; 200ms</text>
         </g>
       </g>
 
@@ -329,8 +330,8 @@
       <!-- Footer Micro -->
       <g transform="translate(0, 514)">
         <line x1="0" y1="0" x2="358" y2="0" stroke="#DDD7CE" stroke-width="1"/>
-        <text x="0" y="14" class="font-sans" font-size="8.5" fill="#666159">Engineered by WebAudits.pro</text>
-        <text x="358" y="14" class="font-mono" font-size="8.5" font-weight="600" fill="#666159" text-anchor="end">v1.4.2 PRO</text>
+        <text x="0" y="14" class="font-sans" font-size="8.5" fill="#716C64">Engineered by WebAudits.pro</text>
+        <text x="358" y="14" class="font-mono" font-size="8.5" font-weight="600" fill="#716C64" text-anchor="end">v1.4.2 PRO</text>
       </g>
     </g>
   </g>
