@@ -364,9 +364,11 @@ def run_tests():
     # -----------------------------------------------------------------
     print("\n--- TEST 9: Zip Archive Forward-Slash & Integrity Verification ---")
     import zipfile
+    workspace_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    web_dir = os.path.join(workspace_root, "web") if os.path.isdir(os.path.join(workspace_root, "web")) else os.path.join(workspace_root, "vitalssniper_web")
     zip_paths = [
-        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "vitalssniper_pro.zip")),
-        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "vitalssniper_web", "private_releases", "vitalssniper_pro.zip"))
+        os.path.join(workspace_root, "vitalssniper_pro.zip"),
+        os.path.join(web_dir, "private_releases", "vitalssniper_pro.zip")
     ]
     for zp in zip_paths:
         if not os.path.exists(zp):
