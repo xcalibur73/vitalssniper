@@ -1,7 +1,8 @@
 $ErrorActionPreference = 'Stop'
 $extDir = Resolve-Path $PSScriptRoot
-$zipPath = 'b:\Project Seo for WU and AA\projects\micro_saas_extensions\vitalssniper_pro.zip'
-$webZipPath = 'b:\Project Seo for WU and AA\projects\micro_saas_extensions\vitalssniper_web\private_releases\vitalssniper_pro.zip'
+$workspaceRoot = Split-Path $extDir -Parent
+$zipPath = Join-Path $workspaceRoot 'vitalssniper_pro.zip'
+$webZipPath = Join-Path $workspaceRoot 'vitalssniper_web\private_releases\vitalssniper_pro.zip'
 
 $stagingDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
 New-Item -ItemType Directory -Path $stagingDir -Force | Out-Null
@@ -68,7 +69,7 @@ Copy-Item $zipPath (Join-Path $bundleStaging 'vitalssniper_pro.zip') -Force
 Copy-Item (Join-Path $extDir 'STORE_LISTING.md') $bundleStaging -Force
 Copy-Item (Join-Path $extDir 'store_assets\*.png') (Join-Path $bundleStaging 'store_assets') -Force
 
-$bundleZip = 'b:\Project Seo for WU and AA\projects\micro_saas_extensions\vitalssniper_complete_release_package.zip'
+$bundleZip = Join-Path $workspaceRoot 'vitalssniper_complete_release_package.zip'
 if (Test-Path $bundleZip) { Remove-Item $bundleZip -Force }
 
 $bStream = [System.IO.File]::Open($bundleZip, [System.IO.FileMode]::Create)
