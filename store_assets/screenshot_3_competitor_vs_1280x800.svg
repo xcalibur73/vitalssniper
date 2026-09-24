@@ -55,12 +55,13 @@
     <circle cx="104" cy="21" r="3.5" fill="#43A047"/>
     <text x="116" y="25" class="font-sans" font-size="11" fill="#DDD7CE">https://ecoliving-goods.com/collections/kitchen</text>
 
-    <!-- Simulated Target Site Background (Dimmed) -->
-    <g transform="translate(0, 42)" opacity="0.45">
-      <rect width="1180" height="60" fill="#FAF8F3" stroke="#DDD7CE" stroke-width="0.8"/>
-      <text x="40" y="38" class="font-sans" font-size="16" font-weight="900" fill="#20201E">ECOLIVING GOODS</text>
-      <rect y="60" width="1180" height="300" fill="#F4EFEA"/>
-      <text x="40" y="140" class="font-sans" font-size="32" font-weight="900" fill="#20201E">Sustainable Kitchenware</text>
+    <!-- Simulated Target Site Background (Subtle clean background) -->
+    <g transform="translate(0, 42)" opacity="0.30">
+      <rect width="1180" height="50" fill="#FAF8F3" stroke="#DDD7CE" stroke-width="0.8"/>
+      <text x="540" y="32" class="font-sans" font-size="14" font-weight="800" fill="#20201E">ECOLIVING GOODS</text>
+      <text x="700" y="31" class="font-sans" font-size="11" fill="#716C64">Kitchenware   |   Eco Home   |   Reviews</text>
+      <rect y="50" width="1180" height="300" fill="#F4EFEA"/>
+      <rect x="540" y="80" width="180" height="140" rx="6" fill="#DDD7CE" opacity="0.4"/>
     </g>
   </g>
 
@@ -73,14 +74,14 @@
     <text x="26" y="17" class="font-sans" font-size="10.5" font-weight="800" fill="#F7F4EE" letter-spacing="0.06em">SCREENSHOT 3 : COMPETITOR VS</text>
 
     <!-- Headline -->
-    <g transform="translate(0, 40)">
-      <text x="0" y="0" class="font-sans" font-size="30" font-weight="900" fill="#20201E" letter-spacing="-0.8">Head-to-Head Benchmarking &amp;</text>
-      <text x="0" y="38" class="font-sans" font-size="30" font-weight="900" fill="#B76345" letter-spacing="-0.8">1-Page Client PDF Dossier</text>
+    <g transform="translate(0, 46)">
+      <text x="0" y="26" class="font-sans" font-size="29" font-weight="900" fill="#20201E" letter-spacing="-0.8">Head-to-Head Benchmarking &amp;</text>
+      <text x="0" y="60" class="font-sans" font-size="29" font-weight="900" fill="#B76345" letter-spacing="-0.8">1-Page Client PDF Dossier</text>
     </g>
 
     <!-- Subtitle -->
-    <g transform="translate(0, 126)">
-      <text x="0" y="0" class="font-sans" font-size="13.5" font-weight="500" fill="#716C64" line-height="1.5">
+    <g transform="translate(0, 134)">
+      <text x="0" y="15" class="font-sans" font-size="13.5" font-weight="500" fill="#716C64" line-height="1.5">
         <tspan x="0" dy="0">Show clients why their rivals outrank them. Generate</tspan>
         <tspan x="0" dy="20">hard win/loss delta tables and white-label 1-page</tspan>
         <tspan x="0" dy="20">teardown PDFs branded with your agency logo.</tspan>
@@ -156,25 +157,22 @@
       <text x="0" y="42" class="font-sans" font-size="18" font-weight="800" fill="#20201E">Competitor Benchmarking</text>
       <text x="0" y="58" class="font-sans" font-size="11" fill="#716C64">Compare structural speed and SEO metrics against direct industry rivals.</text>
 
-      <!-- Similar Sites / Rival Quick Picker Bar (width: 680) -->
+      <!-- Similar Sites / Rival Quick Picker Bar (width: 680, height: 44, horizontal layout) -->
       <g transform="translate(0, 72)">
-        <rect width="680" height="42" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <g transform="translate(14, 8)">
-          <text x="0" y="11" class="font-sans" font-size="8" font-weight="800" fill="#716C64" letter-spacing="0.05em">RIVAL SUGGESTIONS:</text>
-          <g transform="translate(0, 16)">
-            <!-- Chip 1 (Active) -->
-            <rect x="0" y="0" width="120" height="20" rx="10" fill="#20201E"/>
-            <text x="60" y="13" class="font-sans" font-size="9" font-weight="700" fill="#F7F4EE" text-anchor="middle">purehome.com</text>
+        <rect width="680" height="44" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <text x="16" y="27" class="font-sans" font-size="8.5" font-weight="800" fill="#716C64" letter-spacing="0.06em">RIVAL SUGGESTIONS:</text>
+        
+        <!-- Chip 1 (Active) -->
+        <rect x="154" y="10" width="130" height="24" rx="12" fill="#20201E"/>
+        <text x="219" y="25" class="font-sans" font-size="9.5" font-weight="700" fill="#F7F4EE" text-anchor="middle">purehome.com</text>
 
-            <!-- Chip 2 -->
-            <rect x="130" y="0" width="130" height="20" rx="10" fill="#F7F4EE" stroke="#DDD7CE" stroke-width="1"/>
-            <text x="195" y="13" class="font-sans" font-size="9" font-weight="600" fill="#20201E" text-anchor="middle">earthcookware.io</text>
+        <!-- Chip 2 -->
+        <rect x="294" y="10" width="140" height="24" rx="12" fill="#F7F4EE" stroke="#DDD7CE" stroke-width="1"/>
+        <text x="364" y="25" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E" text-anchor="middle">earthcookware.io</text>
 
-            <!-- Chip 3 -->
-            <rect x="270" y="0" width="116" height="20" rx="10" fill="#F7F4EE" stroke="#DDD7CE" stroke-width="1"/>
-            <text x="328" y="13" class="font-sans" font-size="9" font-weight="600" fill="#20201E" text-anchor="middle">greenlife.shop</text>
-          </g>
-        </g>
+        <!-- Chip 3 -->
+        <rect x="444" y="10" width="130" height="24" rx="12" fill="#F7F4EE" stroke="#DDD7CE" stroke-width="1"/>
+        <text x="509" y="25" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E" text-anchor="middle">greenlife.shop</text>
       </g>
 
       <!-- Dual Battle Card Header (width: 680) -->
@@ -275,7 +273,10 @@
       <!-- Action Row (width: 680) -->
       <g transform="translate(0, 536)">
         <rect width="520" height="38" rx="6" fill="#20201E"/>
-        <text x="260" y="24" class="font-sans" font-size="12" font-weight="700" fill="#F7F4EE" text-anchor="middle">📥 Export 1-Page PDF Teardown Dossier</text>
+        <g transform="translate(136, 11)">
+          <path d="M1 10v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3M8 1v8M4.5 5.5L8 9l3.5-3.5" fill="none" stroke="#F7F4EE" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="22" y="12.5" class="font-sans" font-size="12" font-weight="700" fill="#F7F4EE">Export 1-Page PDF Teardown Dossier</text>
+        </g>
 
         <rect x="536" y="0" width="144" height="38" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <text x="608" y="24" class="font-sans" font-size="11.5" font-weight="700" fill="#20201E" text-anchor="middle">Close View</text>

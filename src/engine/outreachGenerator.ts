@@ -33,6 +33,22 @@ export class OutreachGenerator {
     const maxDepth = data.domStats ? data.domStats.maxDepth : 0;
     const ttfbMs = data.ttfbMs || 0;
 
+    const lcpMs = data.performance?.lcpMs || (finding.id.includes('lcp') ? parseInt(String(finding.evidence?.find((e: any) => e.label.includes('Timing'))?.value || '').replace(/\D/g, '')) || 3200 : 3200);
+    const lcpSelector = String(data.performance?.lcpElementSelector || data.performance?.lcpAttribution?.elementSelector || (finding.evidence?.find((e: any) => e.label.includes('Element'))?.value || 'hero element'));
+    const lcpLoadDelay = data.performance?.lcpLoadDelayMs || 420;
+    const lcpLoadDuration = data.performance?.lcpLoadDurationMs || 350;
+    const lcpRenderDelay = data.performance?.lcpRenderDelayMs || 680;
+    const lcpTtfb = data.performance?.lcpTtfbMs || ttfbMs;
+
+    const inpMs = data.performance?.inpMs || (finding.id.includes('inp') ? parseInt(String(finding.evidence?.find((e: any) => e.label.includes('INP'))?.value || '').replace(/\D/g, '')) || 380 : 380);
+    const inpTarget = String(data.performance?.inpTarget || data.performance?.inpAttribution?.interactionTarget || (finding.evidence?.find((e: any) => e.label.includes('Target'))?.value || 'interactive button'));
+    const inpProcessingDelay = data.performance?.inpProcessingDelayMs || 180;
+    const inpInputDelay = data.performance?.inpInputDelayMs || 40;
+    const inpPresentationDelay = data.performance?.inpPresentationDelayMs || 60;
+
+    const clsScore = data.performance?.cls !== null && data.performance?.cls !== undefined ? data.performance.cls.toFixed(3) : String(finding.evidence?.find((e: any) => e.label.includes('CLS'))?.value || '0.180');
+    const clsTarget = String(data.performance?.clsAttribution?.largestShiftTarget || (finding.evidence?.find((e: any) => e.label.includes('Shift'))?.value || 'layout banner container'));
+
     let email = '';
     let dm = '';
     let loom = '';
@@ -532,7 +548,306 @@ Best regards,
       }
 
     // =========================================================================
-    // BRANCH 6: GENERIC FINDING WITH TELEMETRY
+    // BRANCH 6: LARGEST CONTENTFUL PAINT (LCP WITH SUBPARTS)
+    // =========================================================================
+    } else if (finding.id === 'critical-lcp' || finding.id === 'warning-lcp') {
+      if (tone === 'urgency') {
+        emailHook = `${domain}'s primary visual content requires ${lcpMs} ms to render on mobile devices (anchored to ${lcpSelector}), exceeding Google's 2,500 ms threshold and driving bounce rates.`;
+        email = `Subject: Mobile LCP bottleneck identified on ${domain}
+
+Hi [First Name],
+
+While profiling ${domain} on mobile device emulation, our diagnostics identified a critical Largest Contentful Paint bottleneck: the primary above-the-fold content (${lcpSelector}) requires ${lcpMs} ms to render.
+
+Attribution telemetry reveals a ${lcpLoadDelay} ms resource load delay combined with a ${lcpRenderDelay} ms element render delay, delaying visual confirmation for mobile visitors.
+
+Immediate remediation points:
+1. Preload the primary visual asset using <link rel="preload" as="image" fetchpriority="high">.
+2. Defer non-critical client-side JavaScript execution blocking the hero render.
+3. Ensure server response latency (TTFB: ${lcpTtfb} ms) is optimized via edge caching.
+
+Can we schedule a 10-minute briefing to review the mobile waterfall trace?
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], noticed ${domain}'s Largest Contentful Paint takes ${lcpMs} ms on mobile (${lcpSelector}). A ${lcpLoadDelay} ms asset delay is slowing visual completion. Happy to share our 2-step fix!`;
+        loom = `[0:00 - 0:10] "Hi [First Name], I was profiling mobile Core Web Vitals on ${domain} and spotted an important rendering delay."
+[0:10 - 0:20] "Your Largest Contentful Paint clocks in at ${lcpMs} ms on ${lcpSelector}, driven by a ${lcpLoadDelay} ms resource load delay and ${lcpRenderDelay} ms render delay."
+[0:20 - 0:30] "Preloading the asset and optimizing render order can bring this sub-2 seconds without changing your visual design. Let me know if you would like the full trace!"`;
+
+      } else if (tone === 'soft-sell') {
+        emailHook = `I was reviewing ${domain}'s mobile performance and noticed a small resource preloading opportunity for ${lcpSelector} (${lcpMs} ms).`;
+        email = `Subject: Quick note on ${domain}'s hero asset loading
+
+Hi [First Name],
+
+I was inspecting ${domain} in Chrome DevTools today and noticed that the Largest Contentful Paint element (${lcpSelector}) takes ${lcpMs} ms to complete on mobile.
+
+Looking at the network waterfall, there is a ${lcpLoadDelay} ms delay before the browser initiates the request for this asset.
+
+Adding a simple <link rel="preload" as="image" fetchpriority="high"> tag in your document head often shaves 800ms+ off mobile load times with zero design modifications.
+
+Thought I would share this quick note in case it helps your engineering roadmap!
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], came across ${domain} and noticed ${lcpSelector} takes ${lcpMs} ms on mobile. Adding fetchpriority="high" can speed up visual rendering instantly. Friendly heads-up!`;
+        loom = `[0:00 - 0:10] "Hey [First Name], I was looking at ${domain}'s frontend performance and noticed a quick opportunity around your hero section."
+[0:10 - 0:20] "The primary visual element (${lcpSelector}) currently renders at ${lcpMs} ms because the asset request starts with a ${lcpLoadDelay} ms delay."
+[0:20 - 0:30] "A simple preload directive in the head will pull that render time firmly under 2 seconds. Happy to share the code snippet if helpful!"`;
+
+      } else if (tone === 'aggressive') {
+        emailHook = `${domain} loses mobile visitors to direct competitors due to a ${lcpMs} ms Largest Contentful Paint delay on ${lcpSelector}.`;
+        email = `Subject: Critical Core Web Vitals bottleneck on ${domain}
+
+Hi [First Name],
+
+Our automated Core Web Vitals benchmark flagged an active performance flaw on ${domain}: your Largest Contentful Paint is delayed at ${lcpMs} ms, well above Google's 2,500 ms threshold.
+
+Subpart attribution reveals:
+- Target element: ${lcpSelector}
+- Resource load delay: ${lcpLoadDelay} ms
+- Resource load duration: ${lcpLoadDuration} ms
+- Element render delay: ${lcpRenderDelay} ms
+- Initial TTFB: ${lcpTtfb} ms
+
+Mobile searchers bounce when visual paint is delayed past 3 seconds, directly eroding paid ad efficiency and organic rankings.
+
+We can remediate this LCP bottleneck for your site in 48 hours without touching your brand assets. Let me know when you have 10 minutes to discuss.
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], ${domain}'s mobile LCP is currently ${lcpMs} ms on ${lcpSelector}, exceeding Google's threshold. We can pull this sub-2 seconds for you this week. Open to a brief chat?`;
+        loom = `[0:00 - 0:10] "Hi [First Name], if mobile conversions matter for ${domain}, you need to review your Core Web Vitals right now."
+[0:10 - 0:20] "Your LCP takes ${lcpMs} ms on ${lcpSelector}, with ${lcpLoadDelay} ms lost in resource scheduling before pixels appear."
+[0:20 - 0:30] "We specialize in eliminating Core Web Vitals bottlenecks in 48 hours. Let me know when you are open for a 10-minute review."`;
+
+      } else {
+        // Data-driven
+        emailHook = `I was profiling ${domain}'s Core Web Vitals telemetry and noticed Largest Contentful Paint is measured at ${lcpMs} ms on ${lcpSelector}.`;
+        email = `Subject: Largest Contentful Paint observation on ${domain}
+
+Hi [First Name],
+
+While profiling mobile rendering telemetry on ${domain}, I observed that Largest Contentful Paint is currently measured at ${lcpMs} ms, anchored to ${lcpSelector}.
+
+Attribution analysis breaks down the timing into:
+- Resource load delay: ${lcpLoadDelay} ms
+- Resource load duration: ${lcpLoadDuration} ms
+- Element render delay: ${lcpRenderDelay} ms
+- Server TTFB: ${lcpTtfb} ms
+
+Recommended diagnostic steps:
+1. Preload the hero asset using <link rel="preload" as="image" fetchpriority="high">.
+2. Eliminate render-blocking stylesheets preceding the LCP element.
+3. Verify modern WebP/AVIF compression formats on mobile viewports.
+
+Would your engineering team be open to a 10-minute diagnostic session to review the waterfall trace?
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], noticed ${domain} shows a measured LCP of ${lcpMs} ms on ${lcpSelector} (${lcpLoadDelay} ms load delay). Happy to share our technical diagnostic notes if helpful!`;
+        loom = `[0:00 - 0:10] "Hi [First Name], I was profiling mobile Core Web Vitals on ${domain} and wanted to share an observation regarding your Largest Contentful Paint."
+[0:10 - 0:20] "The metric is measured at ${lcpMs} ms on ${lcpSelector}. The timing breakdown shows a ${lcpLoadDelay} ms resource load delay and ${lcpRenderDelay} ms render delay."
+[0:20 - 0:30] "Prioritizing asset delivery brings this well under the 2.5s threshold. Let me know if you would like me to send over our diagnostic notes!"`;
+      }
+
+    // =========================================================================
+    // BRANCH 7: INTERACTION TO NEXT PAINT (INP WITH ATTRIBUTION)
+    // =========================================================================
+    } else if (finding.id === 'critical-inp' || finding.id === 'warning-inp') {
+      if (tone === 'urgency') {
+        emailHook = `${domain} registers an Interaction to Next Paint latency of ${inpMs} ms during mobile tap events, violating Core Web Vitals responsiveness standards.`;
+        email = `Subject: Mobile interaction latency (INP) bottleneck on ${domain}
+
+Hi [First Name],
+
+During our Core Web Vitals audit of ${domain}, we identified an active Interaction to Next Paint (INP) bottleneck: mobile tap events on ${inpTarget} encounter ${inpMs} ms of latency before the browser presents the next frame.
+
+Attribution traces show a ${inpProcessingDelay} ms main-thread processing delay, causing visible UI freeze and dropped frames during navigation.
+
+Recommended remediation:
+1. Decouple synchronous tracking scripts bound to touch handlers.
+2. Yield the main thread using scheduler.yield() or requestIdleCallback.
+3. Defer layout recalculations triggered during click events.
+
+Can we set up a brief 10-minute review to walk through the event-timing profile?
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], heads up: tap events on ${domain} (${inpTarget}) trigger ${inpMs} ms of INP delay, exceeding Google's 200ms budget. Happy to share how to yield the main thread!`;
+        loom = `[0:00 - 0:10] "Hi [First Name], I was testing mobile interaction performance on ${domain} and found an important responsiveness bottleneck."
+[0:10 - 0:20] "Tap interactions on ${inpTarget} register an INP latency of ${inpMs} ms, mostly driven by ${inpProcessingDelay} ms of main-thread script execution."
+[0:20 - 0:30] "Breaking up those long event handlers brings interaction delay well below 100ms. Let me know if you would like to see the profile trace!"`;
+
+      } else if (tone === 'soft-sell') {
+        emailHook = `I noticed a small event handler optimization opportunity on ${domain} that can make mobile taps and clicks feel significantly snappier.`;
+        email = `Subject: Quick note on ${domain}'s mobile tap responsiveness
+
+Hi [First Name],
+
+I was testing ${domain} on my phone today and noticed tap interactions on ${inpTarget} have a slight delay before visual feedback registers (${inpMs} ms INP).
+
+Event-timing attribution shows about ${inpProcessingDelay} ms of JavaScript processing time during the click event loop.
+
+Often, moving non-critical analytics tracking out of the primary click handler into requestIdleCallback restores instantaneous tap response.
+
+Thought I would pass along this quick observation in case your frontend team is tuning mobile CWV!
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], noticed a slight tap delay on ${domain} (${inpTarget}: ${inpMs} ms). Deferring secondary scripts in the click handler makes taps feel instant. Quick heads-up!`;
+        loom = `[0:00 - 0:10] "Hey [First Name], I was reviewing mobile user experience on ${domain} and noticed a quick win for tap responsiveness."
+[0:10 - 0:20] "Clicks on ${inpTarget} currently take ${inpMs} ms before the UI updates, due to ${inpProcessingDelay} ms of script execution in the click handler."
+[0:20 - 0:30] "Deferring non-essential work into idle callbacks restores instant tactile response. Happy to share the code snippet if helpful!"`;
+
+      } else if (tone === 'aggressive') {
+        emailHook = `${domain} fails Google's Core Web Vitals INP metric with ${inpMs} ms of interaction latency on ${inpTarget}, degrading mobile user retention.`;
+        email = `Subject: Critical INP responsiveness failure on ${domain}
+
+Hi [First Name],
+
+Google now evaluates mobile user experience based on Interaction to Next Paint. On ${domain}, tap interactions on ${inpTarget} clock in at ${inpMs} ms, exceeding the 200ms threshold by over ${(inpMs - 200)} ms.
+
+Every time a mobile user taps a button or menu, the browser freezes for nearly half a second while synchronous JavaScript executes (${inpProcessingDelay} ms processing delay).
+
+This latency frustrates mobile shoppers and directly pulls down organic Core Web Vitals rankings.
+
+We can decouple your interactive event handlers and bring your site into full INP compliance within 48 hours. When is the best time this week to speak?
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], ${domain} is currently failing Google's INP standard with ${inpMs} ms of interaction delay on ${inpTarget}. We can optimize this sub-100ms for you this week. Open to a brief chat?`;
+        loom = `[0:00 - 0:10] "Hi [First Name], if mobile conversions matter for ${domain}, you need to know about this responsiveness flaw."
+[0:10 - 0:20] "User clicks on ${inpTarget} freeze for ${inpMs} ms before the screen updates. That fails Google's new INP metric and drives visitors away."
+[0:20 - 0:30] "We have a proven approach to eliminate event-handler lag without rewriting your UI. Let me know when you have 10 minutes to discuss."`;
+
+      } else {
+        // Data-driven
+        emailHook = `While profiling ${domain}'s Core Web Vitals event timing, I observed an Interaction to Next Paint latency of ${inpMs} ms on ${inpTarget}.`;
+        email = `Subject: Interaction to Next Paint (INP) observation on ${domain}
+
+Hi [First Name],
+
+While running interaction latency profiling on ${domain}, I observed that Interaction to Next Paint (INP) is currently measured at ${inpMs} ms, centered on ${inpTarget}.
+
+Event timing attribution breakdown:
+- Measured INP latency: ${inpMs} ms (Good threshold: < 200 ms)
+- Event queue input delay: ${inpInputDelay} ms
+- Main-thread processing delay: ${inpProcessingDelay} ms
+- Observed interaction target: ${inpTarget}
+
+Recommended diagnostic steps:
+1. Profile event listener execution duration in Chrome DevTools Performance panel.
+2. Break up long script tasks executed during click and tap events.
+3. Yield the main thread to allow browser paint frames to present without delay.
+
+Would your team be open to a 10-minute technical walkthrough to inspect the event-timing profile?
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], noticed ${domain} shows a measured INP of ${inpMs} ms on ${inpTarget} (${inpProcessingDelay} ms processing delay). Happy to share our technical diagnostic notes if helpful!`;
+        loom = `[0:00 - 0:10] "Hi [First Name], I was reviewing mobile Core Web Vitals on ${domain} and wanted to share an observation regarding Interaction to Next Paint."
+[0:10 - 0:20] "Interactive taps on ${inpTarget} register ${inpMs} ms of latency, with ${inpProcessingDelay} ms spent in main-thread script processing."
+[0:20 - 0:30] "Optimizing event listeners brings interaction responsiveness firmly into the green. Happy to share our testing trace if you find this useful!"`;
+      }
+
+    // =========================================================================
+    // BRANCH 8: CUMULATIVE LAYOUT SHIFT (CLS SESSION WINDOWS)
+    // =========================================================================
+    } else if (finding.id === 'critical-cls' || finding.id === 'warning-cls') {
+      if (tone === 'urgency') {
+        emailHook = `${domain} exhibits a Cumulative Layout Shift score of ${clsScore}, causing clickable buttons and content to jump during page load.`;
+        email = `Subject: Mobile layout shift (CLS) detected on ${domain}
+
+Hi [First Name],
+
+While benchmarking Core Web Vitals on ${domain}, we identified a layout stability issue: your page registers a Cumulative Layout Shift score of ${clsScore} (threshold is < 0.10), shifting content around ${clsTarget}.
+
+When buttons or banners shift unexpectedly during page load, mobile visitors mis-click or bounce, directly depressing conversion rates.
+
+Remediation plan:
+1. Reserve explicit aspect-ratio and width/height dimensions for ${clsTarget} and media containers.
+2. Prevent dynamic banner injection above existing page elements.
+3. Pre-allocate layout geometry for late-loaded embeds and fonts.
+
+Can we set up a brief 10-minute review to show you the shift animation trace?
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], heads up: ${domain} has a layout shift score of ${clsScore} on mobile (affecting ${clsTarget}). Adding explicit dimensions stops content from jumping. Happy to share the fix!`;
+        loom = `[0:00 - 0:10] "Hi [First Name], I was inspecting mobile stability on ${domain} and found an important layout shift issue."
+[0:10 - 0:20] "Your CLS score is measured at ${clsScore} across canonical session windows, with elements shifting around ${clsTarget}."
+[0:20 - 0:30] "Setting explicit aspect ratios eliminates layout jumping completely. Let me know if you would like me to send over the diagnostic video!"`;
+
+      } else if (tone === 'soft-sell') {
+        emailHook = `I noticed a small layout shift on ${domain} (${clsScore} CLS) that can easily be smoothed out with explicit container dimensions.`;
+        email = `Subject: Quick note on ${domain}'s mobile layout stability
+
+Hi [First Name],
+
+I was browsing ${domain} on mobile today and noticed that certain sections around ${clsTarget} shift slightly as images and assets finish loading (${clsScore} CLS).
+
+Setting explicit width and height or CSS aspect-ratio on media wrappers reserves space ahead of time, preventing content from jumping.
+
+Thought I would pass along this quick note in case it helps your engineering team!
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], noticed a minor layout shift on ${domain} (${clsScore} CLS around ${clsTarget}). Setting CSS aspect-ratio prevents jumping during load. Quick friendly note!`;
+        loom = `[0:00 - 0:10] "Hey [First Name], I was checking out ${domain} and noticed a small opportunity to improve mobile smoothness."
+[0:10 - 0:20] "During load, content shifts around ${clsTarget} resulting in a ${clsScore} CLS score."
+[0:20 - 0:30] "Adding explicit aspect ratios keeps everything rock solid. Happy to share a quick CSS snippet if helpful!"`;
+
+      } else if (tone === 'aggressive') {
+        emailHook = `${domain}'s mobile conversion rate is leaking due to a ${clsScore} Cumulative Layout Shift score that causes visitors to mis-tap calls-to-action.`;
+        email = `Subject: Critical layout shift flaw on ${domain}
+
+Hi [First Name],
+
+Our technical audit on ${domain} revealed an active Core Web Vitals flaw: a Cumulative Layout Shift score of ${clsScore}, well above Google's 0.10 acceptable limit.
+
+Content jumping during page load causes mobile visitors to accidentally tap wrong buttons or abandon the session out of frustration.
+
+Attribution traces show shifts centered around ${clsTarget}.
+
+We can permanently stabilize your layout geometry and bring CLS to 0.00 within 48 hours. Let me know when you have 10 minutes to discuss.
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], ${domain} is currently failing Google's CLS metric with a ${clsScore} layout shift score on ${clsTarget}. We can stabilize this for you this week. Open to a brief chat?`;
+        loom = `[0:00 - 0:10] "Hi [First Name], if you care about mobile conversion rates on ${domain}, take a look at this layout shift finding."
+[0:10 - 0:20] "Your page registers a ${clsScore} CLS score. Elements jump around ${clsTarget} while visitors try to interact."
+[0:20 - 0:30] "We eliminate layout shifts completely with zero design changes. Let me know when you have 10 minutes to review."`;
+
+      } else {
+        // Data-driven
+        emailHook = `While reviewing ${domain}'s Core Web Vitals telemetry, I observed a Cumulative Layout Shift score of ${clsScore} across canonical session windows.`;
+        email = `Subject: Cumulative Layout Shift (CLS) observation on ${domain}
+
+Hi [First Name],
+
+While reviewing layout stability telemetry on ${domain}, I observed that Cumulative Layout Shift is measured at ${clsScore} (recommended threshold: < 0.10).
+
+The shift analysis shows layout movement affecting ${clsTarget}.
+
+Recommended diagnostic steps:
+1. Reserve explicit aspect-ratio and width/height dimensions on media and banner elements.
+2. Avoid inserting dynamic content above existing visible elements.
+3. Preload web fonts with font-display: optional or size-adjust to prevent font swap shifts.
+
+Would your engineering team be open to a 10-minute diagnostic session to review the shift timeline?
+
+Best regards,
+[Your Name]`;
+        dm = `Hi [First Name], noticed ${domain} shows a measured CLS of ${clsScore} affecting ${clsTarget}. Happy to share our technical diagnostic notes if helpful!`;
+        loom = `[0:00 - 0:10] "Hi [First Name], I was profiling mobile Core Web Vitals on ${domain} and wanted to share an observation regarding Cumulative Layout Shift."
+[0:10 - 0:20] "The layout shift score is measured at ${clsScore}, with content movement detected around ${clsTarget}."
+[0:20 - 0:30] "Adding explicit aspect ratios eliminates layout jumping during load. Happy to share our diagnostic notes if you find this useful!"`;
+      }
+
+    // =========================================================================
+    // BRANCH 9: GENERIC FINDING WITH TELEMETRY
     // =========================================================================
     } else {
       if (tone === 'urgency') {

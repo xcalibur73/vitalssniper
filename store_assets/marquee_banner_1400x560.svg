@@ -48,7 +48,7 @@
   <!-- ======================================================================
        LEFT COLUMN: Editorial Copy & Feature Value Props (x: 80 to 680)
        ====================================================================== -->
-  <g transform="translate(80, 56)">
+  <g transform="translate(80, 52)">
     <!-- Category & Brand Eyebrow -->
     <g transform="translate(0, 0)">
       <rect width="242" height="26" rx="13" fill="#20201E"/>
@@ -58,13 +58,13 @@
 
     <!-- Main Headline -->
     <g transform="translate(0, 48)">
-      <text x="0" y="0" class="font-sans" font-size="38" font-weight="900" fill="#20201E" letter-spacing="-1">Turn Hidden Site Flaws Into</text>
-      <text x="0" y="46" class="font-sans" font-size="38" font-weight="900" fill="#B76345" letter-spacing="-1">High-Converting Client Pitches</text>
+      <text x="0" y="32" class="font-sans" font-size="38" font-weight="900" fill="#20201E" letter-spacing="-1">Turn Hidden Site Flaws Into</text>
+      <text x="0" y="76" class="font-sans" font-size="38" font-weight="900" fill="#B76345" letter-spacing="-1">High-Converting Client Pitches</text>
     </g>
 
     <!-- Subtitle -->
-    <g transform="translate(0, 168)">
-      <text x="0" y="0" class="font-sans" font-size="16" font-weight="500" fill="#716C64" line-height="1.5">
+    <g transform="translate(0, 160)">
+      <text x="0" y="16" class="font-sans" font-size="16" font-weight="500" fill="#716C64" line-height="1.5">
         <tspan x="0" dy="0">Instant in-browser DOM bloat, Core Web Vitals, CMS fingerprinting,</tspan>
         <tspan x="0" dy="24">and evidence-grounded client teardowns in under 50 milliseconds.</tspan>
       </text>
@@ -76,7 +76,8 @@
       <g transform="translate(0, 0)">
         <rect width="270" height="52" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <circle cx="24" cy="26" r="12" fill="#EAF2F8"/>
-        <text x="24" y="30" class="font-sans" font-size="12" text-anchor="middle" fill="#1A5276">🔍</text>
+        <circle cx="22" cy="24" r="4.2" fill="none" stroke="#1A5276" stroke-width="1.5"/>
+        <path d="M25.5 27.5L29 31" stroke="#1A5276" stroke-width="1.6" stroke-linecap="round"/>
         <text x="46" y="22" class="font-sans" font-size="12" font-weight="700" fill="#20201E">CMS &amp; Builder Detector</text>
         <text x="46" y="38" class="font-sans" font-size="10" font-weight="500" fill="#716C64">Elementor, Divi, Shopify, Next.js</text>
       </g>
@@ -85,7 +86,7 @@
       <g transform="translate(286, 0)">
         <rect width="270" height="52" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <circle cx="24" cy="26" r="12" fill="#FDF1F0"/>
-        <text x="24" y="30" class="font-sans" font-size="12" text-anchor="middle" fill="#A8231B">⚡</text>
+        <path d="M25 19L20 25.5h4.5l-1 6 5.5-6.5h-4.5l1-5z" fill="none" stroke="#A8231B" stroke-width="1.4" stroke-linejoin="round"/>
         <text x="46" y="22" class="font-sans" font-size="12" font-weight="700" fill="#20201E">DOM Bloat &amp; Tree Depth</text>
         <text x="46" y="38" class="font-sans" font-size="10" font-weight="500" fill="#716C64">Flags 15+ deep layout thrashing</text>
       </g>
@@ -94,7 +95,8 @@
       <g transform="translate(0, 64)">
         <rect width="270" height="52" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <circle cx="24" cy="26" r="12" fill="#FEF7EA"/>
-        <text x="24" y="30" class="font-sans" font-size="12" text-anchor="middle" fill="#8A5308">📝</text>
+        <path d="M19 19h7l3.5 3.5v7.5a1 1 0 0 1-1 1H19a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1z" fill="none" stroke="#8A5308" stroke-width="1.3"/>
+        <path d="M26 19v3.5h3.5M21 26h5M21 28.5h3.5" stroke="#8A5308" stroke-width="1.3" stroke-linecap="round"/>
         <text x="46" y="22" class="font-sans" font-size="12" font-weight="700" fill="#20201E">Evidence Outreach Engine</text>
         <text x="46" y="38" class="font-sans" font-size="10" font-weight="500" fill="#716C64">3-Sentence Email, DM &amp; Loom scripts</text>
       </g>
@@ -103,7 +105,7 @@
       <g transform="translate(286, 64)">
         <rect width="270" height="52" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <circle cx="24" cy="26" r="12" fill="#EAF7EE"/>
-        <text x="24" y="30" class="font-sans" font-size="12" text-anchor="middle" fill="#1B6E38">⚔️</text>
+        <path d="M19 32V29M22.5 32V25M26 32V22M29.5 32V27M17 32h14" fill="none" stroke="#1B6E38" stroke-width="1.4" stroke-linecap="round"/>
         <text x="46" y="22" class="font-sans" font-size="12" font-weight="700" fill="#20201E">Competitor Benchmarking</text>
         <text x="46" y="38" class="font-sans" font-size="10" font-weight="500" fill="#716C64">Head-to-head battle cards &amp; PDF export</text>
       </g>
@@ -131,27 +133,28 @@
         <path d="M11 5 L17 11 L11 17 L5 11 Z" fill="none" stroke="#B76345" stroke-width="1.8" stroke-linejoin="round"/>
         <circle cx="11" cy="11" r="2" fill="#F7F4EE"/>
 
-        <text x="28" y="15" class="font-sans" font-size="14" font-weight="800" fill="#20201E" letter-spacing="-0.3">WebAudits<tspan fill="#E63946">.pro</tspan></text>
-        <text x="114" y="15" class="font-sans" font-size="9.5" font-weight="600" fill="#716C64" letter-spacing="0.05em">VITALSSNIPER</text>
-        
-        <rect x="188" y="3" width="30" height="15" rx="3.5" fill="#20201E"/>
-        <text x="203" y="14" class="font-sans" font-size="8.5" font-weight="800" fill="#F7F4EE" text-anchor="middle" letter-spacing="0.05em">PRO</text>
+        <text x="28" y="16" class="font-sans" font-size="14" font-weight="800" fill="#20201E" letter-spacing="-0.3">VitalsSniper</text>
+        <rect x="114" y="3.5" width="28" height="15" rx="3.5" fill="#B76345"/>
+        <text x="128" y="14.5" class="font-sans" font-size="8" font-weight="800" fill="#FFFFFF" text-anchor="middle">PRO</text>
+        <text x="150" y="15.5" class="font-sans" font-size="8.5" font-weight="600" fill="#716C64">by webaudits.pro</text>
 
         <!-- Tool Buttons -->
-        <g transform="translate(254, 0)">
+        <g transform="translate(252, 0)">
           <!-- Vs -->
-          <rect x="0" y="0" width="30" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <text x="15" y="14" class="font-sans" font-size="9" font-weight="700" fill="#20201E" text-anchor="middle">⚔️ Vs</text>
+          <rect x="0" y="0" width="34" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+          <path d="M6 13L9 9L6 5M14 5L11 9L14 13" fill="none" stroke="#716C64" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="21" y="14.5" class="font-sans" font-size="9" font-weight="800" fill="#20201E">Vs</text>
           
-          <!-- 📌 3 -->
-          <rect x="36" y="0" width="32" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <text x="47" y="14" class="font-sans" font-size="9" fill="#20201E">📌</text>
-          <rect x="58" y="4" width="8" height="12" rx="4" fill="#B76345"/>
-          <text x="62" y="13" class="font-sans" font-size="7.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">3</text>
+          <!-- Pin / Leads 3 -->
+          <rect x="38" y="0" width="34" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+          <path d="M47 5h7a1 1 0 0 1 1 1v10l-4.5-3L46 16V6a1 1 0 0 1 1-1z" fill="none" stroke="#20201E" stroke-width="1.3" stroke-linejoin="round"/>
+          <rect x="58" y="3" width="10" height="12" rx="4" fill="#B76345"/>
+          <text x="63" y="12" class="font-sans" font-size="7.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">3</text>
 
-          <!-- ⚙️ -->
-          <rect x="74" y="0" width="26" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <text x="87" y="14" class="font-sans" font-size="10" fill="#20201E" text-anchor="middle">⚙️</text>
+          <!-- Settings Gear -->
+          <rect x="76" y="0" width="26" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+          <circle cx="89" cy="11" r="2.2" fill="none" stroke="#20201E" stroke-width="1.3"/>
+          <path d="M89 6v1.5M89 14.5v1.5M84 11h1.5M92.5 11h1.5M85.5 7.5l1 1M91.5 13.5l1 1M85.5 14.5l1-1M91.5 8.5l1-1" stroke="#20201E" stroke-width="1.3" stroke-linecap="round"/>
         </g>
       </g>
 
@@ -266,7 +269,10 @@
         <text x="129" y="22" class="font-sans" font-size="11.5" font-weight="700" fill="#F7F4EE" text-anchor="middle">Copy 3-Sentence Email</text>
 
         <rect x="268" y="0" width="90" height="36" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <text x="313" y="22" class="font-sans" font-size="10.5" font-weight="700" fill="#20201E" text-anchor="middle">📌 Save</text>
+        <g transform="translate(290, 10)">
+          <path d="M2 1h7a1 1 0 0 1 1 1v11l-4.5-2.5L1 13V2a1 1 0 0 1 1-1z" fill="none" stroke="#20201E" stroke-width="1.3" stroke-linejoin="round"/>
+          <text x="18" y="12" class="font-sans" font-size="10.5" font-weight="700" fill="#20201E">Save</text>
+        </g>
       </g>
 
       <!-- Footer Micro -->
@@ -285,7 +291,7 @@
   <g transform="translate(730, 160)" filter="url(#floatingCalloutShadow)">
     <rect width="180" height="34" rx="17" fill="#B76345"/>
     <circle cx="18" cy="17" r="7" fill="#FFFFFF"/>
-    <text x="18" y="21" class="font-sans" font-size="10" font-weight="900" fill="#B76345" text-anchor="middle">⚡</text>
+    <path d="M19 12.5l-3.5 4.5h3l-1.5 5 4.5-5.5h-3z" fill="#B76345"/>
     <text x="34" y="21" class="font-sans" font-size="10.5" font-weight="800" fill="#FFFFFF">&lt;50ms DOM Audit</text>
   </g>
 
@@ -293,7 +299,7 @@
   <g transform="translate(700, 380)" filter="url(#floatingCalloutShadow)">
     <rect width="210" height="34" rx="17" fill="#20201E"/>
     <circle cx="18" cy="17" r="7" fill="#B76345"/>
-    <text x="18" y="21" class="font-sans" font-size="10" font-weight="900" fill="#F7F4EE" text-anchor="middle">✓</text>
+    <path d="M14.5 17l2.2 2.5 4.3-5" fill="none" stroke="#F7F4EE" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
     <text x="34" y="21" class="font-sans" font-size="10.5" font-weight="700" fill="#F7F4EE">Evidence-Backed Pitch</text>
   </g>
 </svg>

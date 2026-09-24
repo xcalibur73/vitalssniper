@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   configuredAuditorName = agencyCfg.auditorName || '';
 
   await initLicense();
+  initProUpgradeModal();
   initSettingsModal();
   initCompetitorModal();
   initPipelineDrawer();
@@ -582,24 +583,28 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
   // Initialize Action Buttons
   initActionButtons(domain, currentUrl, score, data, primaryFinding);
 
-  // 7. Background Cloud Sync to WebAudits 30-Day Vault (Pro/Master)
-  CloudSyncService.syncAudit({
-    domain: currentAuditState.domain,
-    url: currentAuditState.url,
-    score: currentAuditState.score,
-    cmsText: currentAuditState.cmsText,
-    flawBadge: currentAuditState.flawBadge,
-    flawTitle: currentAuditState.flawTitle,
-    flawEvidence: currentAuditState.flawEvidence,
-    scorecard: currentAuditState.scorecard,
-    data: currentAuditState.data,
-  }).then(res => {
-    const badge = document.getElementById('cloudSyncBadge');
-    if (badge && res.saved) {
-      badge.style.display = 'inline-flex';
-      badge.title = 'Audit synced to your WebAudits 30-Day Vault';
-    }
-  }).catch(() => {});
+  // 7. Background Cloud Sync to WebAudits.pro Vault (Pro/Master)
+  const cloudBadge = document.getElementById('cloudSyncBadge');
+  if (isPaidUser && currentAuditState.url && !currentAuditState.url.includes('example.com')) {
+    CloudSyncService.syncAudit({
+      domain: currentAuditState.domain,
+      url: currentAuditState.url,
+      score: currentAuditState.score,
+      cmsText: currentAuditState.cmsText,
+      flawBadge: currentAuditState.flawBadge,
+      flawTitle: currentAuditState.flawTitle,
+      flawEvidence: currentAuditState.flawEvidence,
+      scorecard: currentAuditState.scorecard,
+      data: currentAuditState.data,
+    }).then(res => {
+      if (cloudBadge && (res.saved || res.success)) {
+        cloudBadge.style.display = 'inline-flex';
+        cloudBadge.title = 'Synced to WebAudits.pro Dashboard';
+      }
+    }).catch(() => {});
+  } else {
+    if (cloudBadge) cloudBadge.style.display = 'none';
+  }
 }
 
 // --- OUTREACH CHANNEL & TONE VIEW UPDATES ---
@@ -661,9 +666,36 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
   const toneAggressive = document.getElementById('toneAggressive');
 
   if (toneDataDriven) toneDataDriven.onclick = () => { activeTone = 'data-driven'; updateActiveToneView(domain, primaryFinding, data); };
-  if (toneUrgency) toneUrgency.onclick = () => { activeTone = 'urgency'; updateActiveToneView(domain, primaryFinding, data); };
-  if (toneSoftSell) toneSoftSell.onclick = () => { activeTone = 'soft-sell'; updateActiveToneView(domain, primaryFinding, data); };
-  if (toneAggressive) toneAggressive.onclick = () => { activeTone = 'aggressive'; updateActiveToneView(domain, primaryFinding, data); };
+  if (toneUrgency) {
+    toneUrgency.onclick = () => {
+      if (!isPaidUser) {
+        showProUpgradeModal('Advanced Outreach Tones: Urgency tone leverages loss-aversion psychology and Core Web Vitals conversion leaks to prompt action.');
+        return;
+      }
+      activeTone = 'urgency';
+      updateActiveToneView(domain, primaryFinding, data);
+    };
+  }
+  if (toneSoftSell) {
+    toneSoftSell.onclick = () => {
+      if (!isPaidUser) {
+        showProUpgradeModal('Advanced Outreach Tones: Soft-Sell tone adopts a friendly, non-threatening peer review voice designed for warm introductions.');
+        return;
+      }
+      activeTone = 'soft-sell';
+      updateActiveToneView(domain, primaryFinding, data);
+    };
+  }
+  if (toneAggressive) {
+    toneAggressive.onclick = () => {
+      if (!isPaidUser) {
+        showProUpgradeModal('Advanced Outreach Tones: Direct tone cuts straight to the point with hard-hitting benchmark metrics for decision-makers.');
+        return;
+      }
+      activeTone = 'aggressive';
+      updateActiveToneView(domain, primaryFinding, data);
+    };
+  }
 
   // Tab Switchers
   const tabEmail = document.getElementById('tabEmail');
@@ -672,7 +704,16 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
 
   if (tabEmail) tabEmail.onclick = () => { activeChannel = 'email'; updateActiveChannelView(); };
   if (tabDm) tabDm.onclick = () => { activeChannel = 'dm'; updateActiveChannelView(); };
-  if (tabLoom) tabLoom.onclick = () => { activeChannel = 'loom'; updateActiveChannelView(); };
+  if (tabLoom) {
+    tabLoom.onclick = () => {
+      if (!isPaidUser) {
+        showProUpgradeModal('Loom Video Audit Scripts: Unlock time-stamped video audit teardown scripts proven to book discovery calls.');
+        return;
+      }
+      activeChannel = 'loom';
+      updateActiveChannelView();
+    };
+  }
 
   // Copy Primary Outreach Button
   const btnCopy = document.getElementById('btnCopyEmail');
@@ -685,7 +726,7 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
       navigator.clipboard.writeText(textToCopy).then(() => {
         btnCopy.classList.add('copied');
         const btnText = document.getElementById('btnCopyText');
-        if (btnText) btnText.innerText = '✓ Copied to Clipboard!';
+        if (btnText) btnText.innerText = 'Copied to Clipboard!';
         setTimeout(() => {
           btnCopy.classList.remove('copied');
           updateActiveChannelView();
@@ -699,7 +740,7 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
   if (btnCopyHook) {
     btnCopyHook.onclick = () => {
       navigator.clipboard.writeText(currentAuditState.hook).then(() => {
-        btnCopyHook.innerText = '✓ Copied!';
+        btnCopyHook.innerText = 'Copied!';
         setTimeout(() => {
           btnCopyHook.innerText = 'Copy Hook';
         }, 2000);
@@ -713,6 +754,8 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
     btnSave.onclick = async () => {
       const saveIcon = document.getElementById('savePipelineIcon');
       const saveText = document.getElementById('savePipelineText');
+      const defaultSaveIconHtml = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3 2h10a1 1 0 0 1 1 1v11l-6-3.5L2 14V3a1 1 0 0 1 1-1z"/></svg>';
+      const savedIconHtml = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>';
 
       let activePitchSubject = `Technical observation on ${domain} web performance`;
       if (currentScripts.email && currentScripts.email.includes('Subject:')) {
@@ -749,12 +792,12 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
       updatePipelineCount(updatedList.length);
 
       if (saveText) saveText.innerText = 'Saved!';
-      if (saveIcon) saveIcon.innerText = '✓';
+      if (saveIcon) saveIcon.innerHTML = savedIconHtml;
       btnSave.classList.add('saved');
 
       setTimeout(() => {
         if (saveText) saveText.innerText = 'Save';
-        if (saveIcon) saveIcon.innerText = '📌';
+        if (saveIcon) saveIcon.innerHTML = defaultSaveIconHtml;
         btnSave.classList.remove('saved');
       }, 2500);
     };
@@ -809,7 +852,7 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
         externalMetrics: currentAuditState.externalMetrics
       };
       navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => {
-        btnCopyJson.innerText = '✓ Copied!';
+        btnCopyJson.innerText = 'Copied!';
         setTimeout(() => {
           btnCopyJson.innerHTML = '<span>JSON</span>';
         }, 2000);
@@ -821,22 +864,13 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
   const btnExport = document.getElementById('btnExportCard');
   if (btnExport) {
     btnExport.onclick = async () => {
-      let canExport = true;
-      if (!isPaidUser && typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        const res = await StorageService.get(['teardownExportCount']);
-        const count = res.teardownExportCount || 0;
+      if (!isPaidUser) {
+        const count = await StorageService.getPdfExportCount();
         if (count >= 3) {
-          canExport = false;
-          if (confirm('You have reached the free limit of 3 technical teardowns.\n\nUpgrade to VitalsSniper PRO for unlimited client dossiers and white-label branding?')) {
-            const extpay = getExtPayInstance();
-            if (extpay) extpay.openPaymentPage();
-          }
+          showProUpgradeModal('Client Teardown PDF Dossier: You have reached the 3 free lifetime export limit. Upgrade to PRO for unlimited 1-page client teardowns and custom agency branding.');
           return;
         }
-        await StorageService.set({ teardownExportCount: count + 1 });
       }
-
-      if (!canExport) return;
 
       const agencySettings = await StorageService.getAgencySettings();
       const reportHtml = ReportService.generateTeardownHtml(
@@ -846,10 +880,15 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
         data,
         primaryFinding,
         agencySettings,
-        currentAuditState.externalMetrics
+        currentAuditState.externalMetrics,
+        isPaidUser
       );
 
       ReportService.exportReport(reportHtml);
+
+      if (!isPaidUser) {
+        await StorageService.incrementPdfExportCount();
+      }
     };
   }
 }
@@ -867,9 +906,9 @@ function initLcpHighlighter(tabId: number) {
         func: highlightLcpInTab,
         args: [currentAuditState.data?.performance?.lcpElementSelector || null]
       });
-      btn.innerText = '🎯 Highlighted';
+      btn.innerText = 'Highlighted';
       setTimeout(() => {
-        btn.innerHTML = '<span>🎯 Highlight LCP</span>';
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" style="margin-right: 4px;"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2" fill="currentColor"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg><span>Highlight LCP</span>';
       }, 2500);
     }
   };
@@ -919,6 +958,57 @@ function highlightLcpInTab(selector: string | null) {
   }
 }
 
+// --- PRO UPGRADE MODAL & GATING ---
+
+function showProUpgradeModal(featureDescription: string) {
+  const modal = document.getElementById('proUpgradeModal');
+  const contextEl = document.getElementById('proUpgradeFeatureContext');
+  if (contextEl && featureDescription) {
+    contextEl.innerText = featureDescription;
+  }
+  if (modal) {
+    modal.style.display = 'flex';
+  }
+}
+
+function initProUpgradeModal() {
+  const modal = document.getElementById('proUpgradeModal');
+  const btnClose = document.getElementById('proUpgradeClose');
+  const backdrop = document.getElementById('proUpgradeBackdrop');
+  const btnCheckout = document.getElementById('btnProUpgradeCheckout');
+  const btnEnterKey = document.getElementById('btnProUpgradeEnterKey');
+  const activationModal = document.getElementById('activationModal');
+
+  const closeModal = () => {
+    if (modal) modal.style.display = 'none';
+  };
+
+  if (btnClose) btnClose.onclick = closeModal;
+  if (backdrop) backdrop.onclick = closeModal;
+
+  if (btnCheckout) {
+    btnCheckout.onclick = () => {
+      const extpay = getExtPayInstance();
+      if (extpay) {
+        extpay.openPaymentPage();
+      } else if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+        chrome.tabs.create({ url: 'https://extensionpay.com/extension/vitalssniper' });
+      } else {
+        window.open('https://extensionpay.com/extension/vitalssniper', '_blank');
+      }
+    };
+  }
+
+  if (btnEnterKey) {
+    btnEnterKey.onclick = () => {
+      closeModal();
+      if (activationModal) {
+        activationModal.style.display = 'flex';
+      }
+    };
+  }
+}
+
 // --- MODALS & DRAWERS ---
 
 function initSettingsModal() {
@@ -931,6 +1021,10 @@ function initSettingsModal() {
   if (!modal || !btnOpen) return;
 
   btnOpen.onclick = async () => {
+    if (!isPaidUser) {
+      showProUpgradeModal('White-Label Agency Branding: Inject your agency logo, custom branding, auditor title, and Calendly booking links into client teardown PDFs.');
+      return;
+    }
     const cfg = await StorageService.getAgencySettings();
     (document.getElementById('cfgAgencyName') as HTMLInputElement).value = cfg.agencyName;
     (document.getElementById('cfgLogoUrl') as HTMLInputElement).value = cfg.logoUrl;
@@ -1127,7 +1221,7 @@ function initCompetitorModal() {
       const hookEl = document.getElementById('compPitchText');
       if (hookEl && hookEl.innerText) {
         navigator.clipboard.writeText(hookEl.innerText).then(() => {
-          btnCopyHook.innerText = '✓ Copied!';
+          btnCopyHook.innerText = 'Copied!';
           setTimeout(() => { btnCopyHook.innerText = 'Copy Hook'; }, 2000);
         });
       }
@@ -1159,6 +1253,10 @@ async function initPipelineDrawer() {
 
   if (btnExportCsv) {
     btnExportCsv.onclick = async () => {
+      if (!isPaidUser) {
+        showProUpgradeModal('Lead CRM CSV Export: Download prospect lists formatted for Lemlist and Instantly outreach campaigns.');
+        return;
+      }
       const currentLeads = await StorageService.getPipelineLeads();
       if (currentLeads.length === 0) {
         alert('No leads saved in pipeline yet.');
@@ -1197,7 +1295,7 @@ async function renderPipelineList() {
 
   const leads = await StorageService.getPipelineLeads();
   if (leads.length === 0) {
-    container.innerHTML = '<div class="pipeline-empty">No prospects saved yet. Click 📌 Save on any audit to add leads here.</div>';
+    container.innerHTML = '<div class="pipeline-empty">No prospects saved yet. Click Save on any audit to add leads here.</div>';
     return;
   }
 
@@ -1231,9 +1329,9 @@ async function renderPipelineList() {
           ${(['New', 'Contacted', 'Replied', 'Proposal', 'Won', 'Lost'] as const).map(st => `<option value="${st}" ${lead.status === st ? 'selected' : ''}>${st}</option>`).join('')}
         </select>
         <div class="pipeline-btn-group">
-          <button class="btn-pipeline-action btn-copy-pipeline-pitch" data-id="${lead.id}" title="Copy tailored cold email pitch">📋 Pitch</button>
-          <a href="${safeUrl}" target="_blank" class="btn-pipeline-action" title="Open website in new tab">🔗 Visit</a>
-          <button class="btn-pipeline-action delete btn-remove-pipeline-lead" data-id="${lead.id}" title="Delete prospect from CRM">🗑️</button>
+          <button class="btn-pipeline-action btn-copy-pipeline-pitch" data-id="${lead.id}" title="Copy tailored cold email pitch">Pitch</button>
+          <a href="${safeUrl}" target="_blank" class="btn-pipeline-action" title="Open website in new tab">Visit</a>
+          <button class="btn-pipeline-action delete btn-remove-pipeline-lead" data-id="${lead.id}" title="Delete prospect from CRM">Del</button>
         </div>
       </div>
     </div>
@@ -1264,7 +1362,7 @@ async function renderPipelineList() {
           : (lead.pitchBody || '');
         await navigator.clipboard.writeText(textToCopy);
         const originalText = target.innerText;
-        target.innerText = '✓ Copied';
+        target.innerText = 'Copied';
         setTimeout(() => { target.innerText = originalText; }, 1800);
       }
     });
@@ -1304,6 +1402,10 @@ async function initBulkAuditModal() {
   if (!modal || !btnOpen) return;
 
   btnOpen.onclick = () => {
+    if (!isPaidUser) {
+      showProUpgradeModal('Bulk Batch Auditor: Audit up to 50 URLs simultaneously and rank prospects by optimization priority.');
+      return;
+    }
     modal.style.display = 'flex';
   };
 
@@ -1414,6 +1516,27 @@ async function initBulkAuditModal() {
         };
 
         bulkLeads.push(lead);
+
+        // Auto-sync all bulk audit URLs to WebAudits.pro vault for PRO users
+        if (isPaidUser) {
+          CloudSyncService.syncAudit({
+            url: raw,
+            domain: domain,
+            score: auditScore,
+            flawTitle: findingTitle,
+            flawEvidence: evidence,
+            flawSeverity: severity,
+            cmsText: stack,
+            data: {
+              domStats: { totalElements: domCount },
+              performance: {
+                lcpDisplay,
+                ttfbMs: parseInt(ttfbDisplay, 10) || null,
+                clsDisplay: '0.00'
+              }
+            }
+          }).catch(() => {});
+        }
       }
 
       // Sort results by lowest score (highest agency pitch priority)
@@ -1436,14 +1559,22 @@ async function initBulkAuditModal() {
 
       if (resultsArea) resultsArea.style.display = 'block';
       if (btnExport) btnExport.style.display = 'inline-flex';
-      if (statusText) statusText.innerText = `Completed audit of ${bulkLeads.length} prospects. Sorted by optimization priority.`;
-      if (runText) runText.innerText = '🚀 Run Batch Audit';
+      if (statusText) {
+        statusText.innerText = isPaidUser
+          ? `Completed audit of ${bulkLeads.length} prospects. Synced to WebAudits.pro Dashboard.`
+          : `Completed audit of ${bulkLeads.length} prospects. Sorted by optimization priority.`;
+      }
+      if (runText) runText.innerText = 'Run Batch Audit';
       btnRun.removeAttribute('disabled');
     };
   }
 
   if (btnExport) {
     btnExport.onclick = async () => {
+      if (!isPaidUser) {
+        showProUpgradeModal('Lead CRM CSV Export: Download prospect lists formatted for Lemlist and Instantly outreach campaigns.');
+        return;
+      }
       if (bulkLeads.length === 0) return;
       const csv = await StorageService.generatePipelineCsv(bulkLeads);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1583,9 +1714,13 @@ async function initLicense() {
     }
 
     proTag.onclick = async () => {
-      if (modal) {
-        await syncModalState();
-        modal.style.display = 'flex';
+      if (isPaidUser) {
+        if (modal) {
+          await syncModalState();
+          modal.style.display = 'flex';
+        }
+      } else {
+        showProUpgradeModal('Unlock VitalsSniper PRO to access Bulk Batch Auditing, Lead CRM CSV exports, white-label PDF reports, and advanced outreach pitches.');
       }
     };
   }
@@ -1613,6 +1748,29 @@ async function initLicense() {
         }
         await syncModalState();
         if (activeKeyDisplay) activeKeyDisplay.innerText = rawKey.substring(0, 10) + '****-****';
+
+        // Auto-sync active audit to WebAudits.pro
+        const cloudBadge = document.getElementById('cloudSyncBadge');
+        if (currentAuditState.url && !currentAuditState.url.includes('example.com') && currentAuditState.scorecard) {
+          CloudSyncService.syncAudit({
+            url: currentAuditState.url,
+            domain: currentAuditState.domain,
+            score: currentAuditState.score,
+            flawTitle: currentAuditState.flawTitle,
+            flawEvidence: currentAuditState.flawEvidence,
+            flawBadge: currentAuditState.flawBadge,
+            flawSeverity: currentAuditState.flawSeverity,
+            improvements: currentAuditState.improvements,
+            cmsText: currentAuditState.cmsText,
+            data: currentAuditState.data,
+            scorecard: currentAuditState.scorecard
+          }).then(syncRes => {
+            if (cloudBadge && (syncRes.saved || syncRes.success)) {
+              cloudBadge.style.display = 'inline-flex';
+              cloudBadge.title = 'Synced to WebAudits.pro Dashboard';
+            }
+          }).catch(() => {});
+        }
       } else {
         if (errorEl) {
           errorEl.innerText = res.message || 'Invalid key.';
@@ -1627,10 +1785,19 @@ async function initLicense() {
       if (confirm('Deactivate your PRO license key on this device?')) {
         await LicenseService.deactivate();
         isPaidUser = false;
+        activeTone = 'data-driven';
+        activeChannel = 'email';
         if (proTag) {
           proTag.innerText = 'ACTIVATE';
           proTag.classList.remove('active');
         }
+        if (currentAuditState.domain && currentAuditState.scorecard?.primaryFinding) {
+          updateActiveToneView(currentAuditState.domain, currentAuditState.scorecard.primaryFinding, currentAuditState.data);
+        } else {
+          updateActiveChannelView();
+        }
+        const cloudBadge = document.getElementById('cloudSyncBadge');
+        if (cloudBadge) cloudBadge.style.display = 'none';
         await syncModalState();
         closeModal();
       }

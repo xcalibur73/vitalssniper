@@ -4,7 +4,7 @@
 
 - Name: VitalsSniper: Proof-of-Flaw Web Inspector
 - Short Description (132 char limit): 1-Click CMS & Builder detector, DOM bloat scanner, Core Web Vitals audit, and client outreach email generator.
-- Version: 1.4.2
+- Version: 1.5.0
 - Category: Developer Tools
 - Primary Language: English
 - Pricing: Free tier with optional PRO upgrade via ExtensionPay

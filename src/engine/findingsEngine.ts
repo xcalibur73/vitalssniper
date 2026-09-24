@@ -29,11 +29,24 @@ export class FindingsEngine {
     const undersizedCount44px = data.accessibility ? (data.accessibility.undersizedTargets44px || 0) : (data.undersizedTargets || 0);
     const lcpMs = data.performance ? data.performance.lcpMs : null;
     const lcpSource = data.performance ? data.performance.lcpSource : 'Not measured';
-    const lcpSelector = data.performance ? data.performance.lcpElementSelector : null;
-    const cls = data.performance ? data.performance.cls : null;
+    const lcpSelector = data.performance ? (data.performance.lcpElementSelector || data.performance.lcpAttribution?.elementSelector) : null;
+    const lcpTtfb = data.performance ? (data.performance.lcpTtfbMs !== undefined && data.performance.lcpTtfbMs !== null ? data.performance.lcpTtfbMs : ttfbMs) : 0;
+    const lcpLoadDelay = data.performance?.lcpLoadDelayMs || 0;
+    const lcpLoadDuration = data.performance?.lcpLoadDurationMs || 0;
+    const lcpRenderDelay = data.performance?.lcpRenderDelayMs || 0;
 
-    // --- 1. CORE WEB VITALS: MEASURED LCP ---
-    if (lcpSource === 'PerformanceObserver' && lcpMs !== null) {
+    const inpMs = data.performance ? data.performance.inpMs : null;
+    const inpObserved = data.performance ? Boolean(data.performance.inpObserved) : false;
+    const inpTarget = data.performance ? (data.performance.inpTarget || data.performance.inpAttribution?.interactionTarget) : null;
+    const inpProcessingDelay = data.performance?.inpProcessingDelayMs || 0;
+    const inpInputDelay = data.performance?.inpInputDelayMs || 0;
+
+    const cls = data.performance ? data.performance.cls : null;
+    const clsTarget = data.performance?.clsAttribution?.largestShiftTarget || null;
+
+    // --- 1. CORE WEB VITALS: MEASURED LCP WITH SUBPART ATTRIBUTION ---
+    if (lcpMs !== null && lcpSource !== 'unavailable') {
+      const subpartText = `TTFB: ${lcpTtfb}ms | Load Delay: ${lcpLoadDelay}ms | Load Duration: ${lcpLoadDuration}ms | Render Delay: ${lcpRenderDelay}ms`;
       if (lcpMs > 4000) {
         findings.push({
           id: 'critical-lcp',
@@ -44,10 +57,11 @@ export class FindingsEngine {
           evidence: [
             { label: 'Measured LCP Render Timing', value: `${lcpMs} ms`, context: 'Budget: < 2,500 ms' },
             { label: 'Observed LCP Element', value: lcpSelector || 'Hero Element' },
-            { label: 'Measurement Source', value: 'In-Page PerformanceObserver (Buffered Entry)' }
+            { label: 'Subpart Attribution Breakdown', value: subpartText },
+            { label: 'Measurement Source', value: 'Google Web Vitals Observer (Canonical LCP)' }
           ],
           confidence: 'high',
-          explanation: 'The primary above-the-fold content required over 4 seconds to render, exceeding Google Core Web Vitals good thresholds on this device.',
+          explanation: `The primary above-the-fold content (${lcpSelector || 'hero element'}) required over 4 seconds to render. Attribution shows a ${lcpLoadDelay}ms resource load delay and ${lcpRenderDelay}ms element render delay.`,
           recommendation: 'Preload the hero asset, set fetchpriority="high", and optimize server response time.',
           improvements: [
             'Add <link rel="preload" as="image" fetchpriority="high"> for the primary hero asset',
@@ -64,10 +78,11 @@ export class FindingsEngine {
           title: `Measured Largest Contentful Paint Exceeds Recommended Budget (${lcpMs} ms)`,
           evidence: [
             { label: 'Measured LCP Render Timing', value: `${lcpMs} ms`, context: 'Budget: < 2,500 ms' },
-            { label: 'Observed LCP Element', value: lcpSelector || 'Hero Element' }
+            { label: 'Observed LCP Element', value: lcpSelector || 'Hero Element' },
+            { label: 'Subpart Attribution Breakdown', value: subpartText }
           ],
           confidence: 'high',
-          explanation: 'Measured LCP exceeds the 2.5s threshold, which can delay perceived page load on mobile connections.',
+          explanation: `Measured LCP on ${lcpSelector || 'hero content'} exceeds the 2.5s threshold, delaying perceived page load on mobile connections.`,
           recommendation: 'Prioritize hero resource delivery and verify modern WebP/AVIF formatting.',
           improvements: [
             'Verify hero image delivers responsive dimensions matching mobile screen width',
@@ -78,7 +93,34 @@ export class FindingsEngine {
       }
     }
 
-    // --- 2. CORE WEB VITALS: MEASURED CLS ---
+    // --- 2. CORE WEB VITALS: MEASURED INP WITH INTERACTION ATTRIBUTION ---
+    if (inpObserved && inpMs !== null && inpMs > 200) {
+      const isCriticalInp = inpMs > 500;
+      findings.push({
+        id: isCriticalInp ? 'critical-inp' : 'warning-inp',
+        category: 'performance',
+        severity: isCriticalInp ? 'critical' : 'warning',
+        badge: isCriticalInp ? 'CRITICAL INP' : 'ELEVATED INP',
+        title: `Interaction to Next Paint Exceeds Budget (${inpMs} ms)`,
+        evidence: [
+          { label: 'Measured INP Latency', value: `${inpMs} ms`, context: 'Budget: < 200 ms' },
+          { label: 'Observed Interaction Target', value: inpTarget || 'Interactive Element' },
+          { label: 'Processing Delay', value: `${inpProcessingDelay} ms`, context: 'Main-thread handler execution' },
+          { label: 'Input Delay', value: `${inpInputDelay} ms`, context: 'Event queue delay' },
+          { label: 'Measurement Source', value: 'Google Web Vitals Event Timing Observer' }
+        ],
+        confidence: 'high',
+        explanation: `User interaction on ${inpTarget || 'interactive elements'} took ${inpMs} ms to present the next frame, causing visible UI lag on mobile devices.`,
+        recommendation: 'De-prioritize heavy event listener logic, defer secondary tracking scripts, and yield the main thread during user clicks.',
+        improvements: [
+          `Profile event handlers bound to ${inpTarget || 'interactive buttons'} in Chrome DevTools`,
+          'Break up synchronous JavaScript execution during click handlers using requestIdleCallback',
+          'Defer non-essential analytics tracking triggered on user interactions'
+        ]
+      });
+    }
+
+    // --- 3. CORE WEB VITALS: MEASURED CLS ---
     if (cls !== null && cls > 0.1) {
       const isCriticalCls = cls > 0.25;
       findings.push({
@@ -89,7 +131,8 @@ export class FindingsEngine {
         title: `Cumulative Layout Shift Detected (${cls.toFixed(3)})`,
         evidence: [
           { label: 'Observed CLS Score', value: cls.toFixed(3), context: 'Budget: < 0.10' },
-          { label: 'Measurement Window', value: 'Canonical Session Window (Max 5s / 1s gap)' }
+          { label: 'Measurement Window', value: 'Canonical Session Window (Max 5s / 1s gap)' },
+          ...(clsTarget ? [{ label: 'Largest Shift Target', value: clsTarget }] : [])
         ],
         confidence: 'high',
         explanation: 'Unsized elements or late-injected content caused layout instability during page rendering, shifting clickable buttons or content.',
@@ -443,6 +486,9 @@ export class FindingsEngine {
 
     if (lcpMs !== null && lcpMs > 4000) score -= 15;
     else if (lcpMs !== null && lcpMs > 2500) score -= 8;
+
+    if (inpObserved && inpMs !== null && inpMs > 500) score -= 15;
+    else if (inpObserved && inpMs !== null && inpMs > 200) score -= 8;
 
     if (cls !== null && cls > 0.25) score -= 15;
     else if (cls !== null && cls > 0.1) score -= 8;

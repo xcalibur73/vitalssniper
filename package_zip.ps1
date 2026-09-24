@@ -44,10 +44,54 @@ Remove-Item -Recurse -Force $stagingDir
 Write-Host "Successfully packaged: $zipPath"
 Write-Host "Successfully synced: $webZipPath"
 
-if (Test-Path 'C:\Users\sfsad\OneDrive\Desktop') {
-    $desktopZip = 'C:\Users\sfsad\OneDrive\Desktop\vitalssniper_pro.zip'
-    $desktopVerZip = 'C:\Users\sfsad\OneDrive\Desktop\vitalssniper_v1.4.2_pro.zip'
-    Copy-Item $zipPath $desktopZip -Force
-    Copy-Item $zipPath $desktopVerZip -Force
-    Write-Host "Successfully updated Desktop zips: $desktopZip and $desktopVerZip"
+# Sync to primary user locations
+$targetDirs = @(
+    'C:\Users\sfsad\Desktop',
+    'C:\Users\sfsad\Downloads',
+    'C:\Users\sfsad\OneDrive\Desktop'
+)
+
+foreach ($dir in $targetDirs) {
+    if (Test-Path $dir) {
+        Copy-Item $zipPath (Join-Path $dir 'vitalssniper_pro.zip') -Force
+        Copy-Item $zipPath (Join-Path $dir 'vitalssniper_v1.5.0_pro.zip') -Force
+        Write-Host "Synced vitalssniper_pro.zip to $dir"
+    }
 }
+
+# Create All-in-One Complete Submission Bundle
+$bundleStaging = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
+New-Item -ItemType Directory -Path $bundleStaging -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $bundleStaging 'store_assets') -Force | Out-Null
+
+Copy-Item $zipPath (Join-Path $bundleStaging 'vitalssniper_pro.zip') -Force
+Copy-Item (Join-Path $extDir 'STORE_LISTING.md') $bundleStaging -Force
+Copy-Item (Join-Path $extDir 'store_assets\*.png') (Join-Path $bundleStaging 'store_assets') -Force
+
+$bundleZip = 'b:\Project Seo for WU and AA\projects\micro_saas_extensions\vitalssniper_complete_release_package.zip'
+if (Test-Path $bundleZip) { Remove-Item $bundleZip -Force }
+
+$bStream = [System.IO.File]::Open($bundleZip, [System.IO.FileMode]::Create)
+$bArchive = New-Object System.IO.Compression.ZipArchive($bStream, [System.IO.Compression.ZipArchiveMode]::Create)
+try {
+    Get-ChildItem -Path $bundleStaging -Recurse -File | ForEach-Object {
+        $rel = $_.FullName.Substring($bundleStaging.Length).TrimStart('\', '/')
+        [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($bArchive, $_.FullName, $rel.Replace('\', '/'), [System.IO.Compression.CompressionLevel]::Optimal) | Out-Null
+    }
+} finally {
+    $bArchive.Dispose()
+    $bStream.Dispose()
+}
+Remove-Item -Recurse -Force $bundleStaging
+
+foreach ($dir in $targetDirs) {
+    if (Test-Path $dir) {
+        Copy-Item $bundleZip (Join-Path $dir 'vitalssniper_complete_release_package.zip') -Force
+        $storeAssetsDir = Join-Path $dir 'vitalssniper_store_assets'
+        if (!(Test-Path $storeAssetsDir)) { New-Item -ItemType Directory -Path $storeAssetsDir -Force | Out-Null }
+        Copy-Item (Join-Path $extDir 'store_assets\*.png') $storeAssetsDir -Force
+        Write-Host "Synced complete bundle & store assets to $dir"
+    }
+}
+
+Write-Host "All distribution packages ready."

@@ -67,42 +67,23 @@
       <circle cx="10" cy="10" r="3" fill="#FFFFFF"/>
     </g>
 
-    <!-- Simulated Target Website Content (Slightly dimmed to let inspector shine) -->
-    <g transform="translate(0, 42)" opacity="0.65">
+    <!-- Simulated Target Website Content (Subtle clean background) -->
+    <g transform="translate(0, 42)" opacity="0.35">
       <!-- Site Nav -->
       <rect width="1180" height="50" fill="#FAF8F3" stroke="#DDD7CE" stroke-width="0.8"/>
-      <text x="40" y="32" class="font-sans" font-size="15" font-weight="800" fill="#20201E">APEX LIVING</text>
-      <text x="180" y="31" class="font-sans" font-size="12" fill="#716C64">Shop Furniture   |   Collections   |   Architectural Design   |   Journal</text>
+      <text x="560" y="32" class="font-sans" font-size="14" font-weight="800" fill="#20201E">APEX LIVING</text>
+      <text x="680" y="31" class="font-sans" font-size="11" fill="#716C64">Shop Furniture   |   Collections   |   Journal</text>
 
       <!-- Site Hero Banner -->
       <rect y="50" width="1180" height="230" fill="#EFECE6"/>
-      <text x="40" y="120" class="font-sans" font-size="28" font-weight="900" fill="#20201E">Artisan Crafted Oak Chairs</text>
-      <text x="40" y="148" class="font-sans" font-size="14" fill="#716C64">Built with heavy page builders: 4,820 nested DOM nodes slowing page load</text>
-      <rect x="40" y="170" width="130" height="36" rx="4" fill="#20201E"/>
-      <text x="105" y="193" class="font-sans" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">Order Now - $340</text>
+      <rect x="540" y="80" width="180" height="150" rx="6" fill="#DDD7CE" opacity="0.5"/>
 
-      <!-- Product Cards Grid -->
-      <g transform="translate(40, 300)">
-        <!-- Product 1 -->
-        <rect width="210" height="240" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <rect x="15" y="15" width="180" height="130" rx="4" fill="#E8E4DC"/>
-        <text x="15" y="165" class="font-sans" font-size="13" font-weight="700" fill="#20201E">Nordic High Stool</text>
-        <text x="15" y="184" class="font-sans" font-size="11" fill="#716C64">Solid ash wood frame</text>
-        <text x="15" y="210" class="font-sans" font-size="13" font-weight="800" fill="#B76345">$280</text>
-
-        <!-- Product 2 -->
-        <rect x="230" y="0" width="210" height="240" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <rect x="245" y="15" width="180" height="130" rx="4" fill="#E8E4DC"/>
-        <text x="245" y="165" class="font-sans" font-size="13" font-weight="700" fill="#20201E">Lounge Armchair</text>
-        <text x="245" y="184" class="font-sans" font-size="11" fill="#716C64">Boucle upholstery</text>
-        <text x="245" y="210" class="font-sans" font-size="13" font-weight="800" fill="#B76345">$520</text>
-
-        <!-- Product 3 -->
-        <rect x="460" y="0" width="210" height="240" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <rect x="475" y="15" width="180" height="130" rx="4" fill="#E8E4DC"/>
-        <text x="475" y="165" class="font-sans" font-size="13" font-weight="700" fill="#20201E">Dining Table Low</text>
-        <text x="475" y="184" class="font-sans" font-size="11" fill="#716C64">Natural walnut finish</text>
-        <text x="475" y="210" class="font-sans" font-size="13" font-weight="800" fill="#B76345">$740</text>
+      <!-- Product Cards Grid (Subtle Wireframe) -->
+      <g transform="translate(540, 300)">
+        <rect width="200" height="220" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect x="15" y="15" width="170" height="120" rx="4" fill="#E8E4DC"/>
+        <text x="15" y="165" class="font-sans" font-size="12" font-weight="700" fill="#20201E">Nordic High Stool</text>
+        <text x="15" y="195" class="font-sans" font-size="12" font-weight="800" fill="#B76345">$280</text>
       </g>
     </g>
   </g>
@@ -117,14 +98,14 @@
     <text x="26" y="17" class="font-sans" font-size="10.5" font-weight="800" fill="#F7F4EE" letter-spacing="0.06em">SCREENSHOT 1 : DOM BLOAT AUDIT</text>
 
     <!-- Headline -->
-    <g transform="translate(0, 44)">
-      <text x="0" y="0" class="font-sans" font-size="34" font-weight="900" fill="#20201E" letter-spacing="-0.8">Pinpoint DOM Bloat &amp;</text>
-      <text x="0" y="40" class="font-sans" font-size="34" font-weight="900" fill="#B76345" letter-spacing="-0.8">Heavy CMS Signatures</text>
+    <g transform="translate(0, 48)">
+      <text x="0" y="30" class="font-sans" font-size="34" font-weight="900" fill="#20201E" letter-spacing="-0.8">Pinpoint DOM Bloat &amp;</text>
+      <text x="0" y="70" class="font-sans" font-size="34" font-weight="900" fill="#B76345" letter-spacing="-0.8">Heavy CMS Signatures</text>
     </g>
 
     <!-- Subtitle -->
-    <g transform="translate(0, 140)">
-      <text x="0" y="0" class="font-sans" font-size="14.5" font-weight="500" fill="#716C64" line-height="1.5">
+    <g transform="translate(0, 150)">
+      <text x="0" y="16" class="font-sans" font-size="14.5" font-weight="500" fill="#716C64" line-height="1.5">
         <tspan x="0" dy="0">Instantly inspect live client-side DOM structure without</tspan>
         <tspan x="0" dy="22">third-party server queues. Detect bloated Elementor, Divi,</tspan>
         <tspan x="0" dy="22">and WooCommerce templates choking browser layouts.</tspan>
@@ -132,7 +113,7 @@
     </g>
 
     <!-- 3 Value Narrative Cards -->
-    <g transform="translate(0, 226)">
+    <g transform="translate(0, 236)">
       <!-- Card 1 -->
       <g transform="translate(0, 0)">
         <rect width="520" height="66" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
@@ -174,24 +155,28 @@
         <path d="M11 5 L17 11 L11 17 L5 11 Z" fill="none" stroke="#B76345" stroke-width="1.8" stroke-linejoin="round"/>
         <circle cx="11" cy="11" r="2" fill="#F7F4EE"/>
 
-        <text x="28" y="16" class="font-sans" font-size="14.5" font-weight="800" fill="#20201E" letter-spacing="-0.3">WebAudits<tspan fill="#E63946">.pro</tspan></text>
-        <text x="116" y="16" class="font-sans" font-size="9.5" font-weight="600" fill="#716C64" letter-spacing="0.05em">VITALSSNIPER</text>
-        
-        <rect x="190" y="4" width="30" height="15" rx="3.5" fill="#20201E"/>
-        <text x="205" y="15" class="font-sans" font-size="8.5" font-weight="800" fill="#F7F4EE" text-anchor="middle" letter-spacing="0.05em">PRO</text>
+        <text x="28" y="16" class="font-sans" font-size="14" font-weight="800" fill="#20201E" letter-spacing="-0.3">VitalsSniper</text>
+        <rect x="114" y="3.5" width="28" height="15" rx="3.5" fill="#B76345"/>
+        <text x="128" y="14.5" class="font-sans" font-size="8" font-weight="800" fill="#FFFFFF" text-anchor="middle">PRO</text>
+        <text x="150" y="15.5" class="font-sans" font-size="8.5" font-weight="600" fill="#716C64">by webaudits.pro</text>
 
         <!-- Action Tools -->
-        <g transform="translate(254, 0)">
-          <rect x="0" y="0" width="30" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <text x="15" y="14" class="font-sans" font-size="9" font-weight="700" fill="#20201E" text-anchor="middle">⚔️ Vs</text>
+        <g transform="translate(252, 0)">
+          <!-- Vs -->
+          <rect x="0" y="0" width="34" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+          <path d="M6 13L9 9L6 5M14 5L11 9L14 13" fill="none" stroke="#716C64" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="21" y="14.5" class="font-sans" font-size="9" font-weight="800" fill="#20201E">Vs</text>
           
-          <rect x="36" y="0" width="32" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <text x="47" y="14" class="font-sans" font-size="9" fill="#20201E">📌</text>
-          <rect x="58" y="4" width="8" height="12" rx="4" fill="#B76345"/>
-          <text x="62" y="13" class="font-sans" font-size="7.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">4</text>
+          <!-- Pin / Leads 4 -->
+          <rect x="38" y="0" width="34" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+          <path d="M47 5h7a1 1 0 0 1 1 1v10l-4.5-3L46 16V6a1 1 0 0 1 1-1z" fill="none" stroke="#20201E" stroke-width="1.3" stroke-linejoin="round"/>
+          <rect x="58" y="3" width="10" height="12" rx="4" fill="#B76345"/>
+          <text x="63" y="12" class="font-sans" font-size="7.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">4</text>
 
-          <rect x="74" y="0" width="26" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <text x="87" y="14" class="font-sans" font-size="10" fill="#20201E" text-anchor="middle">⚙️</text>
+          <!-- Settings Gear -->
+          <rect x="76" y="0" width="26" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+          <circle cx="89" cy="11" r="2.2" fill="none" stroke="#20201E" stroke-width="1.3"/>
+          <path d="M89 6v1.5M89 14.5v1.5M84 11h1.5M92.5 11h1.5M85.5 7.5l1 1M91.5 13.5l1 1M85.5 14.5l1-1M91.5 8.5l1-1" stroke="#20201E" stroke-width="1.3" stroke-linecap="round"/>
         </g>
       </g>
 
@@ -312,16 +297,28 @@
         <text x="129" y="24" class="font-sans" font-size="12" font-weight="700" fill="#F7F4EE" text-anchor="middle">Copy 3-Sentence Email</text>
 
         <rect x="268" y="0" width="90" height="38" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <text x="313" y="24" class="font-sans" font-size="11" font-weight="700" fill="#20201E" text-anchor="middle">📌 Save</text>
+        <g transform="translate(290, 11)">
+          <path d="M2 1h7a1 1 0 0 1 1 1v11l-4.5-2.5L1 13V2a1 1 0 0 1 1-1z" fill="none" stroke="#20201E" stroke-width="1.3" stroke-linejoin="round"/>
+          <text x="18" y="12" class="font-sans" font-size="11" font-weight="700" fill="#20201E">Save</text>
+        </g>
       </g>
 
       <!-- 6. Utility Grid -->
       <g transform="translate(0, 470)">
         <rect width="114" height="30" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <text x="57" y="19" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E" text-anchor="middle">1-Page PDF</text>
+        <g transform="translate(16, 7)">
+          <path d="M1 1h6l3 3v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" fill="none" stroke="#716C64" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M7 1v3h3M3 7h4M3 10h3" stroke="#716C64" stroke-width="1.2" stroke-linecap="round"/>
+          <text x="18" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E">1-Page PDF</text>
+        </g>
 
         <rect x="122" y="0" width="114" height="30" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <text x="179" y="19" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E" text-anchor="middle">🎯 Highlight LCP</text>
+        <g transform="translate(130, 7)">
+          <circle cx="7" cy="7" r="5" fill="none" stroke="#716C64" stroke-width="1.2"/>
+          <circle cx="7" cy="7" r="1.8" fill="#B76345"/>
+          <path d="M7 0.5v2M7 11.5v2M0.5 7h2M11.5 7h2" stroke="#716C64" stroke-width="1.2" stroke-linecap="round"/>
+          <text x="20" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E">Highlight LCP</text>
+        </g>
 
         <rect x="244" y="0" width="114" height="30" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
         <text x="301" y="19" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E" text-anchor="middle">PageSpeed</text>
@@ -339,13 +336,13 @@
   <!-- ======================================================================
        CALLOUT ANNOTATION POINTER (Points to DOM Elements)
        ====================================================================== -->
-  <g transform="translate(600, 206)" filter="url(#calloutGlow)">
-    <!-- Pointer Line -->
-    <path d="M 0 16 L 150 16" stroke="#B76345" stroke-width="2" stroke-dasharray="4 3"/>
-    <circle cx="150" cy="16" r="4" fill="#B76345"/>
-
+  <g transform="translate(566, 206)" filter="url(#calloutGlow)">
     <!-- Callout Badge -->
-    <rect x="-180" y="0" width="170" height="32" rx="16" fill="#B76345"/>
-    <text x="-95" y="20" class="font-sans" font-size="10.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">4,820 Nodes Flagged</text>
+    <rect x="0" y="0" width="154" height="30" rx="15" fill="#B76345"/>
+    <text x="77" y="19" class="font-sans" font-size="10" font-weight="800" fill="#FFFFFF" text-anchor="middle">4,820 Nodes Flagged</text>
+
+    <!-- Pointer Line to Popup -->
+    <path d="M 154 15 L 190 15" stroke="#B76345" stroke-width="2" stroke-dasharray="4 3"/>
+    <circle cx="192" cy="15" r="4" fill="#B76345"/>
   </g>
 </svg>

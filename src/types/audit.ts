@@ -20,19 +20,54 @@ export type LcpMeasurementSource =
   | 'heuristic'
   | 'unavailable';
 
+export interface LcpSubpartAttribution {
+  elementSelector: string | null;
+  timeToFirstByteMs: number | null;
+  resourceLoadDelayMs: number | null;
+  resourceLoadDurationMs: number | null;
+  elementRenderDelayMs: number | null;
+  url?: string | null;
+}
+
+export interface InpSubpartAttribution {
+  interactionTarget: string | null;
+  interactionType: string | null;
+  processingDelayMs: number | null;
+  inputDelayMs: number | null;
+  presentationDelayMs: number | null;
+}
+
+export interface ClsSubpartAttribution {
+  sessionWindowScore: number;
+  largestShiftTarget: string | null;
+  largestShiftValue: number;
+}
+
 export interface PerformanceMetrics {
   lcpMs: number | null;
   lcpSource: LcpMeasurementSource;
   lcpDisplay: string;
   lcpElementSelector: string | null;
   lcpElementType: string | null;
+  lcpTtfbMs?: number | null;
+  lcpLoadDelayMs?: number | null;
+  lcpLoadDurationMs?: number | null;
+  lcpRenderDelayMs?: number | null;
+  lcpAttribution?: LcpSubpartAttribution | null;
   fcpMs: number | null;
   fcpDisplay: string;
   inpMs: number | null;
   inpObserved: boolean;
   inpDisplay: string;
+  inpTarget?: string | null;
+  inpProcessingDelayMs?: number | null;
+  inpInputDelayMs?: number | null;
+  inpPresentationDelayMs?: number | null;
+  inpAttribution?: InpSubpartAttribution | null;
   cls: number | null;
   clsDisplay: string;
+  clsSessionScore?: number | null;
+  clsAttribution?: ClsSubpartAttribution | null;
   ttfbMs: number | null;
   ttfbDisplay: string;
   domLoadMs: number | null;

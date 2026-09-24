@@ -24,15 +24,15 @@
       </div>
       <div class="header-tools">
         <button class="tool-btn" id="btnOpenCompetitor" title="Compare Head-to-Head vs Competitor">
-          <span>⚔️</span>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l4-4-4-4M12 4l-4 4 4 4"/></svg>
           <span class="tool-text">Vs</span>
         </button>
         <button class="tool-btn" id="btnOpenPipeline" title="View Saved Lead Pipeline">
-          <span>📌</span>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2h10a1 1 0 0 1 1 1v11l-6-3.5L2 14V3a1 1 0 0 1 1-1z"/></svg>
           <span class="pipeline-badge" id="pipelineCount">0</span>
         </button>
         <button class="tool-btn" id="btnOpenSettings" title="Agency White-Label Branding Settings">
-          <span>⚙️</span>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3"/></svg>
         </button>
       </div>
     </header>
@@ -43,8 +43,10 @@
         <div class="domain-area">
           <img class="site-favicon" id="siteFavicon" src="icons/icon16.png" alt="Target site favicon" width="14" height="14">
           <span class="domain-text" id="targetDomain">Detecting site...</span>
-          <span class="sec-badge" id="secBadge">HTTPS</span>
-          <span class="cloud-sync-badge" id="cloudSyncBadge" style="display:none;">☁️ Synced to Vault</span>
+          <span class="cloud-sync-badge" id="cloudSyncBadge" style="display:none;" title="Synced to WebAudits.pro Dashboard">
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 13h8a3.5 3.5 0 0 0 .5-6.96 4.5 4.5 0 0 0-8.8-1.5A3.5 3.5 0 0 0 4.5 13z"/><polyline points="7 9 9 11 12 7"/></svg>
+            <span id="cloudSyncBadgeText">Synced to WebAudits.pro Dashboard</span>
+          </span>
         </div>
         <div class="score-badge" id="scoreBadge" title="VitalsSniper Proprietary Diagnostic Heuristic (Score: 20-100 : Not Google Lighthouse or CWV)">
           <span class="score-number" id="healthScoreVal">--</span>
@@ -136,7 +138,7 @@
       <div class="flaw-desc" id="flawDesc">Analyzing DOM structure and mobile bottlenecks...</div>
       <div class="improvements-box" id="improvementsBox" style="display: none;">
         <div class="improvements-title">
-          <span class="imp-icon">💡</span>
+          <svg class="imp-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#B76345" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 14h4M6.5 15.5h3M8 1a5 5 0 0 0-3.5 8.5c.8.8 1.5 2 1.5 3h4c0-1 .7-2.2 1.5-3A5 5 0 0 0 8 1z"/></svg>
           <span>RECOMMENDED FIXES (0 DESIGN CHANGES):</span>
         </div>
         <ul class="improvements-list" id="improvementsList"></ul>
@@ -171,7 +173,7 @@
           <span class="btn-text" id="btnCopyText">Copy 3-Sentence Email</span>
         </button>
         <button class="btn-pipeline-save" id="btnSavePipeline" title="Save prospect to lead pipeline">
-          <span id="savePipelineIcon">📌</span>
+          <span id="savePipelineIcon"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3 2h10a1 1 0 0 1 1 1v11l-6-3.5L2 14V3a1 1 0 0 1 1-1z"/></svg></span>
           <span id="savePipelineText">Save</span>
         </button>
       </div>
@@ -182,11 +184,13 @@
         </button>
 
         <button class="btn-secondary" id="btnHighlightLcp" title="Highlight Largest Contentful Paint (LCP) element on live page">
-          <span>🎯 Highlight LCP</span>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" style="margin-right: 4px;"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2" fill="currentColor"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg>
+          <span>Highlight LCP</span>
         </button>
 
         <button class="btn-secondary" id="btnBulkAudit" title="Audit multiple prospect URLs in batch">
-          <span>📦 Bulk Audit</span>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true" style="margin-right: 4px;"><path d="M1 5l7-3 7 3-7 3-7-3z"/><path d="M1 8.5l7 3 7-3M1 12l7 3 7-3"/></svg>
+          <span>Bulk Audit</span>
         </button>
 
         <button class="btn-secondary" id="btnPageSpeed" title="Test URL on Google PageSpeed Insights">
@@ -331,11 +335,11 @@
           <p>Export all audited prospects to CSV for your cold outreach campaigns.</p>
         </div>
         <div class="pipeline-actions-top">
-          <button id="btnExportCsv" class="btn-csv-download">📥 Export CSV (Instantly / Lemlist)</button>
+          <button id="btnExportCsv" class="btn-csv-download">Export CSV (Instantly / Lemlist)</button>
           <button id="btnClearPipeline" class="btn-pipeline-clear">Clear All</button>
         </div>
         <div class="pipeline-list" id="pipelineList">
-          <div class="pipeline-empty">No prospects saved yet. Click 📌 Save on any audit to add leads here.</div>
+          <div class="pipeline-empty">No prospects saved yet. Click Save on any audit to add leads here.</div>
         </div>
       </div>
     </div>
@@ -408,9 +412,9 @@
           <textarea id="bulkUrlsInput" class="bulk-textarea" placeholder="https://example.com&#10;https://competitor.com&#10;targetstore.com" rows="4" aria-label="Bulk URLs to audit"></textarea>
           <div class="bulk-actions">
             <button id="btnRunBulkAudit" class="btn-activate">
-              <span id="bulkRunText">🚀 Run Batch Audit</span>
+              <span id="bulkRunText">Run Batch Audit</span>
             </button>
-            <button id="btnExportBulkCsv" class="btn-csv-download" style="display:none;">📥 Export Lemlist CSV</button>
+            <button id="btnExportBulkCsv" class="btn-csv-download" style="display:none;">Export Lemlist CSV</button>
           </div>
           <div id="bulkProgress" class="bulk-progress-bar" style="display:none;">
             <div id="bulkProgressFill" class="bulk-progress-fill"></div>
@@ -427,10 +431,57 @@
       </div>
     </div>
 
+    <!-- 6. PRO Upgrade Modal -->
+    <div id="proUpgradeModal" class="activation-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="proUpgradeTitle">
+      <div class="activation-backdrop" id="proUpgradeBackdrop"></div>
+      <div class="activation-box pro-upgrade-box">
+        <button class="activation-close" id="proUpgradeClose" aria-label="Close PRO upgrade modal">&times;</button>
+        <div class="activation-header">
+          <div class="activation-badge">PRO EDITION</div>
+          <h3 id="proUpgradeTitle">Upgrade to VitalsSniper PRO</h3>
+          <p id="proUpgradeFeatureContext">Unlock high-leverage client acquisition features and automate Core Web Vitals remediation.</p>
+        </div>
+        <div class="pro-upgrade-body">
+          <ul class="pro-feature-list">
+            <li>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <span><strong>Bulk Batch Auditor:</strong> Audit up to 50 URLs simultaneously</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <span><strong>Lead CRM CSV Export:</strong> 1-click export for Lemlist / Instantly</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <span><strong>White-Label Agency Branding:</strong> Custom logo &amp; booking links</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <span><strong>Unlimited Client Dossiers:</strong> 1-page printable teardown PDFs</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <span><strong>Advanced Pitch Tones &amp; Loom:</strong> Urgency, Soft-Sell, Direct scripts</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <span><strong>WebAudits.pro Dashboard:</strong> Auto-sync live and bulk audits</span>
+            </li>
+          </ul>
+          <div class="pro-upgrade-actions">
+            <button id="btnProUpgradeCheckout" class="btn-activate">
+              <span>Upgrade to PRO : Unlock Instant Access</span>
+            </button>
+            <button id="btnProUpgradeEnterKey" class="btn-pro-license-link">Already have a license key? Enter key &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
       <span>Engineered by <a href="https://webaudits.pro" target="_blank" class="footer-link">WebAudits.pro</a></span>
-      <span class="footer-ver">v1.4.2 PRO</span>
+      <span class="footer-ver">v1.5.0 PRO</span>
     </footer>
   </div>
 

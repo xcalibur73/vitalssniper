@@ -290,6 +290,20 @@ export class StorageService {
     await this.set({ vs_webaudits_api_key: apiKey.trim() });
   }
 
+  // --- Lifetime PDF Export Tracking ---
+
+  public static async getPdfExportCount(): Promise<number> {
+    const res = await this.get(['vs_lifetime_pdf_exports']);
+    return typeof res.vs_lifetime_pdf_exports === 'number' ? res.vs_lifetime_pdf_exports : 0;
+  }
+
+  public static async incrementPdfExportCount(): Promise<number> {
+    const current = await this.getPdfExportCount();
+    const next = current + 1;
+    await this.set({ vs_lifetime_pdf_exports: next });
+    return next;
+  }
+
   // --- Subscription Timeframe Persistence ---
 
   public static async getSubscriptionTimeframe(): Promise<StoredSubscriptionTimeframe | null> {
@@ -302,4 +316,5 @@ export class StorageService {
     await this.set({ vs_subscription: sub });
   }
 }
+
 

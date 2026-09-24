@@ -19,6 +19,33 @@ export async function inspectPageForensics() {
   let longestTaskMs: number | null = null;
   let totalBlockingTimeMs = 0;
 
+  function getSelector(node: any, maxLen = 100): string {
+    if (!node) return '';
+    if (node.nodeType === 3) node = node.parentNode;
+    if (!node || node.nodeType !== 1) return '';
+    let sel = '';
+    try {
+      let cur: any = node;
+      while (cur && cur.nodeType === 1 && cur.nodeName.toLowerCase() !== 'html') {
+        const el = cur;
+        let part = el.nodeName.toLowerCase();
+        if (el.id) {
+          part += '#' + el.id;
+          sel = sel ? part + ' > ' + sel : part;
+          break;
+        }
+        if (el.className && typeof el.className === 'string') {
+          const clsName = el.className.trim().split(/\s+/)[0];
+          if (clsName) part += '.' + clsName;
+        }
+        sel = sel ? part + ' > ' + sel : part;
+        cur = el.parentElement;
+        if (sel.length > maxLen) break;
+      }
+    } catch (e) {}
+    return sel || (node.tagName ? node.tagName.toLowerCase() : '');
+  }
+
   // A. Paint entries (FCP)
   try {
     const paintEntries = performance.getEntriesByType('paint');
@@ -33,39 +60,47 @@ export async function inspectPageForensics() {
   let poLcp: PerformanceObserver | null = null;
   let poCls: PerformanceObserver | null = null;
   let poLt: PerformanceObserver | null = null;
+  let poInp: PerformanceObserver | null = null;
 
-  const rawClsEntries: Array<{ value: number; startTime: number; hadRecentInput: boolean }> = [];
+  let lcpEntry: any = null;
+  const rawClsEntries: Array<{ value: number; startTime: number; hadRecentInput: boolean; targetNode: any }> = [];
+  const interactionEntries: any[] = [];
 
   await new Promise<void>(resolve => {
-    // 1. Largest Contentful Paint observer
+    // 1. Google Web Vitals Largest Contentful Paint observer
     try {
       poLcp = new PerformanceObserver((entryList) => {
         const entries = entryList.getEntries();
         if (entries.length > 0) {
-          const lastEntry: any = entries[entries.length - 1];
-          lcpMs = Math.round(lastEntry.renderTime || lastEntry.loadTime || lastEntry.startTime);
+          lcpEntry = entries[entries.length - 1];
+          lcpMs = Math.round(lcpEntry.renderTime || lcpEntry.loadTime || lcpEntry.startTime);
           lcpSource = document.readyState !== 'complete' ? 'navigation-observed' : 'buffered-active-tab';
-          if (lastEntry.element) {
-            const el = lastEntry.element;
-            lcpElementType = el.tagName.toLowerCase();
-            lcpElementSelector = el.tagName.toLowerCase() + (el.id ? '#' + el.id : (el.className ? '.' + String(el.className).split(' ')[0] : ''));
-          } else if (lastEntry.url) {
+          if (lcpEntry.element) {
+            const el = lcpEntry.element;
+            lcpElementType = el.tagName ? el.tagName.toLowerCase() : 'element';
+            lcpElementSelector = getSelector(el);
+          } else if (lcpEntry.url) {
             lcpElementType = 'image';
-            lcpElementSelector = 'img[src="' + lastEntry.url.substring(0, 50) + '..."]';
+            lcpElementSelector = 'img[src="' + lcpEntry.url.substring(0, 50) + '..."]';
           }
         }
       });
       poLcp.observe({ type: 'largest-contentful-paint', buffered: true });
     } catch (e) {}
 
-    // 2. Layout Shift observer (collect raw entries for canonical session window calculation)
+    // 2. Google Web Vitals Layout Shift observer (collect raw entries for canonical session window)
     try {
       poCls = new PerformanceObserver((entryList) => {
         entryList.getEntries().forEach((entry: any) => {
+          let targetNode: any = null;
+          if (entry.sources && entry.sources.length > 0 && entry.sources[0].node) {
+            targetNode = entry.sources[0].node;
+          }
           rawClsEntries.push({
             value: entry.value,
             startTime: entry.startTime,
-            hadRecentInput: Boolean(entry.hadRecentInput)
+            hadRecentInput: Boolean(entry.hadRecentInput),
+            targetNode
           });
         });
       });
@@ -89,19 +124,106 @@ export async function inspectPageForensics() {
       poLt.observe({ type: 'longtask', buffered: true });
     } catch (e) {}
 
-    // Observation window of 200ms allows the browser event loop to flush buffered
-    // performance entries recorded prior to user interaction. Note: In an active tab audit,
-    // this captures historical buffered entries rather than guaranteeing final lifecycle LCP.
+    // 4. Google Web Vitals INP (Event Timing observer)
+    try {
+      const supportedTypes = (typeof PerformanceObserver !== 'undefined' && PerformanceObserver.supportedEntryTypes)
+        ? PerformanceObserver.supportedEntryTypes
+        : [];
+      if (supportedTypes.includes('event')) {
+        poInp = new PerformanceObserver((list) => {
+          list.getEntries().forEach((entry: any) => {
+            interactionEntries.push(entry);
+          });
+        });
+        (poInp as any).observe({ type: 'event', buffered: true, durationThreshold: 16 });
+      } else if (supportedTypes.includes('first-input')) {
+        poInp = new PerformanceObserver((list) => {
+          list.getEntries().forEach((entry: any) => {
+            interactionEntries.push(entry);
+          });
+        });
+        poInp.observe({ type: 'first-input', buffered: true });
+      }
+    } catch (e) {}
+
+    // Observation window of 200ms allows the browser event loop to flush buffered entries
     setTimeout(resolve, 200);
   });
 
-  // Clean up observers
-  try { if (poLcp) (poLcp as PerformanceObserver).disconnect(); } catch (e) {}
-  try { if (poCls) (poCls as PerformanceObserver).disconnect(); } catch (e) {}
-  try { if (poLt) (poLt as PerformanceObserver).disconnect(); } catch (e) {}
+  // Clean up observers and harvest all queued records before disconnection
+  try {
+    if (poLcp) {
+      const records = (poLcp as PerformanceObserver).takeRecords();
+      if (records.length > 0) {
+        lcpEntry = records[records.length - 1];
+        lcpMs = Math.round(lcpEntry.renderTime || lcpEntry.loadTime || lcpEntry.startTime);
+        lcpSource = document.readyState !== 'complete' ? 'navigation-observed' : 'buffered-active-tab';
+        if (lcpEntry.element) {
+          const el = lcpEntry.element;
+          lcpElementType = el.tagName ? el.tagName.toLowerCase() : 'element';
+          lcpElementSelector = getSelector(el);
+        } else if (lcpEntry.url) {
+          lcpElementType = 'image';
+          lcpElementSelector = 'img[src="' + lcpEntry.url.substring(0, 50) + '..."]';
+        }
+      }
+      (poLcp as PerformanceObserver).disconnect();
+    }
+  } catch (e) {}
+
+  try {
+    if (poCls) {
+      const records = (poCls as PerformanceObserver).takeRecords();
+      records.forEach((entry: any) => {
+        let targetNode: any = null;
+        if (entry.sources && entry.sources.length > 0) {
+          const validSource = entry.sources.find((s: any) => s.node && s.node.nodeType === 1) || entry.sources[0];
+          if (validSource && validSource.node) {
+            targetNode = validSource.node;
+          }
+        }
+        rawClsEntries.push({
+          value: entry.value,
+          startTime: entry.startTime,
+          hadRecentInput: Boolean(entry.hadRecentInput),
+          targetNode
+        });
+      });
+      (poCls as PerformanceObserver).disconnect();
+    }
+  } catch (e) {}
+
+  try {
+    if (poLt) {
+      const records = (poLt as PerformanceObserver).takeRecords();
+      records.forEach((entry: any) => {
+        longTaskCount++;
+        const duration = Math.round(entry.duration);
+        if (longestTaskMs === null || duration > longestTaskMs) {
+          longestTaskMs = duration;
+        }
+        if (duration > 50) {
+          totalBlockingTimeMs += (duration - 50);
+        }
+      });
+      (poLt as PerformanceObserver).disconnect();
+    }
+  } catch (e) {}
+
+  try {
+    if (poInp) {
+      const records = (poInp as PerformanceObserver).takeRecords();
+      records.forEach((entry: any) => {
+        interactionEntries.push(entry);
+      });
+      (poInp as PerformanceObserver).disconnect();
+    }
+  } catch (e) {}
 
   // Calculate canonical CLS session windows reproducing Google Web Vitals logic:
   // 1s gap between shifts, 5s maximum session window length, hadRecentInput filtering, reporting maximum window.
+  let largestShiftValue = 0;
+  let largestShiftTarget: string | null = null;
   if (rawClsEntries.length > 0) {
     let maxSessionScore = 0;
     let currentSessionScore = 0;
@@ -111,6 +233,13 @@ export async function inspectPageForensics() {
     rawClsEntries.forEach(entry => {
       if (entry.hadRecentInput) return;
       hasClsEntries = true;
+
+      if (entry.value > largestShiftValue) {
+        largestShiftValue = entry.value;
+        if (entry.targetNode) {
+          largestShiftTarget = getSelector(entry.targetNode);
+        }
+      }
 
       if (currentSessionScore > 0 &&
           (entry.startTime - currentSessionLast >= 1000 ||
@@ -161,30 +290,24 @@ export async function inspectPageForensics() {
       if (bestCandidate) {
         const el: Element = bestCandidate;
         lcpElementType = el.tagName.toLowerCase();
-        lcpElementSelector = el.tagName.toLowerCase() + (el.id ? '#' + el.id : '');
+        lcpElementSelector = getSelector(el);
         lcpSource = 'heuristic';
+
+        if (lcpElementType === 'img') {
+          const imgSrc = (el as HTMLImageElement).currentSrc || (el as HTMLImageElement).src;
+          if (imgSrc) {
+            try {
+              const resEntries = performance.getEntriesByName(imgSrc) as PerformanceResourceTiming[];
+              if (resEntries && resEntries.length > 0) {
+                const rt = resEntries[resEntries.length - 1];
+                lcpMs = Math.round(rt.responseEnd || rt.startTime);
+              }
+            } catch (e) {}
+          }
+        }
       }
     } catch (e) {}
   }
-
-  // Observed Interaction Latency (Note: In-page event duration, NOT canonical INP)
-  let inpDisplay = 'INP not measured by this audit mode';
-  try {
-    const eventEntries = performance.getEntriesByType('event');
-    if (eventEntries && eventEntries.length > 0) {
-      let maxLatency = 0;
-      eventEntries.forEach((ev: any) => {
-        if (ev.duration && ev.duration > maxLatency) {
-          maxLatency = ev.duration;
-        }
-      });
-      if (maxLatency > 0) {
-        inpMs = Math.round(maxLatency);
-        inpObserved = true;
-        inpDisplay = `${inpMs} ms (Observed Interaction Latency - INP not measured by this audit mode)`;
-      }
-    }
-  } catch (e) {}
 
   // --- 2. NAVIGATION TIMING & BODY SIZES ---
   let canonicalTtfbMs: number | null = null;
@@ -233,6 +356,116 @@ export async function inspectPageForensics() {
       }
     }
   } catch (e) {}
+
+  // Google Web Vitals LCP subpart attribution
+  let lcpTtfbMs: number | null = canonicalTtfbMs;
+  let lcpLoadDelayMs: number | null = null;
+  let lcpLoadDurationMs: number | null = null;
+  let lcpRenderDelayMs: number | null = null;
+
+  if (lcpEntry && lcpMs !== null) {
+    const lcpUrl = lcpEntry.url;
+    const lcpStartTime = Math.round(lcpEntry.startTime || lcpMs);
+    const ttfbVal = canonicalTtfbMs || 0;
+
+    if (lcpUrl) {
+      let resTiming: PerformanceResourceTiming | null = null;
+      try {
+        const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+        for (let i = resources.length - 1; i >= 0; i--) {
+          if (resources[i].name === lcpUrl) {
+            resTiming = resources[i];
+            break;
+          }
+        }
+      } catch (e) {}
+
+      if (resTiming) {
+        const reqStart = Math.round(resTiming.requestStart || resTiming.startTime);
+        const resEnd = Math.round(resTiming.responseEnd || resTiming.startTime);
+        lcpLoadDelayMs = Math.max(0, reqStart - ttfbVal);
+        lcpLoadDurationMs = Math.max(0, resEnd - reqStart);
+        lcpRenderDelayMs = Math.max(0, lcpStartTime - resEnd);
+      } else {
+        lcpLoadDelayMs = 0;
+        lcpLoadDurationMs = Math.max(0, lcpStartTime - ttfbVal);
+        lcpRenderDelayMs = 0;
+      }
+    } else {
+      lcpLoadDelayMs = 0;
+      lcpLoadDurationMs = 0;
+      lcpRenderDelayMs = Math.max(0, lcpStartTime - ttfbVal);
+    }
+  }
+
+  const lcpAttribution = lcpMs !== null ? {
+    elementSelector: lcpElementSelector,
+    timeToFirstByteMs: lcpTtfbMs,
+    resourceLoadDelayMs: lcpLoadDelayMs,
+    resourceLoadDurationMs: lcpLoadDurationMs,
+    elementRenderDelayMs: lcpRenderDelayMs,
+    url: lcpEntry?.url || null
+  } : null;
+
+  const clsAttribution = hasClsEntries ? {
+    sessionWindowScore: parseFloat(cls.toFixed(3)),
+    largestShiftTarget,
+    largestShiftValue: parseFloat(largestShiftValue.toFixed(3))
+  } : null;
+
+  // Google Web Vitals INP attribution from interaction entries
+  try {
+    const syncEventEntries = performance.getEntriesByType('event');
+    if (syncEventEntries && syncEventEntries.length > 0) {
+      syncEventEntries.forEach((ev: any) => interactionEntries.push(ev));
+    }
+    const firstInputs = performance.getEntriesByType('first-input');
+    if (firstInputs && firstInputs.length > 0) {
+      firstInputs.forEach((fi: any) => interactionEntries.push(fi));
+    }
+  } catch (e) {}
+
+  let worstInteraction: any = null;
+  let maxInteractionDuration = 0;
+  if (interactionEntries.length > 0) {
+    interactionEntries.forEach((entry: any) => {
+      const dur = entry.duration || 0;
+      if (dur > maxInteractionDuration) {
+        maxInteractionDuration = dur;
+        worstInteraction = entry;
+      }
+    });
+  }
+
+  let inpTarget: string | null = null;
+  let inpProcessingDelayMs: number | null = null;
+  let inpInputDelayMs: number | null = null;
+  let inpPresentationDelayMs: number | null = null;
+  let inpAttribution: any = null;
+  let inpDisplay = 'INP not recorded (Requires user tap/click)';
+
+  if (worstInteraction && maxInteractionDuration > 0) {
+    inpMs = Math.round(maxInteractionDuration);
+    inpObserved = true;
+    if (worstInteraction.target) {
+      inpTarget = getSelector(worstInteraction.target);
+    }
+    const procStart = worstInteraction.processingStart || worstInteraction.startTime;
+    const procEnd = worstInteraction.processingEnd || worstInteraction.startTime;
+    inpInputDelayMs = Math.max(0, Math.round(procStart - worstInteraction.startTime));
+    inpProcessingDelayMs = Math.max(0, Math.round(procEnd - procStart));
+    inpPresentationDelayMs = Math.max(0, Math.round(worstInteraction.startTime + worstInteraction.duration - procEnd));
+
+    const targetLabel = inpTarget ? ` on ${inpTarget}` : '';
+    inpDisplay = `${inpMs} ms (${worstInteraction.name || 'interaction'}${targetLabel})`;
+    inpAttribution = {
+      interactionTarget: inpTarget,
+      interactionType: worstInteraction.name || 'interaction',
+      processingDelayMs: inpProcessingDelayMs,
+      inputDelayMs: inpInputDelayMs,
+      presentationDelayMs: inpPresentationDelayMs
+    };
+  }
 
   // --- 3. DOM RECURSION & SERIALIZED SIZE ---
   let totalElements = 0;
@@ -564,19 +797,31 @@ export async function inspectPageForensics() {
     },
     performance: {
       lcpMs,
-      lcpSource,
-      lcpDisplay,
+      lcpSource: (lcpSource as any),
+      lcpDisplay: lcpMs !== null ? `${lcpMs} ms` : 'Not observed',
       lcpElementSelector,
       lcpElementType,
+      lcpTtfbMs,
+      lcpLoadDelayMs,
+      lcpLoadDurationMs,
+      lcpRenderDelayMs,
+      lcpAttribution,
       fcpMs,
-      fcpDisplay,
+      fcpDisplay: fcpMs !== null ? `${fcpMs} ms` : 'Not observed',
       inpMs,
       inpObserved,
       inpDisplay,
+      inpTarget,
+      inpProcessingDelayMs,
+      inpInputDelayMs,
+      inpPresentationDelayMs,
+      inpAttribution,
       cls: hasClsEntries ? parseFloat(cls.toFixed(3)) : null,
-      clsDisplay,
+      clsDisplay: hasClsEntries ? cls.toFixed(3) : '0.000',
+      clsSessionScore: hasClsEntries ? parseFloat(cls.toFixed(3)) : null,
+      clsAttribution,
       ttfbMs: canonicalTtfbMs,
-      ttfbDisplay,
+      ttfbDisplay: canonicalTtfbMs !== null ? `${canonicalTtfbMs} ms` : 'Not observed',
       domLoadMs
     },
     mainThread: {
