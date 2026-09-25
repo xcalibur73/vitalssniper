@@ -296,7 +296,7 @@ export class LicenseService {
     // Server-side authoritative verification
     const clientInstanceId = await this.getClientInstanceId();
     try {
-      const primaryEndpoint = 'https://www.webaudits.pro/api/license/verify';
+      const primaryEndpoint = 'https://webaudits.pro/api/license/verify';
       const fallbackEndpoint = 'https://vitalssniper-web.vercel.app/api/license/verify';
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);

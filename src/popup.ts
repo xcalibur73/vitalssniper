@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-      const res = await fetch('https://www.webaudits.pro/api/audit', {
+      const res = await fetch('https://webaudits.pro/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: clean, tool: 'website-speed-test' }),
@@ -1463,7 +1463,7 @@ async function initBulkAuditModal() {
         let stack = 'Custom';
 
         try {
-          const res = await fetch('https://www.webaudits.pro/api/audit', {
+          const res = await fetch('https://webaudits.pro/api/audit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: raw }),

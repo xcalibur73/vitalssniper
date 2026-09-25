@@ -634,7 +634,7 @@ class LicenseService {
         // Server-side authoritative verification
         const clientInstanceId = await this.getClientInstanceId();
         try {
-            const primaryEndpoint = 'https://www.webaudits.pro/api/license/verify';
+            const primaryEndpoint = 'https://webaudits.pro/api/license/verify';
             const fallbackEndpoint = 'https://vitalssniper-web.vercel.app/api/license/verify';
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 8000);
@@ -4380,7 +4380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnManual.disabled = true;
         }
         try {
-            const res = await fetch('https://www.webaudits.pro/api/audit', {
+            const res = await fetch('https://webaudits.pro/api/audit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url: clean, tool: 'website-speed-test' }),
@@ -5655,7 +5655,7 @@ async function initBulkAuditModal() {
                 let domCount = 1420;
                 let stack = 'Custom';
                 try {
-                    const res = await fetch('https://www.webaudits.pro/api/audit', {
+                    const res = await fetch('https://webaudits.pro/api/audit', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ url: raw }),
