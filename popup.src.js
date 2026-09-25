@@ -527,10 +527,6 @@ class LicenseService {
                     return this.defaultFreeEntitlement();
                 }
             }
-            // Handle ExtPay subscription
-            if (ent.source === 'payment' && ent.token === 'extpay-active') {
-                return ent;
-            }
         }
         // 2. Check pre-authorized public demo key
         const key = (res.vs_license_key || '').toString().trim().toUpperCase();
@@ -546,27 +542,6 @@ class LicenseService {
             };
             await StorageService.set({ vs_entitlement: ent, vs_is_pro: true, vs_tier: 'pro' });
             return ent;
-        }
-        // 3. Optional ExtPay subscription check
-        if (typeof ExtPay !== 'undefined') {
-            try {
-                const extpay = ExtPay('vitalssniper');
-                const user = await extpay.getUser();
-                if (user && user.paid) {
-                    const ent = {
-                        isPro: true,
-                        tier: 'pro',
-                        valid: true,
-                        expiresAt: null,
-                        source: 'payment',
-                        keyPrefix: 'EXTPAY',
-                        token: 'extpay-active'
-                    };
-                    await StorageService.set({ vs_entitlement: ent, vs_is_pro: true, vs_tier: 'pro' });
-                    return ent;
-                }
-            }
-            catch (e) { }
         }
         // Default: Unlicensed free tier
         return this.defaultFreeEntitlement();
@@ -4290,18 +4265,6 @@ let activeChannel = 'email';
 let activeTone = 'data-driven';
 let isPaidUser = false;
 let configuredAuditorName = '';
-// Safe ExtPay instantiation wrapper
-function getExtPayInstance() {
-    if (typeof ExtPay !== 'undefined') {
-        try {
-            return ExtPay('vitalssniper');
-        }
-        catch (e) {
-            return null;
-        }
-    }
-    return null;
-}
 // --- EXTENSION INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', async () => {
     await StorageService.initialize();
@@ -5207,15 +5170,12 @@ function initProUpgradeModal() {
         backdrop.onclick = closeModal;
     if (btnCheckout) {
         btnCheckout.onclick = () => {
-            const extpay = getExtPayInstance();
-            if (extpay) {
-                extpay.openPaymentPage();
-            }
-            else if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
-                chrome.tabs.create({ url: 'https://extensionpay.com/extension/vitalssniper' });
+            const pricingUrl = 'https://webaudits.pro/pricing';
+            if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+                chrome.tabs.create({ url: pricingUrl });
             }
             else {
-                window.open('https://extensionpay.com/extension/vitalssniper', '_blank');
+                window.open(pricingUrl, '_blank');
             }
         };
     }

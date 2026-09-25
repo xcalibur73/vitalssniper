@@ -53,9 +53,3 @@ declare namespace chrome {
     ): Promise<InjectionResult<T>[]>;
   }
 }
-
-declare function ExtPay(id: string): {
-  startBackground(): void;
-  getUser(): Promise<{ paid: boolean; paidAt?: string }>;
-  openPaymentPage(): void;
-};

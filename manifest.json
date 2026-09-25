@@ -17,9 +17,7 @@
   ],
   "host_permissions": [
     "<all_urls>",
-    "https://extensionpay.com/*",
     "https://vitalssniper-web.vercel.app/*",
-    "https://www.webaudits.pro/*",
     "https://webaudits.pro/*",
     "https://www.googleapis.com/*"
   ],

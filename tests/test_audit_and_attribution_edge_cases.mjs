@@ -12,7 +12,7 @@ const popupJsPath = path.resolve(__dirname, '../popup.js');
 const popupJs = fs.readFileSync(popupJsPath, 'utf8');
 
 console.log('--- 1. Testing popup.js bundle contents ---');
-assert(popupJs.includes('https://extensionpay.com/extension/vitalssniper'), 'popup.js must contain ExtensionPay direct URL fallback');
+assert(popupJs.includes('https://webaudits.pro/pricing'), 'popup.js must contain WebAudits.pro pricing URL');
 assert(popupJs.includes('Synced to WebAudits.pro Dashboard.'), 'popup.js must contain PRO bulk status sync text');
 assert(popupJs.includes("activeTone = 'data-driven'"), 'popup.js must reset activeTone to data-driven on deactivation');
 assert(popupJs.includes("activeChannel = 'email'"), 'popup.js must reset activeChannel to email on deactivation');

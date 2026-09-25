@@ -13,7 +13,6 @@ Copy-Item (Join-Path $extDir 'popup.html') $stagingDir
 Copy-Item (Join-Path $extDir 'popup.css') $stagingDir
 Copy-Item (Join-Path $extDir 'popup.js') $stagingDir
 Copy-Item (Join-Path $extDir 'background.js') $stagingDir
-Copy-Item (Join-Path $extDir 'ExtPay.js') $stagingDir
 Copy-Item (Join-Path $extDir 'README.md') $stagingDir
 Copy-Item (Join-Path $extDir 'icons\*') (Join-Path $stagingDir 'icons')
 

@@ -62,18 +62,6 @@ let activeTone: OutreachTone = 'data-driven';
 let isPaidUser = false;
 let configuredAuditorName = '';
 
-// Safe ExtPay instantiation wrapper
-function getExtPayInstance() {
-  if (typeof ExtPay !== 'undefined') {
-    try {
-      return ExtPay('vitalssniper');
-    } catch (e) {
-      return null;
-    }
-  }
-  return null;
-}
-
 // --- EXTENSION INITIALIZATION ---
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -988,13 +976,11 @@ function initProUpgradeModal() {
 
   if (btnCheckout) {
     btnCheckout.onclick = () => {
-      const extpay = getExtPayInstance();
-      if (extpay) {
-        extpay.openPaymentPage();
-      } else if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
-        chrome.tabs.create({ url: 'https://extensionpay.com/extension/vitalssniper' });
+      const pricingUrl = 'https://webaudits.pro/pricing';
+      if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+        chrome.tabs.create({ url: pricingUrl });
       } else {
-        window.open('https://extensionpay.com/extension/vitalssniper', '_blank');
+        window.open(pricingUrl, '_blank');
       }
     };
   }

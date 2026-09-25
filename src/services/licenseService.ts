@@ -181,11 +181,6 @@ export class LicenseService {
           return this.defaultFreeEntitlement();
         }
       }
-
-      // Handle ExtPay subscription
-      if (ent.source === 'payment' && ent.token === 'extpay-active') {
-        return ent;
-      }
     }
 
     // 2. Check pre-authorized public demo key
@@ -202,27 +197,6 @@ export class LicenseService {
       };
       await StorageService.set({ vs_entitlement: ent, vs_is_pro: true, vs_tier: 'pro' });
       return ent;
-    }
-
-    // 3. Optional ExtPay subscription check
-    if (typeof ExtPay !== 'undefined') {
-      try {
-        const extpay = ExtPay('vitalssniper');
-        const user = await extpay.getUser();
-        if (user && user.paid) {
-          const ent: EntitlementState = {
-            isPro: true,
-            tier: 'pro',
-            valid: true,
-            expiresAt: null,
-            source: 'payment',
-            keyPrefix: 'EXTPAY',
-            token: 'extpay-active'
-          };
-          await StorageService.set({ vs_entitlement: ent, vs_is_pro: true, vs_tier: 'pro' });
-          return ent;
-        }
-      } catch (e) {}
     }
 
     // Default: Unlicensed free tier

@@ -7,7 +7,7 @@
 - Version: 1.5.0
 - Category: Developer Tools
 - Primary Language: English
-- Pricing: Free tier with optional PRO upgrade via ExtensionPay
+- Pricing: Free (with optional cloud sync and PRO account via WebAudits.pro)
 - Support URL: https://webaudits.pro/about
 - Privacy Policy URL: https://webaudits.pro/privacy
 - Website: https://webaudits.pro
@@ -75,9 +75,8 @@ Required to inject lightweight, non-destructive audit routines into the active t
 Required to save user preferences, local audit history, CRM prospect status records, and API key settings in local browser storage (`chrome.storage.local`).
 
 - host_permissions:
-  - `<all_urls>`: Required to allow the user to audit any arbitrary website they choose to inspect via activeTab invocation.
-  - `https://extensionpay.com/*`: Required for secure subscription verification and license checks via the official ExtPay client library.
-  - `https://vitalssniper-web.vercel.app/*` and `https://www.webaudits.pro/*`: Required for cloud report synchronization and fetching reference benchmark rules.
+  - `<all_urls>`: Required to allow the user to audit any arbitrary website they choose to inspect via activeTab invocation and compare against competitor URLs.
+  - `https://vitalssniper-web.vercel.app/*` and `https://webaudits.pro/*`: Required for cloud report synchronization and validating WebAudits.pro API keys.
   - `https://www.googleapis.com/*`: Required for optional direct querying of the official Google PageSpeed Insights (PSI) and Chrome User Experience (CrUX) APIs when external lab data is requested.
 
 ---
