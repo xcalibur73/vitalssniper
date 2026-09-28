@@ -33,8 +33,7 @@ const filesToCheck = [
   '../src/popup.ts',
   '../src/services/reportService.ts',
   '../src/services/cloudSyncService.ts',
-  '../popup.js',
-  '../popup.src.js'
+  '../popup.js'
 ];
 
 for (const rel of filesToCheck) {

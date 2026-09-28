@@ -1,5 +1,5 @@
 // Build script for VitalsSniper Extension
-// Runs tsc to compile TypeScript to dist/, then concatenates into clean, unminified, readable ES6 popup.js and popup.src.js
+// Runs tsc to compile TypeScript to dist/, then concatenates into clean, unminified, readable ES6 popup.js
 // Strictly zero em-dashes
 
 import fs from 'fs';
@@ -104,14 +104,11 @@ bundleBody = bundleBody.replace(/[\u2014\u2013]/g, '-');
 const finalBundle = header + '\n' + bundleBody;
 
 const prodPath = path.resolve(__dirname, 'popup.js');
-const srcPath = path.resolve(__dirname, 'popup.src.js');
 
 fs.writeFileSync(prodPath, finalBundle, 'utf8');
-fs.writeFileSync(srcPath, finalBundle, 'utf8');
 
 console.log(`Bundle created successfully:`);
 console.log(`  -> ${prodPath} (${(finalBundle.length / 1024).toFixed(1)} KB)`);
-console.log(`  -> ${srcPath} (${(finalBundle.length / 1024).toFixed(1)} KB)`);
 
 console.log('--- Step 3: Packaging Release Distribution Zip ---');
 try {
