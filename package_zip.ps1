@@ -54,7 +54,7 @@ $targetDirs = @(
 foreach ($dir in $targetDirs) {
     if (Test-Path $dir) {
         Copy-Item $zipPath (Join-Path $dir 'vitalssniper_pro.zip') -Force
-        Copy-Item $zipPath (Join-Path $dir 'vitalssniper_v1.5.0_pro.zip') -Force
+        Copy-Item $zipPath (Join-Path $dir 'vitalssniper_v1.5.1_pro.zip') -Force
         Write-Host "Synced vitalssniper_pro.zip to $dir"
     }
 }

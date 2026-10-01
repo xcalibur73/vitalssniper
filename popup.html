@@ -23,15 +23,15 @@
         </div>
       </div>
       <div class="header-tools">
-        <button class="tool-btn" id="btnOpenCompetitor" title="Compare Head-to-Head vs Competitor">
+        <button class="tool-btn" id="btnOpenCompetitor" title="Compare Head-to-Head vs Competitor" aria-label="Compare Head-to-Head vs Competitor">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l4-4-4-4M12 4l-4 4 4 4"/></svg>
           <span class="tool-text">Vs</span>
         </button>
-        <button class="tool-btn" id="btnOpenPipeline" title="View Saved Lead Pipeline">
+        <button class="tool-btn" id="btnOpenPipeline" title="View Saved Lead Pipeline" aria-label="View Saved Lead Pipeline">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2h10a1 1 0 0 1 1 1v11l-6-3.5L2 14V3a1 1 0 0 1 1-1z"/></svg>
           <span class="pipeline-badge" id="pipelineCount">0</span>
         </button>
-        <button class="tool-btn" id="btnOpenSettings" title="Agency White-Label Branding Settings">
+        <button class="tool-btn" id="btnOpenSettings" title="Agency White-Label Branding Settings" aria-label="Agency White-Label Branding Settings">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3"/></svg>
         </button>
       </div>
@@ -159,6 +159,8 @@
 
       <div class="channel-tabs">
         <button class="channel-tab active" data-channel="email" id="tabEmail">Cold Email</button>
+        <button class="channel-tab" data-channel="merchant" id="tabMerchant">Merchant</button>
+        <button class="channel-tab" data-channel="agency" id="tabAgency">Agency</button>
         <button class="channel-tab" data-channel="dm" id="tabDm">LinkedIn DM</button>
         <button class="channel-tab" data-channel="loom" id="tabLoom">Loom Pitch</button>
       </div>
@@ -300,10 +302,10 @@
             <table class="comparison-table">
               <thead>
                 <tr>
-                  <th>Metric</th>
-                  <th id="thProspect">Prospect</th>
-                  <th id="thCompetitor">Competitor</th>
-                  <th>Delta / Status</th>
+                  <th scope="col">Metric</th>
+                  <th scope="col" id="thProspect">Prospect</th>
+                  <th scope="col" id="thCompetitor">Competitor</th>
+                  <th scope="col">Delta / Status</th>
                 </tr>
               </thead>
               <tbody id="comparisonTableBody"></tbody>
@@ -368,7 +370,7 @@
         <div class="activation-details" id="activationDetailsArea" style="display:none;">
           <div class="activation-status-row">
             <span class="status-indicator active"></span>
-            <span class="status-name" id="activeStatusName">PRO Lifetime License Active</span>
+            <span class="status-name" id="activeStatusName">VitalsSniper PRO Active</span>
           </div>
           <div class="active-key-display" id="activeKeyDisplay">VS-PRO-****-****</div>
           <div id="activeAccountEmailDisplay" class="active-account-pill" style="display:none;"></div>

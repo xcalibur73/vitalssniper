@@ -755,12 +755,12 @@ body {
 
 .channel-tab {
   flex: 1;
-  min-height: 32px;
-  padding: 6px 10px;
+  min-height: 30px;
+  padding: 6px 3px;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-weight: 600;
   color: var(--color-muted);
   cursor: pointer;
@@ -770,6 +770,7 @@ body {
   transition: color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
   text-align: center;
   user-select: none;
+  white-space: nowrap;
 }
 
 .channel-tab:hover {

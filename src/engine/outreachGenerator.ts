@@ -10,6 +10,8 @@ export interface OutreachScripts {
   dm: string;
   loom: string;
   emailHook: string;
+  merchantPitch: string;
+  agencyPitch: string;
 }
 
 export class OutreachGenerator {
@@ -960,18 +962,56 @@ Best regards,
       }
     }
 
+    const cleanSender = senderName && senderName.trim() ? senderName.trim() : '[Your Name]';
     if (senderName && senderName.trim()) {
-      const cleanName = senderName.trim();
-      email = email.split('[Your Name]').join(cleanName);
-      dm = dm.split('[Your Name]').join(cleanName);
-      loom = loom.split('[Your Name]').join(cleanName);
+      email = email.split('[Your Name]').join(cleanSender);
+      dm = dm.split('[Your Name]').join(cleanSender);
+      loom = loom.split('[Your Name]').join(cleanSender);
     }
+
+    const reportLink = `https://webaudits.pro/reports/view?url=${encodeURIComponent(domain)}`;
+    const lcpDisplay = (lcpMs / 1000).toFixed(1);
+    const estimatedLoss = Math.max(3.2, Math.min(11.8, Math.round(((lcpMs - 2000) / 1000 * 2.4 + (ttfbMs - 300) / 200 * 1.1) * 10) / 10));
+
+    // Pitch Angle: Direct Merchant / E-Commerce Store Owner
+    const merchantPitch = `Subject: Mobile speed & conversion note for ${domain}
+
+Hey [First Name],
+
+Quick heads up on ${domain}: noticed your mobile storefront takes ~${lcpDisplay}s to complete initial paint, with ${finding.title.toLowerCase()} (${evidenceList || `${ttfbMs} ms TTFB`}) creating friction during mobile visitor checkout.
+
+According to Google commerce telemetry, mobile latency at this threshold costs an estimated ${estimatedLoss}% in checkout conversion rate.
+
+Here is a 1-page forensic tear sheet detailing the exact script and DOM bottlenecks:
+${reportLink}
+
+Hope this helps your technical team clear the conversion bottleneck!
+
+Best regards,
+${cleanSender}`;
+
+    // Pitch Angle: Agency Partner / Development Team
+    const agencyPitch = `Subject: Performance audit note regarding ${domain}
+
+Hey [First Name],
+
+Loved your team's design and frontend build on ${domain}. Ran a quick 20-second forensic check on our speed analyzer: visual layout is solid, but mobile server TTFB is sitting at ${ttfbMs} ms and ${finding.title.toLowerCase()} is delaying initial user interaction.
+
+Generated a clean 1-page executive tear sheet showing the exact bottlenecks and remediation code here:
+${reportLink}
+
+We built WebAudits.pro specifically for agency teams to pitch and sell speed remediation sprints to clients. Happy to set you up with an agency trial if you would like to test it on your next audit.
+
+Best regards,
+${cleanSender}`;
 
     return {
       email,
       dm,
       loom,
-      emailHook
+      emailHook,
+      merchantPitch,
+      agencyPitch
     };
   }
 }

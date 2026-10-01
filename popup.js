@@ -352,15 +352,18 @@ class StorageService {
     static async saveWebAuditsApiKey(apiKey) {
         await this.set({ vs_webaudits_api_key: apiKey.trim() });
     }
-    // --- Lifetime PDF Export Tracking ---
+    // --- PDF Export Tracking ---
+    // Free tier has a 3-export limit. Ultra/Enterprise tiers have unlimited exports.
     static async getPdfExportCount() {
-        const res = await this.get(['vs_lifetime_pdf_exports']);
+        const res = await this.get(['vs_pdf_exports', 'vs_lifetime_pdf_exports']);
+        if (typeof res.vs_pdf_exports === 'number')
+            return res.vs_pdf_exports;
         return typeof res.vs_lifetime_pdf_exports === 'number' ? res.vs_lifetime_pdf_exports : 0;
     }
     static async incrementPdfExportCount() {
         const current = await this.getPdfExportCount();
         const next = current + 1;
-        await this.set({ vs_lifetime_pdf_exports: next });
+        await this.set({ vs_pdf_exports: next, vs_lifetime_pdf_exports: next });
         return next;
     }
     // --- Subscription Timeframe Persistence ---
@@ -4216,17 +4219,52 @@ Best regards,
 [0:20 - 0:30] "${finding.recommendation} Happy to share our technical notes if you find this useful!"`;
             }
         }
+        const cleanSender = senderName && senderName.trim() ? senderName.trim() : '[Your Name]';
         if (senderName && senderName.trim()) {
-            const cleanName = senderName.trim();
-            email = email.split('[Your Name]').join(cleanName);
-            dm = dm.split('[Your Name]').join(cleanName);
-            loom = loom.split('[Your Name]').join(cleanName);
+            email = email.split('[Your Name]').join(cleanSender);
+            dm = dm.split('[Your Name]').join(cleanSender);
+            loom = loom.split('[Your Name]').join(cleanSender);
         }
+        const reportLink = `https://webaudits.pro/reports/view?url=${encodeURIComponent(domain)}`;
+        const lcpDisplay = (lcpMs / 1000).toFixed(1);
+        const estimatedLoss = Math.max(3.2, Math.min(11.8, Math.round(((lcpMs - 2000) / 1000 * 2.4 + (ttfbMs - 300) / 200 * 1.1) * 10) / 10));
+        // Pitch Angle: Direct Merchant / E-Commerce Store Owner
+        const merchantPitch = `Subject: Mobile speed & conversion note for ${domain}
+
+Hey [First Name],
+
+Quick heads up on ${domain}: noticed your mobile storefront takes ~${lcpDisplay}s to complete initial paint, with ${finding.title.toLowerCase()} (${evidenceList || `${ttfbMs} ms TTFB`}) creating friction during mobile visitor checkout.
+
+According to Google commerce telemetry, mobile latency at this threshold costs an estimated ${estimatedLoss}% in checkout conversion rate.
+
+Here is a 1-page forensic tear sheet detailing the exact script and DOM bottlenecks:
+${reportLink}
+
+Hope this helps your technical team clear the conversion bottleneck!
+
+Best regards,
+${cleanSender}`;
+        // Pitch Angle: Agency Partner / Development Team
+        const agencyPitch = `Subject: Performance audit note regarding ${domain}
+
+Hey [First Name],
+
+Loved your team's design and frontend build on ${domain}. Ran a quick 20-second forensic check on our speed analyzer: visual layout is solid, but mobile server TTFB is sitting at ${ttfbMs} ms and ${finding.title.toLowerCase()} is delaying initial user interaction.
+
+Generated a clean 1-page executive tear sheet showing the exact bottlenecks and remediation code here:
+${reportLink}
+
+We built WebAudits.pro specifically for agency teams to pitch and sell speed remediation sprints to clients. Happy to set you up with an agency trial if you would like to test it on your next audit.
+
+Best regards,
+${cleanSender}`;
         return {
             email,
             dm,
             loom,
-            emailHook
+            emailHook,
+            merchantPitch,
+            agencyPitch
         };
     }
 }
@@ -4259,7 +4297,9 @@ let currentScripts = {
     email: '',
     dm: '',
     loom: '',
-    emailHook: ''
+    emailHook: '',
+    merchantPitch: '',
+    agencyPitch: ''
 };
 let activeChannel = 'email';
 let activeTone = 'data-driven';
@@ -4836,6 +4876,18 @@ function updateActiveChannelView() {
         if (btnText)
             btnText.innerText = 'Copy 3-Sentence Email';
     }
+    else if (activeChannel === 'merchant') {
+        if (box)
+            box.innerText = currentScripts.merchantPitch || currentScripts.email;
+        if (btnText)
+            btnText.innerText = 'Copy Merchant Pitch';
+    }
+    else if (activeChannel === 'agency') {
+        if (box)
+            box.innerText = currentScripts.agencyPitch || currentScripts.email;
+        if (btnText)
+            btnText.innerText = 'Copy Agency Partner Pitch';
+    }
     else if (activeChannel === 'dm') {
         if (box)
             box.innerText = currentScripts.dm;
@@ -4849,7 +4901,7 @@ function updateActiveChannelView() {
             btnText.innerText = 'Copy Loom Script';
     }
     // Channel Tabs active state
-    ['tabEmail', 'tabDm', 'tabLoom'].forEach(tabId => {
+    ['tabEmail', 'tabMerchant', 'tabAgency', 'tabDm', 'tabLoom'].forEach(tabId => {
         const el = document.getElementById(tabId);
         if (el) {
             const tabChannel = el.getAttribute('data-channel');
@@ -4903,10 +4955,16 @@ function initActionButtons(domain, currentUrl, score, data, primaryFinding) {
     }
     // Tab Switchers
     const tabEmail = document.getElementById('tabEmail');
+    const tabMerchant = document.getElementById('tabMerchant');
+    const tabAgency = document.getElementById('tabAgency');
     const tabDm = document.getElementById('tabDm');
     const tabLoom = document.getElementById('tabLoom');
     if (tabEmail)
         tabEmail.onclick = () => { activeChannel = 'email'; updateActiveChannelView(); };
+    if (tabMerchant)
+        tabMerchant.onclick = () => { activeChannel = 'merchant'; updateActiveChannelView(); };
+    if (tabAgency)
+        tabAgency.onclick = () => { activeChannel = 'agency'; updateActiveChannelView(); };
     if (tabDm)
         tabDm.onclick = () => { activeChannel = 'dm'; updateActiveChannelView(); };
     if (tabLoom) {
@@ -4924,7 +4982,11 @@ function initActionButtons(domain, currentUrl, score, data, primaryFinding) {
     if (btnCopy) {
         btnCopy.onclick = () => {
             let textToCopy = currentScripts.email;
-            if (activeChannel === 'dm')
+            if (activeChannel === 'merchant')
+                textToCopy = currentScripts.merchantPitch;
+            else if (activeChannel === 'agency')
+                textToCopy = currentScripts.agencyPitch;
+            else if (activeChannel === 'dm')
                 textToCopy = currentScripts.dm;
             else if (activeChannel === 'loom')
                 textToCopy = currentScripts.loom;
@@ -4965,7 +5027,11 @@ function initActionButtons(domain, currentUrl, score, data, primaryFinding) {
                 activePitchSubject = currentScripts.email.split('\n')[0].replace(/^Subject:\s*/i, '').trim();
             }
             let activePitchBody = currentScripts.email;
-            if (activeChannel === 'dm')
+            if (activeChannel === 'merchant')
+                activePitchBody = currentScripts.merchantPitch;
+            else if (activeChannel === 'agency')
+                activePitchBody = currentScripts.agencyPitch;
+            else if (activeChannel === 'dm')
                 activePitchBody = currentScripts.dm;
             else if (activeChannel === 'loom')
                 activePitchBody = currentScripts.loom;
@@ -5069,7 +5135,7 @@ function initActionButtons(domain, currentUrl, score, data, primaryFinding) {
             if (!isPaidUser) {
                 const count = await StorageService.getPdfExportCount();
                 if (count >= 3) {
-                    showProUpgradeModal('Client Teardown PDF Dossier: You have reached the 3 free lifetime export limit. Upgrade to PRO for unlimited 1-page client teardowns and custom agency branding.');
+                    showProUpgradeModal('Client Teardown PDF Dossier: You have reached the 3 free export limit. Upgrade to Ultra or Enterprise for unlimited 1-page client teardowns and custom agency branding.');
                     return;
                 }
             }
@@ -5804,17 +5870,17 @@ async function initLicense() {
         }
         timeframeBox.style.display = 'block';
         if (timeframePlanLabel) {
-            timeframePlanLabel.innerText = sub.planName || (sub.isMaster ? 'Master Lifetime' : 'Subscription Cycle');
+            timeframePlanLabel.innerText = sub.planName || (sub.isMaster ? 'Master Account' : 'Subscription Cycle');
         }
         if (sub.isMaster) {
             if (timeframeDaysBadge)
-                timeframeDaysBadge.innerText = 'Lifetime Unlimited';
+                timeframeDaysBadge.innerText = 'Active License';
             if (timeframeProgressBar)
                 timeframeProgressBar.style.width = '100%';
             if (timeframeDetail)
                 timeframeDetail.innerText = 'Master Account';
             if (timeframeRenewal)
-                timeframeRenewal.innerText = 'Permanent (No Expiration)';
+                timeframeRenewal.innerText = 'Continuous (Active Subscription)';
         }
         else {
             const remaining = typeof sub.daysRemaining === 'number' ? sub.daysRemaining : 0;

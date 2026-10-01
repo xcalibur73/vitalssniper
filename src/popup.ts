@@ -54,10 +54,12 @@ let currentScripts: OutreachScripts = {
   email: '',
   dm: '',
   loom: '',
-  emailHook: ''
+  emailHook: '',
+  merchantPitch: '',
+  agencyPitch: ''
 };
 
-let activeChannel: 'email' | 'dm' | 'loom' = 'email';
+let activeChannel: 'email' | 'merchant' | 'agency' | 'dm' | 'loom' = 'email';
 let activeTone: OutreachTone = 'data-driven';
 let isPaidUser = false;
 let configuredAuditorName = '';
@@ -622,6 +624,12 @@ function updateActiveChannelView() {
   if (activeChannel === 'email') {
     if (box) box.innerText = currentScripts.email;
     if (btnText) btnText.innerText = 'Copy 3-Sentence Email';
+  } else if (activeChannel === 'merchant') {
+    if (box) box.innerText = currentScripts.merchantPitch || currentScripts.email;
+    if (btnText) btnText.innerText = 'Copy Merchant Pitch';
+  } else if (activeChannel === 'agency') {
+    if (box) box.innerText = currentScripts.agencyPitch || currentScripts.email;
+    if (btnText) btnText.innerText = 'Copy Agency Partner Pitch';
   } else if (activeChannel === 'dm') {
     if (box) box.innerText = currentScripts.dm;
     if (btnText) btnText.innerText = 'Copy LinkedIn DM';
@@ -631,7 +639,7 @@ function updateActiveChannelView() {
   }
 
   // Channel Tabs active state
-  ['tabEmail', 'tabDm', 'tabLoom'].forEach(tabId => {
+  ['tabEmail', 'tabMerchant', 'tabAgency', 'tabDm', 'tabLoom'].forEach(tabId => {
     const el = document.getElementById(tabId);
     if (el) {
       const tabChannel = el.getAttribute('data-channel');
@@ -687,10 +695,14 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
 
   // Tab Switchers
   const tabEmail = document.getElementById('tabEmail');
+  const tabMerchant = document.getElementById('tabMerchant');
+  const tabAgency = document.getElementById('tabAgency');
   const tabDm = document.getElementById('tabDm');
   const tabLoom = document.getElementById('tabLoom');
 
   if (tabEmail) tabEmail.onclick = () => { activeChannel = 'email'; updateActiveChannelView(); };
+  if (tabMerchant) tabMerchant.onclick = () => { activeChannel = 'merchant'; updateActiveChannelView(); };
+  if (tabAgency) tabAgency.onclick = () => { activeChannel = 'agency'; updateActiveChannelView(); };
   if (tabDm) tabDm.onclick = () => { activeChannel = 'dm'; updateActiveChannelView(); };
   if (tabLoom) {
     tabLoom.onclick = () => {
@@ -708,7 +720,9 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
   if (btnCopy) {
     btnCopy.onclick = () => {
       let textToCopy = currentScripts.email;
-      if (activeChannel === 'dm') textToCopy = currentScripts.dm;
+      if (activeChannel === 'merchant') textToCopy = currentScripts.merchantPitch;
+      else if (activeChannel === 'agency') textToCopy = currentScripts.agencyPitch;
+      else if (activeChannel === 'dm') textToCopy = currentScripts.dm;
       else if (activeChannel === 'loom') textToCopy = currentScripts.loom;
 
       navigator.clipboard.writeText(textToCopy).then(() => {
@@ -751,7 +765,9 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
       }
 
       let activePitchBody = currentScripts.email;
-      if (activeChannel === 'dm') activePitchBody = currentScripts.dm;
+      if (activeChannel === 'merchant') activePitchBody = currentScripts.merchantPitch;
+      else if (activeChannel === 'agency') activePitchBody = currentScripts.agencyPitch;
+      else if (activeChannel === 'dm') activePitchBody = currentScripts.dm;
       else if (activeChannel === 'loom') activePitchBody = currentScripts.loom;
 
       const leadRecord: SavedLead = {
@@ -855,7 +871,7 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
       if (!isPaidUser) {
         const count = await StorageService.getPdfExportCount();
         if (count >= 3) {
-          showProUpgradeModal('Client Teardown PDF Dossier: You have reached the 3 free lifetime export limit. Upgrade to PRO for unlimited 1-page client teardowns and custom agency branding.');
+          showProUpgradeModal('Client Teardown PDF Dossier: You have reached the 3 free export limit. Upgrade to Ultra or Enterprise for unlimited 1-page client teardowns and custom agency branding.');
           return;
         }
       }
@@ -1641,14 +1657,14 @@ async function initLicense() {
 
     timeframeBox.style.display = 'block';
     if (timeframePlanLabel) {
-      timeframePlanLabel.innerText = sub.planName || (sub.isMaster ? 'Master Lifetime' : 'Subscription Cycle');
+      timeframePlanLabel.innerText = sub.planName || (sub.isMaster ? 'Master Account' : 'Subscription Cycle');
     }
 
     if (sub.isMaster) {
-      if (timeframeDaysBadge) timeframeDaysBadge.innerText = 'Lifetime Unlimited';
+      if (timeframeDaysBadge) timeframeDaysBadge.innerText = 'Active License';
       if (timeframeProgressBar) timeframeProgressBar.style.width = '100%';
       if (timeframeDetail) timeframeDetail.innerText = 'Master Account';
-      if (timeframeRenewal) timeframeRenewal.innerText = 'Permanent (No Expiration)';
+      if (timeframeRenewal) timeframeRenewal.innerText = 'Continuous (Active Subscription)';
     } else {
       const remaining = typeof sub.daysRemaining === 'number' ? sub.daysRemaining : 0;
       const total = sub.totalDays || 30;

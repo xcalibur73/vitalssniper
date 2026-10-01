@@ -5,10 +5,10 @@ import { SavedLead, AgencySettings, LeadStatus } from '../types/pipeline';
 import { escapeCsvField } from '../utils/security';
 
 export interface StoredSubscriptionTimeframe {
-  status: 'active' | 'trial' | 'lifetime' | 'free' | 'expired';
+  status: 'active' | 'trial' | 'annual' | 'monthly' | 'free' | 'expired' | 'lifetime';
   tier: string;
   planName: string;
-  interval: 'monthly' | 'annual' | 'lifetime' | 'trial' | 'free';
+  interval: 'monthly' | 'annual' | 'trial' | 'free' | 'lifetime' | 'none';
   totalDays: number;
   daysRemaining: number;
   daysElapsed: number;
@@ -290,17 +290,19 @@ export class StorageService {
     await this.set({ vs_webaudits_api_key: apiKey.trim() });
   }
 
-  // --- Lifetime PDF Export Tracking ---
+  // --- PDF Export Tracking ---
+  // Free tier has a 3-export limit. Ultra/Enterprise tiers have unlimited exports.
 
   public static async getPdfExportCount(): Promise<number> {
-    const res = await this.get(['vs_lifetime_pdf_exports']);
+    const res = await this.get(['vs_pdf_exports', 'vs_lifetime_pdf_exports']);
+    if (typeof res.vs_pdf_exports === 'number') return res.vs_pdf_exports;
     return typeof res.vs_lifetime_pdf_exports === 'number' ? res.vs_lifetime_pdf_exports : 0;
   }
 
   public static async incrementPdfExportCount(): Promise<number> {
     const current = await this.getPdfExportCount();
     const next = current + 1;
-    await this.set({ vs_lifetime_pdf_exports: next });
+    await this.set({ vs_pdf_exports: next, vs_lifetime_pdf_exports: next });
     return next;
   }
 
