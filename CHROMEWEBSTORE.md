@@ -43,7 +43,7 @@ Tracks prospect review status locally and exports clean 1-page PDF teardown brie
 
 HOW TO USE IT
 
-Step 1: Navigate to any target website in Google Chrome.
+Step 1: Open any target website in Google Chrome.
 Step 2: Click the VitalsSniper extension icon in your toolbar or press Ctrl+Shift+A (Command+Shift+A on macOS).
 Step 3: Review the instant proof-of-flaw audit card showing DOM depth, CMS signatures, script weight, and viewport health.
 Step 4: Switch to the Outreach tab to generate tailored, data-driven email or LinkedIn teardown pitches citing the exact flaws detected.
@@ -93,7 +93,7 @@ English
 | tabs | permissions | Required to display the current website title, URL, and favicon in the inspector header and detect tab changes during an active audit session. |
 | scripting | permissions | Required to inject lightweight, non-destructive audit routines into the active page context to measure DOM tree depth and script tags. |
 | storage | permissions | Required to store user settings, local audit history, CRM prospect status records, and license keys locally in chrome.storage.local. |
-| &lt;all_urls&gt; | host_permissions | Required to enable user-initiated technical audits on any public website the user navigates to and wishes to inspect. |
+| &lt;all_urls&gt; | host_permissions | Required to enable user-initiated technical audits on any public website the user opens and inspects. |
 | https://vitalssniper-web.vercel.app/* | host_permissions | Required to validate subscription license keys and synchronize audit reports to the WebAudits.pro cloud workspace. |
 | https://webaudits.pro/* | host_permissions | Required to validate subscription license keys and synchronize audit reports to the WebAudits.pro cloud workspace. |
 | https://www.googleapis.com/* | host_permissions | Required for optional user-requested lab audits via official Google PageSpeed Insights and Chrome User Experience APIs. |

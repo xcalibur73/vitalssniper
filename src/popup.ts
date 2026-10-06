@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 3. Robust multi-fallback tab query
+  // 3. Multi-fallback tab query
   let tab: chrome.tabs.Tab | null = null;
   try {
     if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
@@ -672,7 +672,7 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
   if (toneUrgency) {
     toneUrgency.onclick = () => {
       if (!isPaidUser) {
-        showProUpgradeModal('Advanced Outreach Tones: Urgency tone leverages loss-aversion psychology and Core Web Vitals conversion leaks to prompt action.');
+        showProUpgradeModal('Advanced Outreach Tones: Urgency tone applies loss-aversion framing and Core Web Vitals conversion leaks to prompt action.');
         return;
       }
       activeTone = 'urgency';
@@ -714,7 +714,7 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
   if (tabLoom) {
     tabLoom.onclick = () => {
       if (!isPaidUser) {
-        showProUpgradeModal('Loom Video Audit Scripts: Unlock time-stamped video audit teardown scripts proven to book discovery calls.');
+        showProUpgradeModal('Loom Video Audit Scripts: Generate time-stamped video audit teardown scripts proven to book discovery calls.');
         return;
       }
       activeChannel = 'loom';
@@ -1714,7 +1714,7 @@ async function initLicense() {
       if (formArea) formArea.style.display = 'block';
       if (detailsArea) detailsArea.style.display = 'none';
       if (titleEl) titleEl.innerText = 'Activate VitalsSniper PRO';
-      if (subEl) subEl.innerText = 'Enter your WebAudits.pro API key or license voucher to unlock unlimited audits and auto-sync scans to your 30-day dashboard vault.';
+      if (subEl) subEl.innerText = 'Enter your WebAudits.pro API key or license voucher to enable unlimited audits and auto-sync scans to your 30-day dashboard vault.';
       if (footerLink) footerLink.innerText = 'Get your API key at WebAudits.pro Dashboard \u2192';
       if (timeframeBox) timeframeBox.style.display = 'none';
     }
@@ -1736,7 +1736,7 @@ async function initLicense() {
           modal.style.display = 'flex';
         }
       } else {
-        showProUpgradeModal('Unlock VitalsSniper PRO to access Bulk Batch Auditing, Lead CRM CSV exports, white-label PDF reports, and advanced outreach pitches.');
+        showProUpgradeModal('Upgrade to VitalsSniper PRO for Bulk Batch Auditing, Lead CRM CSV exports, white-label PDF reports, and advanced outreach pitches.');
       }
     };
   }
@@ -1754,7 +1754,7 @@ async function initLicense() {
       if (errorEl) errorEl.style.display = 'none';
 
       const res = await LicenseService.activate(rawKey);
-      btnActivate.innerText = 'Unlock PRO Features';
+      btnActivate.innerText = 'Activate PRO Features';
 
       if (res.valid) {
         isPaidUser = true;

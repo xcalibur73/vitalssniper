@@ -181,7 +181,7 @@ export class FindingsEngine {
           { label: 'Standard Reference', value: 'WCAG 2.2 Success Criterion 1.4.4 (Resize Text Advisory)' }
         ],
         confidence: 'high',
-        explanation: 'The viewport configuration disables user scaling, which creates usability barriers for visitors with low vision who need pinch-to-zoom magnification. Note: Automated audit tools identify the directive; full WCAG conformance requires holistic testing.',
+        explanation: 'The viewport configuration disables user scaling, which creates usability barriers for visitors with low vision who need pinch-to-zoom magnification. Note: Automated audit tools identify the directive; full WCAG conformance requires manual testing.',
         recommendation: 'Remove user-scalable=no and maximum-scale=1 directives to allow native browser pinch-to-zoom.',
         improvements: [
           'Update viewport meta content to: width=device-width, initial-scale=1.0',
@@ -229,7 +229,7 @@ export class FindingsEngine {
           { label: 'Deep Branches (>15)', value: `${data.dom?.deepBranchCount || 0} nodes` }
         ],
         confidence: 'high',
-        explanation: 'Deeply nested DOM hierarchies increase style recalculation and layout cost on mobile CPUs during scroll and user interactions.',
+        explanation: 'Heavily nested DOM hierarchies increase style recalculation and layout cost on mobile CPUs during scroll and user interactions.',
         recommendation: 'Flatten nested container structures and eliminate unneeded layout wrappers.',
         improvements: [
           'Flatten nested container wrappers in page templates',
@@ -252,7 +252,7 @@ export class FindingsEngine {
         ],
         confidence: 'high',
         explanation: 'Elevated DOM node counts increase memory consumption and can delay style recalculation during mobile navigation.',
-        recommendation: 'Profile component hierarchy in Chrome DevTools to identify deeply nested wrappers.',
+        recommendation: 'Profile component hierarchy in Chrome DevTools to identify heavily nested wrappers.',
         improvements: [
           'Profile DOM depth in Chrome DevTools Performance panel',
           'Reduce redundant layout containers across recurring section components',

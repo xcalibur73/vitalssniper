@@ -2962,7 +2962,7 @@ class FindingsEngine {
                     { label: 'Standard Reference', value: 'WCAG 2.2 Success Criterion 1.4.4 (Resize Text Advisory)' }
                 ],
                 confidence: 'high',
-                explanation: 'The viewport configuration disables user scaling, which creates usability barriers for visitors with low vision who need pinch-to-zoom magnification. Note: Automated audit tools identify the directive; full WCAG conformance requires holistic testing.',
+                explanation: 'The viewport configuration disables user scaling, which creates usability barriers for visitors with low vision who need pinch-to-zoom magnification. Note: Automated audit tools identify the directive; full WCAG conformance requires manual testing.',
                 recommendation: 'Remove user-scalable=no and maximum-scale=1 directives to allow native browser pinch-to-zoom.',
                 improvements: [
                     'Update viewport meta content to: width=device-width, initial-scale=1.0',
@@ -3008,7 +3008,7 @@ class FindingsEngine {
                     { label: 'Deep Branches (>15)', value: `${data.dom?.deepBranchCount || 0} nodes` }
                 ],
                 confidence: 'high',
-                explanation: 'Deeply nested DOM hierarchies increase style recalculation and layout cost on mobile CPUs during scroll and user interactions.',
+                explanation: 'Heavily nested DOM hierarchies increase style recalculation and layout cost on mobile CPUs during scroll and user interactions.',
                 recommendation: 'Flatten nested container structures and eliminate unneeded layout wrappers.',
                 improvements: [
                     'Flatten nested container wrappers in page templates',
@@ -3032,7 +3032,7 @@ class FindingsEngine {
                 ],
                 confidence: 'high',
                 explanation: 'Elevated DOM node counts increase memory consumption and can delay style recalculation during mobile navigation.',
-                recommendation: 'Profile component hierarchy in Chrome DevTools to identify deeply nested wrappers.',
+                recommendation: 'Profile component hierarchy in Chrome DevTools to identify heavily nested wrappers.',
                 improvements: [
                     'Profile DOM depth in Chrome DevTools Performance panel',
                     'Reduce redundant layout containers across recurring section components',
@@ -3415,7 +3415,7 @@ If your team is currently tracking field Core Web Vitals (such as INP) or explor
 
 Best regards,
 [Your Name]`;
-                dm = `Hi [First Name], noticed ${domain} maintains a remarkably clean DOM structure and responsive server latency (${ttfbMs} ms). Great engineering baseline! Glad to connect if you ever talk web performance.`;
+                dm = `Hi [First Name], noticed ${domain} maintains a clean DOM structure and responsive server latency (${ttfbMs} ms). Great engineering baseline! Glad to connect if you ever talk web performance.`;
                 loom = `[0:00 - 0:10] "Hi [First Name], I was profiling mobile performance across your industry, and I wanted to send a quick note because ${domain}'s architecture is noticeably clean."
 [0:10 - 0:20] "Your DOM tree is concise (${totalElements.toLocaleString()} elements) and server TTFB is fast (${ttfbMs} ms), which keeps mobile CPU overhead minimal."
 [0:20 - 0:30] "If your team is interested in profiling field Core Web Vitals or advanced edge caching, I would be glad to connect. Keep up the great work!"`;
@@ -3500,7 +3500,7 @@ Hi [First Name],
 
 While reviewing ${domain} in my browser inspector, I noticed the homepage is currently missing a responsive viewport meta tag in the document head.
 
-Without this tag, mobile browsers such as iOS Safari render pages in a wide desktop emulation viewport, requiring mobile visitors to manually zoom and pan to read headings and navigate menus.
+Without this tag, mobile browsers such as iOS Safari render pages in a wide desktop emulation viewport, requiring mobile visitors to manually zoom and pan to read headings and browse menus.
 
 Recommended diagnostic steps:
 1. Add <meta name="viewport" content="width=device-width, initial-scale=1.0"> to your document head.
@@ -3540,7 +3540,7 @@ Can we set up a quick 10-minute review to walk through an accessibility complian
 
 Best regards,
 [Your Name]`;
-                dm = `Hi [First Name], heads up: ${domain} has user-scalable=no in its viewport tag, locking pinch-to-zoom. This triggers WCAG 2.2 accessibility flags and frustrates mobile visitors. Happy to share how to safely unlock it.`;
+                dm = `Hi [First Name], heads up: ${domain} has user-scalable=no in its viewport tag, locking pinch-to-zoom. This triggers WCAG 2.2 accessibility flags and frustrates mobile visitors. Happy to share how to safely re-enable it.`;
                 loom = `[0:00 - 0:10] "Hi [First Name], I wanted to bring an important accessibility finding to your attention on ${domain}."
 [0:10 - 0:20] "Your mobile viewport settings currently disable pinch-to-zoom, which prevents low-vision users from enlarging text and violates WCAG 1.4.4 accessibility guidelines."
 [0:20 - 0:30] "Removing user-scalable=no fixes the compliance flag immediately without impacting your layout. Let me know if you would like me to send over our testing notes!"`;
@@ -3698,10 +3698,10 @@ Hi [First Name],
 
 While analyzing ${domain}'s DOM structure in my developer tools, I noticed the page currently renders ${totalElements.toLocaleString()} DOM elements across a maximum depth of ${maxDepth} nested levels.
 
-On mobile devices with mid-tier processors, deeply nested DOM structures increase style recalculation and layout cost during scrolling and interactive events.
+On mobile devices with mid-tier processors, heavily nested DOM structures increase style recalculation and layout cost during scrolling and interactive events.
 
 Recommended diagnostic steps:
-1. Profile component hierarchy in Chrome DevTools to locate deeply nested layout wrappers.
+1. Profile component hierarchy in Chrome DevTools to locate heavily nested layout wrappers.
 2. Flatten redundant container structures across recurring template sections.
 3. Consider applying content-visibility: auto to defer rendering of below-the-fold content blocks.
 
@@ -3738,7 +3738,7 @@ Can we set up a quick 10-minute walkthrough to show you the exact schema templat
 
 Best regards,
 [Your Name]`;
-                dm = `Hi [First Name], noticed ${domain} is missing Schema.org JSON-LD structured data. Without it, you miss out on Google rich snippets and AI search citations. Happy to share our clean schema blueprint!`;
+                dm = `Hi [First Name], noticed ${domain} is missing Schema.org JSON-LD structured data. Without it, you miss out on Google rich snippets and AI search citations. Happy to share our clean schema template!`;
                 loom = `[0:00 - 0:10] "Hi [First Name], I was reviewing ${domain}'s technical search footprint and noticed a critical entity gap."
 [0:10 - 0:20] "Your document head has no Schema.org JSON-LD structured data. This means Google and AI engines like Perplexity cannot reliably parse your business taxonomy or award rich snippets."
 [0:20 - 0:30] "Adding valid JSON-LD takes less than an hour and immediately improves entity discoverability. Let me know if you would like me to send over our schema template!"`;
@@ -4501,7 +4501,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
-    // 3. Robust multi-fallback tab query
+    // 3. Multi-fallback tab query
     let tab = null;
     try {
         if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
@@ -4947,7 +4947,7 @@ function initActionButtons(domain, currentUrl, score, data, primaryFinding) {
     if (toneUrgency) {
         toneUrgency.onclick = () => {
             if (!isPaidUser) {
-                showProUpgradeModal('Advanced Outreach Tones: Urgency tone leverages loss-aversion psychology and Core Web Vitals conversion leaks to prompt action.');
+                showProUpgradeModal('Advanced Outreach Tones: Urgency tone applies loss-aversion framing and Core Web Vitals conversion leaks to prompt action.');
                 return;
             }
             activeTone = 'urgency';
@@ -4991,7 +4991,7 @@ function initActionButtons(domain, currentUrl, score, data, primaryFinding) {
     if (tabLoom) {
         tabLoom.onclick = () => {
             if (!isPaidUser) {
-                showProUpgradeModal('Loom Video Audit Scripts: Unlock time-stamped video audit teardown scripts proven to book discovery calls.');
+                showProUpgradeModal('Loom Video Audit Scripts: Generate time-stamped video audit teardown scripts proven to book discovery calls.');
                 return;
             }
             activeChannel = 'loom';
@@ -5953,7 +5953,7 @@ async function initLicense() {
             if (titleEl)
                 titleEl.innerText = 'Activate VitalsSniper PRO';
             if (subEl)
-                subEl.innerText = 'Enter your WebAudits.pro API key or license voucher to unlock unlimited audits and auto-sync scans to your 30-day dashboard vault.';
+                subEl.innerText = 'Enter your WebAudits.pro API key or license voucher to enable unlimited audits and auto-sync scans to your 30-day dashboard vault.';
             if (footerLink)
                 footerLink.innerText = 'Get your API key at WebAudits.pro Dashboard \u2192';
             if (timeframeBox)
@@ -5977,7 +5977,7 @@ async function initLicense() {
                 }
             }
             else {
-                showProUpgradeModal('Unlock VitalsSniper PRO to access Bulk Batch Auditing, Lead CRM CSV exports, white-label PDF reports, and advanced outreach pitches.');
+                showProUpgradeModal('Upgrade to VitalsSniper PRO for Bulk Batch Auditing, Lead CRM CSV exports, white-label PDF reports, and advanced outreach pitches.');
             }
         };
     }
@@ -5996,7 +5996,7 @@ async function initLicense() {
             if (errorEl)
                 errorEl.style.display = 'none';
             const res = await LicenseService.activate(rawKey);
-            btnActivate.innerText = 'Unlock PRO Features';
+            btnActivate.innerText = 'Activate PRO Features';
             if (res.valid) {
                 isPaidUser = true;
                 if (proTag) {

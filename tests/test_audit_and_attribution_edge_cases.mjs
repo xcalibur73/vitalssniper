@@ -79,3 +79,4 @@ assert(!popupJs.includes('Lifetime Unlimited'), 'popup.js must not contain Lifet
 console.log('PASS: Zero retired lifetime strings found in user-facing status.');
 
 console.log('\n=== ALL EDGE CASE ATTRIBUTION, PITCH AND GATING CHECKS PASSED ===\n');
+process.exit(0);
