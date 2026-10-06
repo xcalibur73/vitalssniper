@@ -268,7 +268,7 @@ async function runVisualBoundsStressTest() {
     <g transform="translate(20, 20)">
       <rect width="242" height="26" rx="13" fill="#1a1a1a"/>
       <circle cx="13" cy="13" r="4" fill="#e63946"/>
-      <text id="test-text" x="24" y="17" font-family="${fontName}" font-size="10.5" font-weight="700" fill="#F7F4EE" letter-spacing="0.06em">CHROME EXTENSION : PRO EDITION</text>
+      <text id="test-text" x="24" y="17" font-family="${fontName}" font-size="10.5" font-weight="700" fill="#ffffff" letter-spacing="0.06em">CHROME EXTENSION : PRO EDITION</text>
     </g>
   </svg>
 </body>

@@ -24,12 +24,12 @@ export class ReportService {
     const bookingUrl = isPro && isSafeUrl(agencySettings.bookingUrl) ? agencySettings.bookingUrl : '';
 
     const badgeColor = finding.severity === 'critical'
-      ? 'background: #fee2e2; color: #991b1b; border-color: #fca5a5;'
+      ? 'background: #FDF1F0; color: #A8231B; border-color: #F7BDB9;'
       : (finding.severity === 'warning'
-        ? 'background: #fef3c7; color: #92400e; border-color: #fcd34d;'
+        ? 'background: #FEF7EA; color: #8A5308; border-color: #F7DCA8;'
         : (finding.severity === 'healthy'
-          ? 'background: #e0f2fe; color: #0369a1; border-color: #7dd3fc;'
-          : 'background: #dcfce7; color: #166534; border-color: #86efac;'));
+          ? 'background: #EAF2F8; color: #1A5276; border-color: #AED6F1;'
+          : 'background: #EAF7EE; color: #1B6E38; border-color: #BCE6C8;'));
 
     const domTotal = data.domStats ? data.domStats.totalElements : (data.domElements || 0);
     const domDepth = data.domStats ? data.domStats.maxDepth : 0;
@@ -47,17 +47,17 @@ export class ReportService {
   <title>Technical Diagnostic Teardown: ${escapeHtml(domain)}</title>
   <style>
     :root {
-      --bg: #F7F4EE;
-      --surface: #FFFFFF;
-      --text: #20201E;
-      --muted: #716C64;
-      --border: #DDD7CE;
-      --accent: #B76345;
-      --dark: #242321;
-      --green: #2e7d32;
-      --amber: #b45309;
-      --red: #c62828;
-      --blue: #0284c7;
+      --bg: #f7f7f7;
+      --surface: #ffffff;
+      --text: #1a1a1a;
+      --muted: #5e5e5e;
+      --border: #e3e3e3;
+      --accent: #e63946;
+      --dark: #1a1a1a;
+      --green: #1b6e38;
+      --amber: #8a5308;
+      --red: #a8231b;
+      --blue: #1a5276;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -82,11 +82,11 @@ export class ReportService {
     .meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
     .badge {
       font-size: 11px; font-weight: 600; padding: 5px 10px;
-      border-radius: 4px; background: var(--surface);
+      border-radius: 999px; background: var(--surface);
       border: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px;
     }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-    .stat { background: var(--surface); border: 1px solid var(--border); padding: 14px; border-radius: 6px; }
+    .stat { background: var(--surface); border: 1px solid var(--border); padding: 14px; border-radius: 12px; }
     .stat-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     .stat-val { font-size: 18px; font-weight: 700; color: var(--dark); margin-top: 4px; }
     .stat-val.red { color: var(--red); }
@@ -95,7 +95,7 @@ export class ReportService {
     .stat-val.blue { color: var(--blue); }
     .stat-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
     .card {
-      border: 1px solid var(--border); border-radius: 6px;
+      border: 1px solid var(--border); border-radius: 12px;
       padding: 18px; margin-bottom: 16px; background: var(--surface);
     }
     .card-heading {
@@ -116,9 +116,9 @@ export class ReportService {
       text-align: center; padding: 20px; border-radius: 6px; margin-top: 16px;
     }
     .booking-btn {
-      display: inline-block; background: var(--dark); color: #F7F4EE;
+      display: inline-block; background: var(--dark); color: #ffffff;
       font-weight: 600; font-size: 12.5px; padding: 8px 20px;
-      border-radius: 4px; text-decoration: none; margin-top: 10px;
+      border-radius: 6px; text-decoration: none; margin-top: 10px;
     }
     .footer {
       margin-top: 36px; font-size: 11.5px; color: var(--muted);
@@ -126,14 +126,14 @@ export class ReportService {
     }
     .action-bar {
       background: var(--dark);
-      color: #F7F4EE;
+      color: #ffffff;
       padding: 10px 16px;
-      border-radius: 6px;
+      border-radius: 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 24px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 1px 3px rgba(26, 26, 26, 0.1);
     }
     .action-bar-title {
       font-size: 12px;
@@ -141,13 +141,13 @@ export class ReportService {
       letter-spacing: 0.3px;
     }
     .action-bar-btn {
-      background: #F7F4EE;
+      background: #ffffff;
       color: var(--dark);
-      border: none;
+      border: 1px solid var(--border);
       font-size: 11px;
       font-weight: 700;
       padding: 6px 14px;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -156,11 +156,12 @@ export class ReportService {
       transition: background 0.15s ease;
     }
     .action-bar-btn:hover {
-      background: #ffffff;
+      background: #f5f5f5;
     }
     .action-bar-btn.secondary {
       background: rgba(255, 255, 255, 0.15);
-      color: #F7F4EE;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
     .action-bar-btn.secondary:hover {
       background: rgba(255, 255, 255, 0.25);
@@ -254,7 +255,7 @@ export class ReportService {
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
       <div class="card-heading" style="margin-bottom: 0;">Primary Diagnostic Finding</div>
-      <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; ${badgeColor}">${escapeHtml(finding.badge || 'OPPORTUNITY')}</span>
+      <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; ${badgeColor}">${escapeHtml(finding.badge || 'OPPORTUNITY')}</span>
     </div>
     <div class="flaw-box">
       <div class="flaw-title">${escapeHtml(finding.title)}</div>

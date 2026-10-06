@@ -955,8 +955,8 @@ function highlightLcpInTab(selector: string | null) {
     const originalOutline = (target as HTMLElement).style.outline;
     const originalBoxShadow = (target as HTMLElement).style.boxShadow;
 
-    (target as HTMLElement).style.outline = '3px solid #B76345';
-    (target as HTMLElement).style.boxShadow = '0 0 20px rgba(183, 99, 69, 0.6)';
+    (target as HTMLElement).style.outline = '3px solid #e63946';
+    (target as HTMLElement).style.boxShadow = '0 0 20px rgba(230, 57, 70, 0.5)';
 
     setTimeout(() => {
       if (target) {
