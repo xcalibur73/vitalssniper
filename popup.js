@@ -4383,9 +4383,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnManual.disabled = true;
         }
         try {
+            const syncConfig = await StorageService.getWebAuditsSyncConfig().catch(() => null);
+            const authKey = syncConfig?.apiKey?.trim() || '';
+            const auditHeaders = { 'Content-Type': 'application/json' };
+            if (authKey) {
+                auditHeaders['x-api-key'] = authKey;
+            }
             const res = await fetch('https://webaudits.pro/api/audit', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: auditHeaders,
                 body: JSON.stringify({ url: clean, tool: 'website-speed-test' }),
                 signal: AbortSignal.timeout(12000)
             });
@@ -5681,9 +5687,15 @@ async function initBulkAuditModal() {
                 let domCount = 1420;
                 let stack = 'Custom';
                 try {
+                    const syncConfig = await StorageService.getWebAuditsSyncConfig().catch(() => null);
+                    const authKey = syncConfig?.apiKey?.trim() || '';
+                    const auditHeaders = { 'Content-Type': 'application/json' };
+                    if (authKey) {
+                        auditHeaders['x-api-key'] = authKey;
+                    }
                     const res = await fetch('https://webaudits.pro/api/audit', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: auditHeaders,
                         body: JSON.stringify({ url: raw }),
                         signal: AbortSignal.timeout(8000)
                     });
