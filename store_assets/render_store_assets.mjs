@@ -81,6 +81,7 @@ async function renderAssets() {
 
   await browser.close();
   console.log('All store visual assets rendered successfully.');
+  process.exit(0);
 }
 
 renderAssets().catch(err => {
