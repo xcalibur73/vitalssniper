@@ -1,0 +1,151 @@
+# Chrome Web Store Listing: VitalsSniper: Proof-of-Flaw Web Inspector
+
+> Last Updated: 2026-10-06
+
+## Store Listing
+
+**Extension Name** [REQUIRED]
+VitalsSniper: Proof-of-Flaw Web Inspector
+
+**Short Description** [REQUIRED]
+1-Click CMS & Builder detector, DOM bloat scanner, Core Web Vitals audit, and client outreach email generator.
+
+**Detailed Description** [REQUIRED]
+VitalsSniper PRO is an in-browser technical website auditor and proof-of-flaw inspector for web developers, technical SEO consultants, and digital agency teams.
+
+Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper PRO inspects the live DOM of the active tab in under 50 milliseconds, extracting concrete technical evidence with zero server latency.
+
+KEY AUDIT CAPABILITIES
+
+1. CMS and Page Builder Detection
+Instantly detects Elementor, Divi, WPBakery, GeneratePress, Oxygen, Webflow, Squarespace, Shopify, and Next.js from live runtime signatures and script fingerprints.
+
+2. DOM Bloat and Tree Depth Analysis
+Measures total DOM node count, maximum nesting depth, and flags deep branches exceeding 15 levels that degrade browser layout passes and interaction response times.
+
+3. Document Payload and Transfer Weights
+Measures in-memory HTML size, wire transfer weight, and asset distribution to pinpoint oversized payloads that slow mobile first contentful paint.
+
+4. Viewport and Accessibility Checks
+Evaluates viewport meta configuration to identify user-scalable restrictions that impair pinch-to-zoom accessibility under WCAG 2.2 Criterion 1.4.4.
+
+5. Schema.org JSON-LD Verification
+Parses and checks structured data blocks for syntax validity, entity graph connections, and missing required properties.
+
+6. Third-Party Script Contention
+Inventories external, inline, and asynchronous scripts competing for main-thread execution time.
+
+7. Evidence-Grounded Outreach Generation
+Transforms observed technical flaws into structured, factual teardowns (cold email, LinkedIn DM, and video teardown outlines) citing measured values instead of vague generalizations.
+
+8. Built-in Prospect CRM and Teardown Export
+Tracks prospect review status locally and exports clean 1-page PDF teardown briefs or RFC 4180 CSV logs.
+
+HOW TO USE IT
+
+Step 1: Navigate to any target website in Google Chrome.
+Step 2: Click the VitalsSniper extension icon in your toolbar or press Ctrl+Shift+A (Command+Shift+A on macOS).
+Step 3: Review the instant proof-of-flaw audit card showing DOM depth, CMS signatures, script weight, and viewport health.
+Step 4: Switch to the Outreach tab to generate tailored, data-driven email or LinkedIn teardown pitches citing the exact flaws detected.
+Step 5: Export a client-ready 1-page PDF dossier or save the lead to your local prospect list.
+
+PRIVACY AND PERMISSIONS
+
+VitalsSniper runs 100% client-side inside your browser sandbox. Your browsing history, visited URLs, and client audit data are never collected, never sold, and never sent to external tracking servers. All analysis executes directly on the active tab only when invoked by the user.
+
+SUPPORT AND FEEDBACK
+
+Documentation: https://webaudits.pro/docs
+Customer Support: https://webaudits.pro/about
+Publisher Email: sfs@webaudits.pro
+Website: https://webaudits.pro
+
+**Category** [REQUIRED]
+Developer Tools
+
+**Single Purpose** [REQUIRED]
+Inspects the active browser tab to identify web performance bottlenecks, DOM bloat, CMS fingerprints, and generate factual client audit teardowns.
+
+**Primary Language** [REQUIRED]
+English
+
+## Graphics & Assets
+
+| Asset | Dimensions | Status | Filename |
+|---|---|---|---|
+| Store Icon [REQUIRED] | 128x128 PNG | [x] Ready | icons/icon128.png |
+| Screenshot 1 [REQUIRED] | 1280x800 PNG | [x] Ready | store_assets/screenshot_1_dom_bloat_1280x800.png |
+| Screenshot 2 [RECOMMENDED] | 1280x800 PNG | [x] Ready | store_assets/screenshot_2_outreach_engine_1280x800.png |
+| Screenshot 3 [RECOMMENDED] | 1280x800 PNG | [x] Ready | store_assets/screenshot_3_competitor_vs_1280x800.png |
+| Small Promo Tile [RECOMMENDED] | 440x280 PNG | [x] Ready | store_assets/promo_tile_440x280.png |
+| Marquee Promo Tile | 1400x560 PNG | [x] Ready | store_assets/marquee_banner_1400x560.png |
+
+### Screenshot Notes
+- Screenshot 1 (DOM Bloat Audit): Demonstrates live active-tab DOM depth inspection, node counts, and page builder detection with evidence tags.
+- Screenshot 2 (Outreach Engine): Demonstrates generating cold outreach teardown pitches and lead status management.
+- Screenshot 3 (Competitor Comparison): Demonstrates side-by-side technical metric comparison between prospect and industry benchmark.
+
+## Permissions Justification
+
+| Permission | Type | Justification |
+|---|---|---|
+| activeTab | permissions | Required to inspect DOM node count, layout nesting, and performance metrics of the currently active website when user clicks the extension action icon. |
+| tabs | permissions | Required to display the current website title, URL, and favicon in the inspector header and detect tab changes during an active audit session. |
+| scripting | permissions | Required to inject lightweight, non-destructive audit routines into the active page context to measure DOM tree depth and script tags. |
+| storage | permissions | Required to store user settings, local audit history, CRM prospect status records, and license keys locally in chrome.storage.local. |
+| &lt;all_urls&gt; | host_permissions | Required to enable user-initiated technical audits on any public website the user navigates to and wishes to inspect. |
+| https://vitalssniper-web.vercel.app/* | host_permissions | Required to validate subscription license keys and synchronize audit reports to the WebAudits.pro cloud workspace. |
+| https://webaudits.pro/* | host_permissions | Required to validate subscription license keys and synchronize audit reports to the WebAudits.pro cloud workspace. |
+| https://www.googleapis.com/* | host_permissions | Required for optional user-requested lab audits via official Google PageSpeed Insights and Chrome User Experience APIs. |
+
+## Privacy & Data Use
+
+**Does the extension collect user data?** No
+
+All DOM analysis occurs in memory within the local browser process. Visited URLs and technical metrics inspected are stored solely on the user device in `chrome.storage.local`.
+
+| Data Type | Collected? | Transmitted Off-Device? | Purpose | Shared with Third Parties? |
+|---|---|---|---|---|
+| Personally identifiable info | No | No | N/A | No |
+| Health info | No | No | N/A | No |
+| Financial info | No | No | N/A | No |
+| Authentication info | Optional (API key only) | Yes (WebAudits.pro only) | License verification | No |
+| Personal communications | No | No | N/A | No |
+| Location | No | No | N/A | No |
+| Web history | No | No | N/A | No |
+| User activity | No | No | N/A | No |
+| Website content | In-memory only (DOM analysis) | No | Active tab technical audit | No |
+
+### Data Use Certification
+- [x] Data is NOT sold to third parties
+- [x] Data is NOT used for purposes unrelated to the extension's core functionality
+- [x] Data is NOT used for creditworthiness or lending purposes
+
+## Privacy Policy
+
+**Privacy Policy URL** [REQUIRED]
+https://webaudits.pro/privacy
+
+## Distribution
+
+- Visibility: Public
+- Regions: All regions
+
+## Developer Info
+
+- Publisher Name: WebAudits.pro
+- Contact Email: sfs@webaudits.pro
+- Support URL: https://webaudits.pro/about
+- Homepage URL: https://webaudits.pro
+
+## Version History
+
+| Version | Date | Changes | Status |
+|---|---|---|---|
+| 1.5.1 | 2026-10-06 | Merchant and Agency pitch channels, CWV subpart attribution, WCAG 2.2 contrast compliance, and clean MV3 architecture | Ready for Submission |
+| 1.5.0 | 2026-09-24 | Initial production Manifest V3 release with evidence-first outreach generator | Published |
+
+## Review Notes
+
+### Known Issues / Limitations
+None. All scripts are bundled locally inside the extension package with zero remote code execution, zero inline scripts, and zero eval calls in accordance with Chrome Web Store Manifest V3 guidelines.

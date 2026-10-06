@@ -2,6 +2,7 @@ $ErrorActionPreference = 'Stop'
 $extDir = Resolve-Path $PSScriptRoot
 $workspaceRoot = Split-Path $extDir -Parent
 $zipPath = Join-Path $workspaceRoot 'vitalssniper_pro.zip'
+$cwsZipPath = Join-Path $workspaceRoot 'vitalssniper_cws_v1.5.1.zip'
 $webZipPath = Join-Path $workspaceRoot 'vitalssniper_web\private_releases\vitalssniper_pro.zip'
 
 $stagingDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
@@ -13,7 +14,6 @@ Copy-Item (Join-Path $extDir 'popup.html') $stagingDir
 Copy-Item (Join-Path $extDir 'popup.css') $stagingDir
 Copy-Item (Join-Path $extDir 'popup.js') $stagingDir
 Copy-Item (Join-Path $extDir 'background.js') $stagingDir
-Copy-Item (Join-Path $extDir 'README.md') $stagingDir
 Copy-Item (Join-Path $extDir 'icons\*') (Join-Path $stagingDir 'icons')
 
 Add-Type -AssemblyName System.IO.Compression
@@ -34,6 +34,9 @@ try {
     $zipStream.Dispose()
 }
 
+# Duplicate clean zip for Chrome Web Store Developer Console upload
+Copy-Item $zipPath $cwsZipPath -Force
+
 $webZipDir = Split-Path $webZipPath
 if (!(Test-Path $webZipDir)) { New-Item -ItemType Directory -Path $webZipDir -Force | Out-Null }
 if (Test-Path $webZipPath) { Remove-Item $webZipPath -Force }
@@ -42,6 +45,7 @@ Copy-Item $zipPath $webZipPath -Force
 Remove-Item -Recurse -Force $stagingDir
 
 Write-Host "Successfully packaged: $zipPath"
+Write-Host "Successfully created CWS upload zip: $cwsZipPath"
 Write-Host "Successfully synced: $webZipPath"
 
 # Sync to primary user locations
@@ -55,7 +59,8 @@ foreach ($dir in $targetDirs) {
     if (Test-Path $dir) {
         Copy-Item $zipPath (Join-Path $dir 'vitalssniper_pro.zip') -Force
         Copy-Item $zipPath (Join-Path $dir 'vitalssniper_v1.5.1_pro.zip') -Force
-        Write-Host "Synced vitalssniper_pro.zip to $dir"
+        Copy-Item $cwsZipPath (Join-Path $dir 'vitalssniper_cws_v1.5.1.zip') -Force
+        Write-Host "Synced vitalssniper_pro.zip and vitalssniper_cws_v1.5.1.zip to $dir"
     }
 }
 
@@ -65,7 +70,10 @@ New-Item -ItemType Directory -Path $bundleStaging -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $bundleStaging 'store_assets') -Force | Out-Null
 
 Copy-Item $zipPath (Join-Path $bundleStaging 'vitalssniper_pro.zip') -Force
+Copy-Item $cwsZipPath (Join-Path $bundleStaging 'vitalssniper_cws_v1.5.1.zip') -Force
 Copy-Item (Join-Path $extDir 'STORE_LISTING.md') $bundleStaging -Force
+Copy-Item (Join-Path $extDir 'CHROMEWEBSTORE.md') $bundleStaging -Force
+Copy-Item (Join-Path $extDir 'README.md') $bundleStaging -Force
 Copy-Item (Join-Path $extDir 'store_assets\*.png') (Join-Path $bundleStaging 'store_assets') -Force
 
 $bundleZip = Join-Path $workspaceRoot 'vitalssniper_complete_release_package.zip'
