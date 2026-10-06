@@ -2,29 +2,29 @@
   <defs>
     <!-- Background Canvas Gradients -->
     <linearGradient id="bgGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FCFAF6"/>
-      <stop offset="100%" stop-color="#F2EFE9"/>
+      <stop offset="0%" stop-color="#fafafa"/>
+      <stop offset="100%" stop-color="#f2f2f2"/>
     </linearGradient>
 
     <!-- Browser Dropshadow -->
     <filter id="browserShadow2" x="-10%" y="-10%" width="120%" height="125%">
-      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#20201E" flood-opacity="0.14"/>
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#1a1a1a" flood-opacity="0.14"/>
     </filter>
 
     <!-- Popup Floating Shadow -->
     <filter id="popupShadow2" x="-20%" y="-20%" width="140%" height="145%">
-      <feDropShadow dx="0" dy="20" stdDeviation="30" flood-color="#20201E" flood-opacity="0.22"/>
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#20201E" flood-opacity="0.10"/>
+      <feDropShadow dx="0" dy="20" stdDeviation="30" flood-color="#1a1a1a" flood-opacity="0.22"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1a1a1a" flood-opacity="0.10"/>
     </filter>
 
     <!-- Drawer Shadow -->
     <filter id="drawerShadow2" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="14" stdDeviation="20" flood-color="#20201E" flood-opacity="0.18"/>
+      <feDropShadow dx="0" dy="14" stdDeviation="20" flood-color="#1a1a1a" flood-opacity="0.18"/>
     </filter>
 
     <!-- Dot Grid Pattern -->
     <pattern id="dotGrid2" width="20" height="20" patternUnits="userSpaceOnUse">
-      <circle cx="10" cy="10" r="0.8" fill="#DDD7CE" opacity="0.6"/>
+      <circle cx="10" cy="10" r="0.8" fill="#e3e3e3" opacity="0.6"/>
     </pattern>
   </defs>
 
@@ -41,28 +41,28 @@
        SIMULATED BACKGROUND BROWSER (1180px x 720px) at (50, 36)
        ====================================================================== -->
   <g transform="translate(50, 36)" filter="url(#browserShadow2)">
-    <rect width="1180" height="728" rx="10" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+    <rect width="1180" height="728" rx="10" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
     
     <!-- Browser Chrome Bar -->
-    <rect width="1180" height="42" rx="10" fill="#20201E"/>
-    <rect y="32" width="1180" height="10" fill="#20201E"/>
+    <rect width="1180" height="42" rx="10" fill="#1a1a1a"/>
+    <rect y="32" width="1180" height="10" fill="#1a1a1a"/>
 
     <circle cx="22" cy="21" r="5" fill="#E63946"/>
     <circle cx="38" cy="21" r="5" fill="#E5A93C"/>
     <circle cx="54" cy="21" r="5" fill="#43A047"/>
 
-    <rect x="90" y="8" width="560" height="26" rx="5" fill="#2D2C2A"/>
+    <rect x="90" y="8" width="560" height="26" rx="5" fill="#2d2d2d"/>
     <circle cx="104" cy="21" r="3.5" fill="#43A047"/>
-    <text x="116" y="25" class="font-sans" font-size="11" fill="#DDD7CE">https://novacreative.io/agency/portfolio</text>
+    <text x="116" y="25" class="font-sans" font-size="11" fill="#e3e3e3">https://novacreative.io/agency/portfolio</text>
 
     <!-- Simulated Target Site Background (Subtle clean background) -->
     <g transform="translate(0, 42)" opacity="0.35">
-      <rect width="1180" height="50" fill="#FAF8F3" stroke="#DDD7CE" stroke-width="0.8"/>
-      <text x="560" y="32" class="font-sans" font-size="14" font-weight="800" fill="#20201E">NOVA CREATIVE STUDIO</text>
-      <text x="740" y="31" class="font-sans" font-size="11" fill="#716C64">Services   |   Work   |   Contact</text>
+      <rect width="1180" height="50" fill="#fafafa" stroke="#e3e3e3" stroke-width="0.8"/>
+      <text x="560" y="32" class="font-sans" font-size="14" font-weight="800" fill="#1a1a1a">NOVA CREATIVE STUDIO</text>
+      <text x="740" y="31" class="font-sans" font-size="11" fill="#5e5e5e">Services   |   Work   |   Contact</text>
 
-      <rect y="50" width="1180" height="260" fill="#F4EFEA"/>
-      <rect x="540" y="80" width="180" height="140" rx="6" fill="#DDD7CE" opacity="0.4"/>
+      <rect y="50" width="1180" height="260" fill="#efefef"/>
+      <rect x="540" y="80" width="180" height="140" rx="6" fill="#e3e3e3" opacity="0.4"/>
     </g>
   </g>
 
@@ -70,19 +70,19 @@
        LEFT SIDE: FEATURE NARRATIVE & VALUE CALLOUTS (x: 80 to 480)
        ====================================================================== -->
   <g transform="translate(80, 96)">
-    <rect width="270" height="26" rx="13" fill="#20201E"/>
-    <circle cx="15" cy="13" r="3.5" fill="#B76345"/>
-    <text x="26" y="17" class="font-sans" font-size="10.5" font-weight="800" fill="#F7F4EE" letter-spacing="0.06em">SCREENSHOT 2 : OUTREACH ENGINE</text>
+    <rect width="270" height="26" rx="13" fill="#1a1a1a"/>
+    <circle cx="15" cy="13" r="3.5" fill="#e63946"/>
+    <text x="26" y="17" class="font-sans" font-size="10.5" font-weight="800" fill="#ffffff" letter-spacing="0.06em">SCREENSHOT 2 : OUTREACH ENGINE</text>
 
     <!-- Headline -->
     <g transform="translate(0, 46)">
-      <text x="0" y="28" class="font-sans" font-size="32" font-weight="900" fill="#20201E" letter-spacing="-0.8">Transform Tech Flaws Into</text>
-      <text x="0" y="66" class="font-sans" font-size="32" font-weight="900" fill="#B76345" letter-spacing="-0.8">Ready-to-Send Client Pitches</text>
+      <text x="0" y="28" class="font-sans" font-size="32" font-weight="900" fill="#1a1a1a" letter-spacing="-0.8">Transform Tech Flaws Into</text>
+      <text x="0" y="66" class="font-sans" font-size="32" font-weight="900" fill="#e63946" letter-spacing="-0.8">Ready-to-Send Client Pitches</text>
     </g>
 
     <!-- Subtitle -->
     <g transform="translate(0, 146)">
-      <text x="0" y="16" class="font-sans" font-size="14" font-weight="500" fill="#716C64" line-height="1.5">
+      <text x="0" y="16" class="font-sans" font-size="14" font-weight="500" fill="#5e5e5e" line-height="1.5">
         <tspan x="0" dy="0">Generate non-pushy, evidence-backed teardown copy</tspan>
         <tspan x="0" dy="22">citing real measured DOM and payload numbers.</tspan>
         <tspan x="0" dy="22">Save audited prospects directly to your local lead CRM.</tspan>
@@ -93,26 +93,26 @@
     <g transform="translate(0, 232)">
       <!-- Card 1 -->
       <g transform="translate(0, 0)">
-        <rect width="360" height="66" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <rect x="0" y="0" width="5" height="66" rx="2" fill="#B76345"/>
-        <text x="16" y="24" class="font-sans" font-size="12" font-weight="800" fill="#20201E">Evidence-First Pitch Copy</text>
-        <text x="16" y="44" class="font-sans" font-size="10.5" fill="#716C64">Quotes exact measured values: 0 vague claims.</text>
+        <rect width="360" height="66" rx="8" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+        <rect x="0" y="0" width="5" height="66" rx="2" fill="#e63946"/>
+        <text x="16" y="24" class="font-sans" font-size="12" font-weight="800" fill="#1a1a1a">Evidence-First Pitch Copy</text>
+        <text x="16" y="44" class="font-sans" font-size="10.5" fill="#5e5e5e">Quotes exact measured values: 0 vague claims.</text>
       </g>
 
       <!-- Card 2 -->
       <g transform="translate(0, 78)">
-        <rect width="360" height="66" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="360" height="66" rx="8" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <rect x="0" y="0" width="5" height="66" rx="2" fill="#1B6E38"/>
-        <text x="16" y="24" class="font-sans" font-size="12" font-weight="800" fill="#20201E">4 Proven Conversion Tones</text>
-        <text x="16" y="44" class="font-sans" font-size="10.5" fill="#716C64">Data-Driven, Urgency, Soft-Sell, and Direct.</text>
+        <text x="16" y="24" class="font-sans" font-size="12" font-weight="800" fill="#1a1a1a">4 Proven Conversion Tones</text>
+        <text x="16" y="44" class="font-sans" font-size="10.5" fill="#5e5e5e">Data-Driven, Urgency, Soft-Sell, and Direct.</text>
       </g>
 
       <!-- Card 3 -->
       <g transform="translate(0, 156)">
-        <rect width="360" height="66" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <rect x="0" y="0" width="5" height="66" rx="2" fill="#20201E"/>
-        <text x="16" y="24" class="font-sans" font-size="12" font-weight="800" fill="#20201E">1-Click Lead CRM &amp; CSV Export</text>
-        <text x="16" y="44" class="font-sans" font-size="10.5" fill="#716C64">Instant Lemlist/Instantly CSV campaign sync.</text>
+        <rect width="360" height="66" rx="8" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+        <rect x="0" y="0" width="5" height="66" rx="2" fill="#1a1a1a"/>
+        <text x="16" y="24" class="font-sans" font-size="12" font-weight="800" fill="#1a1a1a">1-Click Lead CRM &amp; CSV Export</text>
+        <text x="16" y="44" class="font-sans" font-size="10.5" fill="#5e5e5e">Instant Lemlist/Instantly CSV campaign sync.</text>
       </g>
     </g>
   </g>
@@ -121,48 +121,48 @@
        CENTER: FLOATING VITALSSNIPER EXTENSION POPUP (x: 480, y: 70)
        ====================================================================== -->
   <g transform="translate(480, 68)" filter="url(#popupShadow2)">
-    <rect width="390" height="630" rx="12" fill="#F7F4EE" stroke="#DDD7CE" stroke-width="1.2"/>
+    <rect width="390" height="630" rx="12" fill="#f7f7f7" stroke="#e3e3e3" stroke-width="1.2"/>
 
     <g transform="translate(16, 16)">
       <!-- Header -->
       <g transform="translate(0, 0)">
-        <rect x="0" y="0" width="22" height="22" rx="5" fill="#20201E"/>
-        <path d="M11 5 L17 11 L11 17 L5 11 Z" fill="none" stroke="#B76345" stroke-width="1.8" stroke-linejoin="round"/>
-        <circle cx="11" cy="11" r="2" fill="#F7F4EE"/>
+        <rect x="0" y="0" width="22" height="22" rx="5" fill="#1a1a1a"/>
+        <path d="M11 5 L17 11 L11 17 L5 11 Z" fill="none" stroke="#e63946" stroke-width="1.8" stroke-linejoin="round"/>
+        <circle cx="11" cy="11" r="2" fill="#f7f7f7"/>
 
-        <text x="28" y="16" class="font-sans" font-size="14" font-weight="800" fill="#20201E" letter-spacing="-0.3">VitalsSniper</text>
-        <rect x="114" y="3.5" width="28" height="15" rx="3.5" fill="#B76345"/>
+        <text x="28" y="16" class="font-sans" font-size="14" font-weight="800" fill="#1a1a1a" letter-spacing="-0.3">VitalsSniper</text>
+        <rect x="114" y="3.5" width="28" height="15" rx="3.5" fill="#e63946"/>
         <text x="128" y="14.5" class="font-sans" font-size="8" font-weight="800" fill="#FFFFFF" text-anchor="middle">PRO</text>
-        <text x="150" y="15.5" class="font-sans" font-size="8.5" font-weight="600" fill="#716C64">by webaudits.pro</text>
+        <text x="150" y="15.5" class="font-sans" font-size="8.5" font-weight="600" fill="#5e5e5e">by webaudits.pro</text>
 
         <!-- Tools -->
         <g transform="translate(252, 0)">
           <!-- Vs -->
-          <rect x="0" y="0" width="34" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <path d="M6 13L9 9L6 5M14 5L11 9L14 13" fill="none" stroke="#716C64" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-          <text x="21" y="14.5" class="font-sans" font-size="9" font-weight="800" fill="#20201E">Vs</text>
+          <rect x="0" y="0" width="34" height="22" rx="4" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+          <path d="M6 13L9 9L6 5M14 5L11 9L14 13" fill="none" stroke="#5e5e5e" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="21" y="14.5" class="font-sans" font-size="9" font-weight="800" fill="#1a1a1a">Vs</text>
           
           <!-- Saved Leads 4 (Active in Screenshot 2) -->
-          <rect x="38" y="0" width="34" height="22" rx="4" fill="#20201E" stroke="#20201E" stroke-width="1"/>
-          <path d="M47 5h7a1 1 0 0 1 1 1v10l-4.5-3L46 16V6a1 1 0 0 1 1-1z" fill="none" stroke="#F7F4EE" stroke-width="1.3" stroke-linejoin="round"/>
-          <rect x="58" y="3" width="10" height="12" rx="4" fill="#B76345"/>
+          <rect x="38" y="0" width="34" height="22" rx="4" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1"/>
+          <path d="M47 5h7a1 1 0 0 1 1 1v10l-4.5-3L46 16V6a1 1 0 0 1 1-1z" fill="none" stroke="#ffffff" stroke-width="1.3" stroke-linejoin="round"/>
+          <rect x="58" y="3" width="10" height="12" rx="4" fill="#e63946"/>
           <text x="63" y="12" class="font-sans" font-size="7.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">4</text>
 
           <!-- Settings Gear -->
-          <rect x="76" y="0" width="26" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <circle cx="89" cy="11" r="2.2" fill="none" stroke="#20201E" stroke-width="1.3"/>
-          <path d="M89 6v1.5M89 14.5v1.5M84 11h1.5M92.5 11h1.5M85.5 7.5l1 1M91.5 13.5l1 1M85.5 14.5l1-1M91.5 8.5l1-1" stroke="#20201E" stroke-width="1.3" stroke-linecap="round"/>
+          <rect x="76" y="0" width="26" height="22" rx="4" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+          <circle cx="89" cy="11" r="2.2" fill="none" stroke="#1a1a1a" stroke-width="1.3"/>
+          <path d="M89 6v1.5M89 14.5v1.5M84 11h1.5M92.5 11h1.5M85.5 7.5l1 1M91.5 13.5l1 1M85.5 14.5l1-1M91.5 8.5l1-1" stroke="#1a1a1a" stroke-width="1.3" stroke-linecap="round"/>
         </g>
       </g>
 
-      <line x1="0" y1="32" x2="358" y2="32" stroke="#DDD7CE" stroke-width="1"/>
+      <line x1="0" y1="32" x2="358" y2="32" stroke="#e3e3e3" stroke-width="1"/>
 
       <!-- Site Card -->
       <g transform="translate(0, 40)">
-        <rect width="358" height="66" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="358" height="66" rx="8" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <g transform="translate(10, 8)">
           <rect x="0" y="2" width="12" height="12" rx="2" fill="#E63946"/>
-          <text x="16" y="13" class="font-sans" font-size="13" font-weight="700" fill="#20201E">novacreative.io</text>
+          <text x="16" y="13" class="font-sans" font-size="13" font-weight="700" fill="#1a1a1a">novacreative.io</text>
           <rect x="115" y="1" width="40" height="15" rx="3" fill="#EAF7EE" stroke="#BCE6C8" stroke-width="1"/>
           <text x="135" y="12" class="font-sans" font-size="8" font-weight="700" fill="#1B6E38" text-anchor="middle">HTTPS</text>
 
@@ -170,7 +170,7 @@
           <g transform="translate(276, -1)">
             <rect width="60" height="24" rx="5" fill="#FDF1F0" stroke="#F7BDB9" stroke-width="1"/>
             <text x="24" y="17" class="font-mono" font-size="15" font-weight="800" fill="#A8231B" text-anchor="end">44</text>
-            <text x="27" y="16" class="font-sans" font-size="9" font-weight="600" fill="#716C64">/100</text>
+            <text x="27" y="16" class="font-sans" font-size="9" font-weight="600" fill="#5e5e5e">/100</text>
           </g>
         </g>
 
@@ -189,13 +189,13 @@
 
       <!-- Flaw Callout -->
       <g transform="translate(0, 116)">
-        <rect width="358" height="60" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="358" height="60" rx="6" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <rect x="0" y="0" width="4" height="60" rx="2" fill="#E63946"/>
         <g transform="translate(10, 8)">
-          <text x="0" y="10" class="font-sans" font-size="9" font-weight="800" fill="#B76345">EVIDENCE ENGINE</text>
+          <text x="0" y="10" class="font-sans" font-size="9" font-weight="800" fill="#e63946">EVIDENCE ENGINE</text>
           <rect x="96" y="1" width="44" height="12" rx="2.5" fill="#FDF1F0"/>
           <text x="118" y="10" class="font-sans" font-size="7" font-weight="800" fill="#A8231B" text-anchor="middle">CRITICAL</text>
-          <text x="0" y="27" class="font-sans" font-size="10" font-weight="600" fill="#20201E">3,840 DOM nodes with 22 nesting levels chokes mobile layout.</text>
+          <text x="0" y="27" class="font-sans" font-size="10" font-weight="600" fill="#1a1a1a">3,840 DOM nodes with 22 nesting levels chokes mobile layout.</text>
         </g>
       </g>
 
@@ -203,45 +203,45 @@
       <g transform="translate(0, 186)">
         <!-- Tone Selector Row -->
         <g transform="translate(0, 0)">
-          <text x="0" y="14" class="font-sans" font-size="9" font-weight="800" fill="#716C64">AI TONE:</text>
+          <text x="0" y="14" class="font-sans" font-size="9" font-weight="800" fill="#5e5e5e">AI TONE:</text>
           <g transform="translate(56, 0)">
             <!-- Tone 1: Data (Active) -->
-            <rect x="0" y="0" width="60" height="20" rx="3" fill="#20201E"/>
-            <text x="30" y="14" class="font-sans" font-size="9" font-weight="700" fill="#F7F4EE" text-anchor="middle">Data</text>
+            <rect x="0" y="0" width="60" height="20" rx="3" fill="#1a1a1a"/>
+            <text x="30" y="14" class="font-sans" font-size="9" font-weight="700" fill="#ffffff" text-anchor="middle">Data</text>
 
             <!-- Tone 2: Urgency -->
-            <rect x="64" y="0" width="64" height="20" rx="3" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-            <text x="96" y="14" class="font-sans" font-size="9" font-weight="600" fill="#716C64" text-anchor="middle">Urgency</text>
+            <rect x="64" y="0" width="64" height="20" rx="3" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+            <text x="96" y="14" class="font-sans" font-size="9" font-weight="600" fill="#5e5e5e" text-anchor="middle">Urgency</text>
 
             <!-- Tone 3: Soft-Sell -->
-            <rect x="132" y="0" width="70" height="20" rx="3" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-            <text x="167" y="14" class="font-sans" font-size="9" font-weight="600" fill="#716C64" text-anchor="middle">Soft-Sell</text>
+            <rect x="132" y="0" width="70" height="20" rx="3" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+            <text x="167" y="14" class="font-sans" font-size="9" font-weight="600" fill="#5e5e5e" text-anchor="middle">Soft-Sell</text>
 
             <!-- Tone 4: Direct -->
-            <rect x="206" y="0" width="60" height="20" rx="3" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-            <text x="236" y="14" class="font-sans" font-size="9" font-weight="600" fill="#716C64" text-anchor="middle">Direct</text>
+            <rect x="206" y="0" width="60" height="20" rx="3" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+            <text x="236" y="14" class="font-sans" font-size="9" font-weight="600" fill="#5e5e5e" text-anchor="middle">Direct</text>
           </g>
         </g>
 
         <!-- Channel Tabs -->
         <g transform="translate(0, 30)">
           <!-- Cold Email (Active) -->
-          <rect x="0" y="0" width="116" height="28" rx="4" fill="#FFFFFF" stroke="#B76345" stroke-width="1.2"/>
-          <text x="58" y="18" class="font-sans" font-size="10.5" font-weight="700" fill="#B76345" text-anchor="middle">Cold Email</text>
+          <rect x="0" y="0" width="116" height="28" rx="4" fill="#FFFFFF" stroke="#e63946" stroke-width="1.2"/>
+          <text x="58" y="18" class="font-sans" font-size="10.5" font-weight="700" fill="#e63946" text-anchor="middle">Cold Email</text>
 
           <!-- LinkedIn DM -->
-          <rect x="122" y="0" width="116" height="28" rx="4" fill="#F7F4EE" stroke="#DDD7CE" stroke-width="1"/>
-          <text x="180" y="18" class="font-sans" font-size="10.5" font-weight="600" fill="#716C64" text-anchor="middle">LinkedIn DM</text>
+          <rect x="122" y="0" width="116" height="28" rx="4" fill="#f7f7f7" stroke="#e3e3e3" stroke-width="1"/>
+          <text x="180" y="18" class="font-sans" font-size="10.5" font-weight="600" fill="#5e5e5e" text-anchor="middle">LinkedIn DM</text>
 
           <!-- Loom Pitch -->
-          <rect x="242" y="0" width="116" height="28" rx="4" fill="#F7F4EE" stroke="#DDD7CE" stroke-width="1"/>
-          <text x="300" y="18" class="font-sans" font-size="10.5" font-weight="600" fill="#716C64" text-anchor="middle">Loom Pitch</text>
+          <rect x="242" y="0" width="116" height="28" rx="4" fill="#f7f7f7" stroke="#e3e3e3" stroke-width="1"/>
+          <text x="300" y="18" class="font-sans" font-size="10.5" font-weight="600" fill="#5e5e5e" text-anchor="middle">Loom Pitch</text>
         </g>
 
         <!-- Email Preview Monospaced Box -->
         <g transform="translate(0, 66)">
-          <rect width="358" height="136" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <text x="12" y="24" class="font-mono" font-size="10" fill="#20201E" line-height="1.5">
+          <rect width="358" height="136" rx="6" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+          <text x="12" y="24" class="font-mono" font-size="10" fill="#1a1a1a" line-height="1.5">
             <tspan x="12" dy="0">Subject: Quick teardown: novacreative.io DOM weight</tspan>
             <tspan x="12" dy="20">Hi Alex,</tspan>
             <tspan x="12" dy="18">Noticed your live tab has 3,840 DOM nodes with 22 nesting</tspan>
@@ -270,28 +270,28 @@
       <!-- Utility Grid -->
       <g transform="translate(0, 486)">
         <!-- 1-Page PDF -->
-        <rect width="114" height="30" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="114" height="30" rx="4" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <g transform="translate(16, 7)">
-          <path d="M1 1h6l3 3v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" fill="none" stroke="#716C64" stroke-width="1.2" stroke-linejoin="round"/>
-          <path d="M7 1v3h3M3 7h4M3 10h3" stroke="#716C64" stroke-width="1.2" stroke-linecap="round"/>
-          <text x="18" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E">1-Page PDF</text>
+          <path d="M1 1h6l3 3v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" fill="none" stroke="#5e5e5e" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M7 1v3h3M3 7h4M3 10h3" stroke="#5e5e5e" stroke-width="1.2" stroke-linecap="round"/>
+          <text x="18" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#1a1a1a">1-Page PDF</text>
         </g>
 
         <!-- Highlight LCP -->
-        <rect x="122" y="0" width="114" height="30" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect x="122" y="0" width="114" height="30" rx="4" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <g transform="translate(130, 7)">
-          <circle cx="7" cy="7" r="5" fill="none" stroke="#716C64" stroke-width="1.2"/>
-          <circle cx="7" cy="7" r="1.8" fill="#B76345"/>
-          <path d="M7 0.5v2M7 11.5v2M0.5 7h2M11.5 7h2" stroke="#716C64" stroke-width="1.2" stroke-linecap="round"/>
-          <text x="20" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E">Highlight LCP</text>
+          <circle cx="7" cy="7" r="5" fill="none" stroke="#5e5e5e" stroke-width="1.2"/>
+          <circle cx="7" cy="7" r="1.8" fill="#e63946"/>
+          <path d="M7 0.5v2M7 11.5v2M0.5 7h2M11.5 7h2" stroke="#5e5e5e" stroke-width="1.2" stroke-linecap="round"/>
+          <text x="20" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#1a1a1a">Highlight LCP</text>
         </g>
 
         <!-- Bulk Audit -->
-        <rect x="244" y="0" width="114" height="30" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect x="244" y="0" width="114" height="30" rx="4" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <g transform="translate(254, 7)">
-          <path d="M1 4.5l6-3 6 3-6 3-6-3z" fill="none" stroke="#716C64" stroke-width="1.2" stroke-linejoin="round"/>
-          <path d="M1 8l6 3 6-3M1 11.5l6 3 6-3" fill="none" stroke="#716C64" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          <text x="20" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E">Bulk Audit</text>
+          <path d="M1 4.5l6-3 6 3-6 3-6-3z" fill="none" stroke="#5e5e5e" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M1 8l6 3 6-3M1 11.5l6 3 6-3" fill="none" stroke="#5e5e5e" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="20" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#1a1a1a">Bulk Audit</text>
         </g>
       </g>
     </g>
@@ -302,19 +302,19 @@
        ====================================================================== -->
   <g transform="translate(896, 120)" filter="url(#drawerShadow2)">
     <!-- Drawer Container (320px x 480px) -->
-    <rect width="320" height="490" rx="10" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1.2"/>
+    <rect width="320" height="490" rx="10" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1.2"/>
     
     <!-- Drawer Header -->
     <g transform="translate(16, 16)">
       <rect width="84" height="18" rx="4" fill="rgba(183,99,69,0.12)"/>
-      <text x="42" y="13" class="font-sans" font-size="8.5" font-weight="800" fill="#B76345" text-anchor="middle">LEAD PIPELINE</text>
-      <text x="0" y="40" class="font-sans" font-size="14.5" font-weight="800" fill="#20201E">Audited Lead Vault</text>
-      <text x="0" y="56" class="font-sans" font-size="10" fill="#716C64">4 prospects queued for outbound pitch</text>
+      <text x="42" y="13" class="font-sans" font-size="8.5" font-weight="800" fill="#e63946" text-anchor="middle">LEAD PIPELINE</text>
+      <text x="0" y="40" class="font-sans" font-size="14.5" font-weight="800" fill="#1a1a1a">Audited Lead Vault</text>
+      <text x="0" y="56" class="font-sans" font-size="10" fill="#5e5e5e">4 prospects queued for outbound pitch</text>
 
-      <rect y="68" width="288" height="32" rx="5" fill="#20201E"/>
+      <rect y="68" width="288" height="32" rx="5" fill="#1a1a1a"/>
       <g transform="translate(56, 75)">
-        <path d="M1 10v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3M8 1v8M4.5 5.5L8 9l3.5-3.5" fill="none" stroke="#F7F4EE" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-        <text x="22" y="12.5" class="font-sans" font-size="10.5" font-weight="700" fill="#F7F4EE">Export CSV (Lemlist Ready)</text>
+        <path d="M1 10v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3M8 1v8M4.5 5.5L8 9l3.5-3.5" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="22" y="12.5" class="font-sans" font-size="10.5" font-weight="700" fill="#ffffff">Export CSV (Lemlist Ready)</text>
       </g>
     </g>
 
@@ -322,13 +322,13 @@
     <g transform="translate(16, 130)">
       <!-- Item 1: novacreative.io -->
       <g transform="translate(0, 0)">
-        <rect width="288" height="74" rx="6" fill="#FAF8F3" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="288" height="74" rx="6" fill="#fafafa" stroke="#e3e3e3" stroke-width="1"/>
         <g transform="translate(10, 8)">
-          <text x="0" y="12" class="font-sans" font-size="11.5" font-weight="700" fill="#20201E">novacreative.io</text>
+          <text x="0" y="12" class="font-sans" font-size="11.5" font-weight="700" fill="#1a1a1a">novacreative.io</text>
           <rect x="220" y="0" width="48" height="16" rx="3" fill="#FDF1F0"/>
           <text x="244" y="12" class="font-sans" font-size="8" font-weight="800" fill="#A8231B" text-anchor="middle">44/100</text>
           
-          <text x="0" y="30" class="font-sans" font-size="9" fill="#716C64">Flaw: 3,840 DOM nodes (22 levels)</text>
+          <text x="0" y="30" class="font-sans" font-size="9" fill="#5e5e5e">Flaw: 3,840 DOM nodes (22 levels)</text>
           
           <rect y="38" width="80" height="18" rx="3" fill="#EAF7EE" stroke="#BCE6C8" stroke-width="1"/>
           <text x="40" y="50" class="font-sans" font-size="8" font-weight="700" fill="#1B6E38" text-anchor="middle">Status: Pitched</text>
@@ -337,13 +337,13 @@
 
       <!-- Item 2: apex-store-demo.com -->
       <g transform="translate(0, 82)">
-        <rect width="288" height="74" rx="6" fill="#FAF8F3" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="288" height="74" rx="6" fill="#fafafa" stroke="#e3e3e3" stroke-width="1"/>
         <g transform="translate(10, 8)">
-          <text x="0" y="12" class="font-sans" font-size="11.5" font-weight="700" fill="#20201E">apex-store-demo.com</text>
+          <text x="0" y="12" class="font-sans" font-size="11.5" font-weight="700" fill="#1a1a1a">apex-store-demo.com</text>
           <rect x="220" y="0" width="48" height="16" rx="3" fill="#FDF1F0"/>
           <text x="244" y="12" class="font-sans" font-size="8" font-weight="800" fill="#A8231B" text-anchor="middle">36/100</text>
           
-          <text x="0" y="30" class="font-sans" font-size="9" fill="#716C64">Flaw: 4,820 DOM nodes (Elementor)</text>
+          <text x="0" y="30" class="font-sans" font-size="9" fill="#5e5e5e">Flaw: 4,820 DOM nodes (Elementor)</text>
           
           <rect y="38" width="80" height="18" rx="3" fill="#FEF7EA" stroke="#F7DCA8" stroke-width="1"/>
           <text x="40" y="50" class="font-sans" font-size="8" font-weight="700" fill="#8A5308" text-anchor="middle">Status: Queued</text>
@@ -352,13 +352,13 @@
 
       <!-- Item 3: artisanbakers.co -->
       <g transform="translate(0, 164)">
-        <rect width="288" height="74" rx="6" fill="#FAF8F3" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="288" height="74" rx="6" fill="#fafafa" stroke="#e3e3e3" stroke-width="1"/>
         <g transform="translate(10, 8)">
-          <text x="0" y="12" class="font-sans" font-size="11.5" font-weight="700" fill="#20201E">artisanbakers.co</text>
+          <text x="0" y="12" class="font-sans" font-size="11.5" font-weight="700" fill="#1a1a1a">artisanbakers.co</text>
           <rect x="220" y="0" width="48" height="16" rx="3" fill="#FDF1F0"/>
           <text x="244" y="12" class="font-sans" font-size="8" font-weight="800" fill="#A8231B" text-anchor="middle">38/100</text>
           
-          <text x="0" y="30" class="font-sans" font-size="9" fill="#716C64">Flaw: 4.2 MB uncompressed payload</text>
+          <text x="0" y="30" class="font-sans" font-size="9" fill="#5e5e5e">Flaw: 4.2 MB uncompressed payload</text>
           
           <rect y="38" width="80" height="18" rx="3" fill="#EAF7EE" stroke="#BCE6C8" stroke-width="1"/>
           <text x="40" y="50" class="font-sans" font-size="8" font-weight="700" fill="#1B6E38" text-anchor="middle">Status: Replied</text>

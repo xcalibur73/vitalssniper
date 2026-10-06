@@ -143,8 +143,8 @@ async function runVisualBoundsStressTest() {
       width: 1400,
       height: 560,
       checks: [
-        { label: 'Marquee Eyebrow Pill', selectorText: 'CHROME EXTENSION : PRO EDITION', bgFill: '#20201E', expectedFg: '#F7F4EE' },
-        { label: 'Marquee Outreach Pill', selectorText: 'CHANNEL: COLD EMAIL', bgFill: '#F7F4EE', expectedFg: '#20201E' }
+        { label: 'Marquee Eyebrow Pill', selectorText: 'CHROME EXTENSION : PRO EDITION', bgFill: '#1a1a1a', expectedFg: '#ffffff' },
+        { label: 'Marquee Outreach Pill', selectorText: 'CHANNEL: COLD EMAIL', bgFill: '#f7f7f7', expectedFg: '#1a1a1a' }
       ]
     },
     {
@@ -152,7 +152,7 @@ async function runVisualBoundsStressTest() {
       width: 1280,
       height: 800,
       checks: [
-        { label: 'Screenshot 1 Eyebrow Pill', selectorText: 'SCREENSHOT 1 : DOM BLOAT AUDIT', bgFill: '#20201E', expectedFg: '#F7F4EE' }
+        { label: 'Screenshot 1 Eyebrow Pill', selectorText: 'SCREENSHOT 1 : DOM BLOAT AUDIT', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
       ]
     },
     {
@@ -160,7 +160,7 @@ async function runVisualBoundsStressTest() {
       width: 1280,
       height: 800,
       checks: [
-        { label: 'Screenshot 2 Eyebrow Pill', selectorText: 'SCREENSHOT 2 : OUTREACH ENGINE', bgFill: '#20201E', expectedFg: '#F7F4EE' }
+        { label: 'Screenshot 2 Eyebrow Pill', selectorText: 'SCREENSHOT 2 : OUTREACH ENGINE', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
       ]
     },
     {
@@ -168,7 +168,7 @@ async function runVisualBoundsStressTest() {
       width: 1280,
       height: 800,
       checks: [
-        { label: 'Screenshot 3 Eyebrow Pill', selectorText: 'SCREENSHOT 3 : COMPETITOR VS', bgFill: '#20201E', expectedFg: '#F7F4EE' }
+        { label: 'Screenshot 3 Eyebrow Pill', selectorText: 'SCREENSHOT 3 : COMPETITOR VS', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
       ]
     },
     {
@@ -176,7 +176,7 @@ async function runVisualBoundsStressTest() {
       width: 440,
       height: 280,
       checks: [
-        { label: 'Promo Tile Eyebrow Pill', selectorText: 'EVIDENCE ENGINE:', bgFill: '#20201E', expectedFg: '#F7F4EE' }
+        { label: 'Promo Tile Eyebrow Pill', selectorText: 'EVIDENCE ENGINE:', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
       ]
     }
   ];
@@ -194,7 +194,7 @@ async function runVisualBoundsStressTest() {
   <meta charset="utf-8">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: ${asset.width}px; height: ${asset.height}px; overflow: hidden; background: #F7F4EE; }
+    html, body { width: ${asset.width}px; height: ${asset.height}px; overflow: hidden; background: #f7f7f7; }
     svg { width: ${asset.width}px; height: ${asset.height}px; display: block; }
   </style>
 </head>
@@ -259,15 +259,15 @@ async function runVisualBoundsStressTest() {
   <meta charset="utf-8">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 400px; height: 100px; overflow: hidden; background: #F7F4EE; }
+    html, body { width: 400px; height: 100px; overflow: hidden; background: #f7f7f7; }
     svg { width: 400px; height: 100px; display: block; }
   </style>
 </head>
 <body>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
     <g transform="translate(20, 20)">
-      <rect width="242" height="26" rx="13" fill="#20201E"/>
-      <circle cx="13" cy="13" r="4" fill="#B76345"/>
+      <rect width="242" height="26" rx="13" fill="#1a1a1a"/>
+      <circle cx="13" cy="13" r="4" fill="#e63946"/>
       <text id="test-text" x="24" y="17" font-family="${fontName}" font-size="10.5" font-weight="700" fill="#F7F4EE" letter-spacing="0.06em">CHROME EXTENSION : PRO EDITION</text>
     </g>
   </svg>

@@ -2,28 +2,28 @@
   <defs>
     <!-- Background Gradients -->
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FAF8F3"/>
-      <stop offset="100%" stop-color="#F2EFE9"/>
+      <stop offset="0%" stop-color="#fafafa"/>
+      <stop offset="100%" stop-color="#f2f2f2"/>
     </linearGradient>
     
     <radialGradient id="glowGrad" cx="15%" cy="15%" r="70%">
-      <stop offset="0%" stop-color="#B76345" stop-opacity="0.12"/>
-      <stop offset="100%" stop-color="#B76345" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#e63946" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#e63946" stop-opacity="0"/>
     </radialGradient>
 
     <!-- Drop Shadows -->
     <filter id="panelShadow" x="-10%" y="-10%" width="120%" height="125%">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#20201E" flood-opacity="0.08"/>
-      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#20201E" flood-opacity="0.04"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1a1a1a" flood-opacity="0.08"/>
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#1a1a1a" flood-opacity="0.04"/>
     </filter>
     
     <filter id="badgeShadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#20201E" flood-opacity="0.06"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1a1a1a" flood-opacity="0.06"/>
     </filter>
 
     <!-- Dot Grid Pattern -->
     <pattern id="dotGrid" width="16" height="16" patternUnits="userSpaceOnUse">
-      <circle cx="8" cy="8" r="0.8" fill="#DDD7CE" opacity="0.7"/>
+      <circle cx="8" cy="8" r="0.8" fill="#e3e3e3" opacity="0.7"/>
     </pattern>
   </defs>
 
@@ -36,42 +36,42 @@
   <rect width="440" height="280" fill="url(#bgGrad)"/>
   <rect width="440" height="280" fill="url(#dotGrid)"/>
   <rect width="440" height="280" fill="url(#glowGrad)"/>
-  <rect x="0.5" y="0.5" width="439" height="279" rx="0" fill="none" stroke="#DDD7CE" stroke-width="1"/>
+  <rect x="0.5" y="0.5" width="439" height="279" rx="0" fill="none" stroke="#e3e3e3" stroke-width="1"/>
 
   <!-- Top Header Bar -->
   <g transform="translate(24, 18)">
     <!-- App Logo Icon -->
-    <rect x="0" y="0" width="26" height="26" rx="6" fill="#20201E"/>
-    <path d="M13 5 L21 13 L13 21 L5 13 Z" fill="none" stroke="#B76345" stroke-width="2" stroke-linejoin="round"/>
-    <circle cx="13" cy="13" r="2.2" fill="#F7F4EE"/>
+    <rect x="0" y="0" width="26" height="26" rx="6" fill="#1a1a1a"/>
+    <path d="M13 5 L21 13 L13 21 L5 13 Z" fill="none" stroke="#e63946" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="13" cy="13" r="2.2" fill="#f7f7f7"/>
 
     <!-- Brand Name -->
-    <text x="34" y="18" class="font-sans" font-size="15" font-weight="800" fill="#20201E" letter-spacing="-0.3">VitalsSniper</text>
+    <text x="34" y="18" class="font-sans" font-size="15" font-weight="800" fill="#1a1a1a" letter-spacing="-0.3">VitalsSniper</text>
 
     <!-- PRO Badge -->
-    <rect x="128" y="3" width="34" height="18" rx="4" fill="#B76345"/>
+    <rect x="128" y="3" width="34" height="18" rx="4" fill="#e63946"/>
     <text x="145" y="15.5" class="font-sans" font-size="8.5" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.05em">PRO</text>
 
     <!-- Ecosystem Tag -->
-    <text x="392" y="18" class="font-sans" font-size="10.5" font-weight="700" fill="#716C64" text-anchor="end">webaudits.pro</text>
+    <text x="392" y="18" class="font-sans" font-size="10.5" font-weight="700" fill="#5e5e5e" text-anchor="end">webaudits.pro</text>
   </g>
 
   <!-- Main Headline -->
   <g transform="translate(24, 56)">
-    <text x="0" y="16" class="font-sans" font-size="19" font-weight="800" fill="#20201E" letter-spacing="-0.4">Proof-of-Flaw Web Inspector</text>
-    <text x="0" y="32" class="font-sans" font-size="11" font-weight="500" fill="#716C64">In-browser DOM bloat, CMS detector, and client pitch generator</text>
+    <text x="0" y="16" class="font-sans" font-size="19" font-weight="800" fill="#1a1a1a" letter-spacing="-0.4">Proof-of-Flaw Web Inspector</text>
+    <text x="0" y="32" class="font-sans" font-size="11" font-weight="500" fill="#5e5e5e">In-browser DOM bloat, CMS detector, and client pitch generator</text>
   </g>
 
   <!-- Simulated Inspector Card Preview -->
   <g transform="translate(24, 100)" filter="url(#panelShadow)">
     <!-- White Card Base -->
-    <rect width="392" height="126" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+    <rect width="392" height="126" rx="8" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
 
     <!-- Card Top Row: Domain & Score -->
     <g transform="translate(12, 10)">
       <!-- Favicon -->
       <rect x="0" y="2" width="12" height="12" rx="2" fill="#E63946"/>
-      <text x="18" y="12" class="font-sans" font-size="12" font-weight="700" fill="#20201E">targetstore.com</text>
+      <text x="18" y="12" class="font-sans" font-size="12" font-weight="700" fill="#1a1a1a">targetstore.com</text>
 
       <!-- Tech Stack Badges -->
       <rect x="126" y="1" width="70" height="16" rx="3" fill="#EAF2F8" stroke="#AED6F1" stroke-width="1"/>
@@ -84,52 +84,52 @@
       <g transform="translate(308, -1)">
         <rect width="60" height="20" rx="4" fill="#FDF1F0" stroke="#F7BDB9" stroke-width="1"/>
         <text x="24" y="14" class="font-mono" font-size="12" font-weight="800" fill="#A8231B" text-anchor="end">38</text>
-        <text x="27" y="13" class="font-sans" font-size="8.5" font-weight="600" fill="#716C64">/100</text>
+        <text x="27" y="13" class="font-sans" font-size="8.5" font-weight="600" fill="#5e5e5e">/100</text>
       </g>
     </g>
 
     <!-- Divider Line -->
-    <line x1="12" y1="36" x2="380" y2="36" stroke="#E8E4DC" stroke-width="1"/>
+    <line x1="12" y1="36" x2="380" y2="36" stroke="#efefef" stroke-width="1"/>
 
     <!-- 3 Mini Metric Cards -->
     <g transform="translate(12, 44)">
       <!-- Metric 1: DOM Elements -->
       <g transform="translate(0, 0)">
-        <rect width="116" height="42" rx="4" fill="#FAF8F3" stroke="#F7BDB9" stroke-width="1"/>
-        <text x="8" y="12" class="font-sans" font-size="8" font-weight="700" fill="#716C64">DOM ELEMENTS</text>
+        <rect width="116" height="42" rx="4" fill="#fafafa" stroke="#F7BDB9" stroke-width="1"/>
+        <text x="8" y="12" class="font-sans" font-size="8" font-weight="700" fill="#5e5e5e">DOM ELEMENTS</text>
         <rect x="70" y="3" width="40" height="13" rx="2" fill="#FDF1F0"/>
         <text x="90" y="12.5" class="font-sans" font-size="8" font-weight="800" fill="#A8231B" text-anchor="middle">CRITICAL</text>
-        <text x="8" y="28" class="font-mono" font-size="13" font-weight="800" fill="#20201E">4,820</text>
-        <text x="8" y="38" class="font-sans" font-size="8" font-weight="500" fill="#716C64">Budget: &lt; 1,400</text>
+        <text x="8" y="28" class="font-mono" font-size="13" font-weight="800" fill="#1a1a1a">4,820</text>
+        <text x="8" y="38" class="font-sans" font-size="8" font-weight="500" fill="#5e5e5e">Budget: &lt; 1,400</text>
       </g>
 
       <!-- Metric 2: Page Payload -->
       <g transform="translate(126, 0)">
-        <rect width="116" height="42" rx="4" fill="#FAF8F3" stroke="#F7DCA8" stroke-width="1"/>
-        <text x="8" y="12" class="font-sans" font-size="8" font-weight="700" fill="#716C64">PAYLOAD</text>
+        <rect width="116" height="42" rx="4" fill="#fafafa" stroke="#F7DCA8" stroke-width="1"/>
+        <text x="8" y="12" class="font-sans" font-size="8" font-weight="700" fill="#5e5e5e">PAYLOAD</text>
         <rect x="74" y="3" width="36" height="13" rx="2" fill="#FEF7EA"/>
         <text x="92" y="12.5" class="font-sans" font-size="8" font-weight="800" fill="#8A5308" text-anchor="middle">WARN</text>
-        <text x="8" y="28" class="font-mono" font-size="13" font-weight="800" fill="#20201E">2.8 MB</text>
-        <text x="8" y="38" class="font-sans" font-size="8" font-weight="500" fill="#716C64">Budget: &lt; 45 KB</text>
+        <text x="8" y="28" class="font-mono" font-size="13" font-weight="800" fill="#1a1a1a">2.8 MB</text>
+        <text x="8" y="38" class="font-sans" font-size="8" font-weight="500" fill="#5e5e5e">Budget: &lt; 45 KB</text>
       </g>
 
       <!-- Metric 3: Mobile Scale -->
       <g transform="translate(252, 0)">
-        <rect width="116" height="42" rx="4" fill="#FAF8F3" stroke="#F7BDB9" stroke-width="1"/>
-        <text x="8" y="12" class="font-sans" font-size="8" font-weight="700" fill="#716C64">VIEWPORT</text>
+        <rect width="116" height="42" rx="4" fill="#fafafa" stroke="#F7BDB9" stroke-width="1"/>
+        <text x="8" y="12" class="font-sans" font-size="8" font-weight="700" fill="#5e5e5e">VIEWPORT</text>
         <rect x="74" y="3" width="36" height="13" rx="2" fill="#FDF1F0"/>
         <text x="92" y="12.5" class="font-sans" font-size="8" font-weight="800" fill="#A8231B" text-anchor="middle">FAIL</text>
         <text x="8" y="28" class="font-sans" font-size="11" font-weight="800" fill="#A8231B">Blocked</text>
-        <text x="8" y="38" class="font-sans" font-size="8" font-weight="500" fill="#716C64">WCAG 2.2 Pinch Zoom</text>
+        <text x="8" y="38" class="font-sans" font-size="8" font-weight="500" fill="#5e5e5e">WCAG 2.2 Pinch Zoom</text>
       </g>
     </g>
 
     <!-- Mini Bottom Callout Strip -->
     <g transform="translate(12, 94)">
-      <rect width="368" height="22" rx="4" fill="#20201E"/>
-      <circle cx="14" cy="11" r="3" fill="#B76345"/>
-      <text x="22" y="14" class="font-sans" font-size="8" font-weight="800" fill="#F7F4EE" letter-spacing="0.04em">EVIDENCE ENGINE:</text>
-      <text x="106" y="14" class="font-sans" font-size="8" font-weight="500" fill="#F7F4EE">4,820 nodes (24 deep nesting levels) triggers layout thrashing</text>
+      <rect width="368" height="22" rx="4" fill="#1a1a1a"/>
+      <circle cx="14" cy="11" r="3" fill="#e63946"/>
+      <text x="22" y="14" class="font-sans" font-size="8" font-weight="800" fill="#ffffff" letter-spacing="0.04em">EVIDENCE ENGINE:</text>
+      <text x="106" y="14" class="font-sans" font-size="8" font-weight="500" fill="#ffffff">4,820 nodes (24 deep nesting levels) triggers layout thrashing</text>
     </g>
   </g>
 
@@ -137,18 +137,18 @@
   <g transform="translate(24, 240)">
     <g transform="translate(0, 0)">
       <circle cx="6" cy="7" r="3" fill="#1B6E38"/>
-      <text x="14" y="10" class="font-sans" font-size="9.5" font-weight="700" fill="#20201E">&lt;50ms DOM Audit</text>
+      <text x="14" y="10" class="font-sans" font-size="9.5" font-weight="700" fill="#1a1a1a">&lt;50ms DOM Audit</text>
     </g>
     <g transform="translate(125, 0)">
       <circle cx="6" cy="7" r="3" fill="#1B6E38"/>
-      <text x="14" y="10" class="font-sans" font-size="9.5" font-weight="700" fill="#20201E">0 Server Lag</text>
+      <text x="14" y="10" class="font-sans" font-size="9.5" font-weight="700" fill="#1a1a1a">0 Server Lag</text>
     </g>
     <g transform="translate(230, 0)">
       <circle cx="6" cy="7" r="3" fill="#1B6E38"/>
-      <text x="14" y="10" class="font-sans" font-size="9.5" font-weight="700" fill="#20201E">Client Pitch Ready</text>
+      <text x="14" y="10" class="font-sans" font-size="9.5" font-weight="700" fill="#1a1a1a">Client Pitch Ready</text>
     </g>
     <g transform="translate(340, -4)">
-      <rect width="52" height="20" rx="4" fill="#B76345"/>
+      <rect width="52" height="20" rx="4" fill="#10b981"/>
       <text x="26" y="13" class="font-sans" font-size="8.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">MV3 Safe</text>
     </g>
   </g>

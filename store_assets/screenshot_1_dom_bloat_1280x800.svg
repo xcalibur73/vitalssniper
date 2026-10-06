@@ -2,28 +2,28 @@
   <defs>
     <!-- Background Canvas Gradients -->
     <linearGradient id="bgGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FAF8F3"/>
-      <stop offset="100%" stop-color="#F2EFE9"/>
+      <stop offset="0%" stop-color="#fafafa"/>
+      <stop offset="100%" stop-color="#f2f2f2"/>
     </linearGradient>
 
     <!-- Browser Dropshadow -->
     <filter id="browserShadow" x="-10%" y="-10%" width="120%" height="125%">
-      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#20201E" flood-opacity="0.14"/>
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#1a1a1a" flood-opacity="0.14"/>
     </filter>
 
     <!-- Popup Floating Shadow -->
     <filter id="popupShadow" x="-20%" y="-20%" width="140%" height="145%">
-      <feDropShadow dx="0" dy="20" stdDeviation="30" flood-color="#20201E" flood-opacity="0.22"/>
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#20201E" flood-opacity="0.10"/>
+      <feDropShadow dx="0" dy="20" stdDeviation="30" flood-color="#1a1a1a" flood-opacity="0.22"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1a1a1a" flood-opacity="0.10"/>
     </filter>
 
     <filter id="calloutGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#B76345" flood-opacity="0.25"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#e63946" flood-opacity="0.25"/>
     </filter>
 
     <!-- Dot Grid Pattern -->
     <pattern id="dotGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-      <circle cx="10" cy="10" r="0.8" fill="#DDD7CE" opacity="0.6"/>
+      <circle cx="10" cy="10" r="0.8" fill="#e3e3e3" opacity="0.6"/>
     </pattern>
   </defs>
 
@@ -41,11 +41,11 @@
        ====================================================================== -->
   <g transform="translate(50, 36)" filter="url(#browserShadow)">
     <!-- Browser Window Frame -->
-    <rect width="1180" height="728" rx="10" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+    <rect width="1180" height="728" rx="10" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
 
     <!-- Browser Chrome Bar -->
-    <rect width="1180" height="42" rx="10" fill="#20201E"/>
-    <rect y="32" width="1180" height="10" fill="#20201E"/>
+    <rect width="1180" height="42" rx="10" fill="#1a1a1a"/>
+    <rect y="32" width="1180" height="10" fill="#1a1a1a"/>
 
     <!-- Window Controls -->
     <circle cx="22" cy="21" r="5" fill="#E63946"/>
@@ -53,37 +53,37 @@
     <circle cx="54" cy="21" r="5" fill="#43A047"/>
 
     <!-- Browser URL Bar -->
-    <rect x="90" y="8" width="560" height="26" rx="5" fill="#2D2C2A"/>
+    <rect x="90" y="8" width="560" height="26" rx="5" fill="#2d2d2d"/>
     <circle cx="104" cy="21" r="3.5" fill="#43A047"/>
-    <text x="116" y="25" class="font-sans" font-size="11" fill="#DDD7CE">https://apex-store-demo.com/products/artisan-chair</text>
+    <text x="116" y="25" class="font-sans" font-size="11" fill="#e3e3e3">https://apex-store-demo.com/products/artisan-chair</text>
 
     <!-- Browser Active Tabs -->
-    <rect x="670" y="8" width="170" height="26" rx="5" fill="#2D2C2A"/>
-    <text x="682" y="25" class="font-sans" font-size="11" fill="#F7F4EE">Apex Store - Elementor</text>
+    <rect x="670" y="8" width="170" height="26" rx="5" fill="#2d2d2d"/>
+    <text x="682" y="25" class="font-sans" font-size="11" fill="#ffffff">Apex Store - Elementor</text>
 
     <!-- Extension Icon in Browser Bar -->
     <g transform="translate(1136, 11)">
-      <rect width="20" height="20" rx="4" fill="#B76345"/>
+      <rect width="20" height="20" rx="4" fill="#e63946"/>
       <circle cx="10" cy="10" r="3" fill="#FFFFFF"/>
     </g>
 
     <!-- Simulated Target Website Content (Subtle clean background) -->
     <g transform="translate(0, 42)" opacity="0.35">
       <!-- Site Nav -->
-      <rect width="1180" height="50" fill="#FAF8F3" stroke="#DDD7CE" stroke-width="0.8"/>
-      <text x="560" y="32" class="font-sans" font-size="14" font-weight="800" fill="#20201E">APEX LIVING</text>
-      <text x="680" y="31" class="font-sans" font-size="11" fill="#716C64">Shop Furniture   |   Collections   |   Journal</text>
+      <rect width="1180" height="50" fill="#fafafa" stroke="#e3e3e3" stroke-width="0.8"/>
+      <text x="560" y="32" class="font-sans" font-size="14" font-weight="800" fill="#1a1a1a">APEX LIVING</text>
+      <text x="680" y="31" class="font-sans" font-size="11" fill="#5e5e5e">Shop Furniture   |   Collections   |   Journal</text>
 
       <!-- Site Hero Banner -->
-      <rect y="50" width="1180" height="230" fill="#EFECE6"/>
-      <rect x="540" y="80" width="180" height="150" rx="6" fill="#DDD7CE" opacity="0.5"/>
+      <rect y="50" width="1180" height="230" fill="#efefef"/>
+      <rect x="540" y="80" width="180" height="150" rx="6" fill="#e3e3e3" opacity="0.5"/>
 
       <!-- Product Cards Grid (Subtle Wireframe) -->
       <g transform="translate(540, 300)">
-        <rect width="200" height="220" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <rect x="15" y="15" width="170" height="120" rx="4" fill="#E8E4DC"/>
-        <text x="15" y="165" class="font-sans" font-size="12" font-weight="700" fill="#20201E">Nordic High Stool</text>
-        <text x="15" y="195" class="font-sans" font-size="12" font-weight="800" fill="#B76345">$280</text>
+        <rect width="200" height="220" rx="6" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+        <rect x="15" y="15" width="170" height="120" rx="4" fill="#efefef"/>
+        <text x="15" y="165" class="font-sans" font-size="12" font-weight="700" fill="#1a1a1a">Nordic High Stool</text>
+        <text x="15" y="195" class="font-sans" font-size="12" font-weight="800" fill="#e63946">$280</text>
       </g>
     </g>
   </g>
@@ -93,19 +93,19 @@
        ====================================================================== -->
   <g transform="translate(80, 100)">
     <!-- Top Pill -->
-    <rect width="250" height="26" rx="13" fill="#20201E"/>
-    <circle cx="15" cy="13" r="3.5" fill="#B76345"/>
-    <text x="26" y="17" class="font-sans" font-size="10.5" font-weight="800" fill="#F7F4EE" letter-spacing="0.06em">SCREENSHOT 1 : DOM BLOAT AUDIT</text>
+    <rect width="250" height="26" rx="13" fill="#1a1a1a"/>
+    <circle cx="15" cy="13" r="3.5" fill="#e63946"/>
+    <text x="26" y="17" class="font-sans" font-size="10.5" font-weight="800" fill="#ffffff" letter-spacing="0.06em">SCREENSHOT 1 : DOM BLOAT AUDIT</text>
 
     <!-- Headline -->
     <g transform="translate(0, 48)">
-      <text x="0" y="30" class="font-sans" font-size="34" font-weight="900" fill="#20201E" letter-spacing="-0.8">Pinpoint DOM Bloat &amp;</text>
-      <text x="0" y="70" class="font-sans" font-size="34" font-weight="900" fill="#B76345" letter-spacing="-0.8">Heavy CMS Signatures</text>
+      <text x="0" y="30" class="font-sans" font-size="34" font-weight="900" fill="#1a1a1a" letter-spacing="-0.8">Pinpoint DOM Bloat &amp;</text>
+      <text x="0" y="70" class="font-sans" font-size="34" font-weight="900" fill="#e63946" letter-spacing="-0.8">Heavy CMS Signatures</text>
     </g>
 
     <!-- Subtitle -->
     <g transform="translate(0, 150)">
-      <text x="0" y="16" class="font-sans" font-size="14.5" font-weight="500" fill="#716C64" line-height="1.5">
+      <text x="0" y="16" class="font-sans" font-size="14.5" font-weight="500" fill="#5e5e5e" line-height="1.5">
         <tspan x="0" dy="0">Instantly inspect live client-side DOM structure without</tspan>
         <tspan x="0" dy="22">third-party server queues. Detect bloated Elementor, Divi,</tspan>
         <tspan x="0" dy="22">and WooCommerce templates choking browser layouts.</tspan>
@@ -116,26 +116,26 @@
     <g transform="translate(0, 236)">
       <!-- Card 1 -->
       <g transform="translate(0, 0)">
-        <rect width="520" height="66" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <rect x="0" y="0" width="5" height="66" rx="2" fill="#B76345"/>
-        <text x="20" y="24" class="font-sans" font-size="13" font-weight="800" fill="#20201E">1-Click CMS &amp; Page Builder Fingerprinting</text>
-        <text x="20" y="44" class="font-sans" font-size="11" fill="#716C64">Detects WordPress, Elementor, Divi, Shopify, and Next.js live signatures.</text>
+        <rect width="520" height="66" rx="8" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+        <rect x="0" y="0" width="5" height="66" rx="2" fill="#e63946"/>
+        <text x="20" y="24" class="font-sans" font-size="13" font-weight="800" fill="#1a1a1a">1-Click CMS &amp; Page Builder Fingerprinting</text>
+        <text x="20" y="44" class="font-sans" font-size="11" fill="#5e5e5e">Detects WordPress, Elementor, Divi, Shopify, and Next.js live signatures.</text>
       </g>
 
       <!-- Card 2 -->
       <g transform="translate(0, 78)">
-        <rect width="520" height="66" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="520" height="66" rx="8" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <rect x="0" y="0" width="5" height="66" rx="2" fill="#E63946"/>
-        <text x="20" y="24" class="font-sans" font-size="13" font-weight="800" fill="#20201E">DOM Tree Depth &amp; Node Count Analysis</text>
-        <text x="20" y="44" class="font-sans" font-size="11" fill="#716C64">Flags branches exceeding 15 nesting levels that degrade mobile interaction.</text>
+        <text x="20" y="24" class="font-sans" font-size="13" font-weight="800" fill="#1a1a1a">DOM Tree Depth &amp; Node Count Analysis</text>
+        <text x="20" y="44" class="font-sans" font-size="11" fill="#5e5e5e">Flags branches exceeding 15 nesting levels that degrade mobile interaction.</text>
       </g>
 
       <!-- Card 3 -->
       <g transform="translate(0, 156)">
-        <rect width="520" height="66" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="520" height="66" rx="8" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <rect x="0" y="0" width="5" height="66" rx="2" fill="#1B6E38"/>
-        <text x="20" y="24" class="font-sans" font-size="13" font-weight="800" fill="#20201E">100% In-Browser Sandbox Execution</text>
-        <text x="20" y="44" class="font-sans" font-size="11" fill="#716C64">Zero external telemetry, zero latency, and zero data leakage.</text>
+        <text x="20" y="24" class="font-sans" font-size="13" font-weight="800" fill="#1a1a1a">100% In-Browser Sandbox Execution</text>
+        <text x="20" y="44" class="font-sans" font-size="11" fill="#5e5e5e">Zero external telemetry, zero latency, and zero data leakage.</text>
       </g>
     </g>
   </g>
@@ -145,49 +145,49 @@
        ====================================================================== -->
   <g transform="translate(760, 64)" filter="url(#popupShadow)">
     <!-- Popup Card Frame (390px x 636px) -->
-    <rect width="390" height="636" rx="12" fill="#F7F4EE" stroke="#DDD7CE" stroke-width="1.2"/>
+    <rect width="390" height="636" rx="12" fill="#f7f7f7" stroke="#e3e3e3" stroke-width="1.2"/>
 
     <!-- Content Padding -->
     <g transform="translate(16, 16)">
       <!-- 1. Header -->
       <g transform="translate(0, 0)">
-        <rect x="0" y="0" width="22" height="22" rx="5" fill="#20201E"/>
-        <path d="M11 5 L17 11 L11 17 L5 11 Z" fill="none" stroke="#B76345" stroke-width="1.8" stroke-linejoin="round"/>
-        <circle cx="11" cy="11" r="2" fill="#F7F4EE"/>
+        <rect x="0" y="0" width="22" height="22" rx="5" fill="#1a1a1a"/>
+        <path d="M11 5 L17 11 L11 17 L5 11 Z" fill="none" stroke="#e63946" stroke-width="1.8" stroke-linejoin="round"/>
+        <circle cx="11" cy="11" r="2" fill="#f7f7f7"/>
 
-        <text x="28" y="16" class="font-sans" font-size="14" font-weight="800" fill="#20201E" letter-spacing="-0.3">VitalsSniper</text>
-        <rect x="114" y="3.5" width="28" height="15" rx="3.5" fill="#B76345"/>
+        <text x="28" y="16" class="font-sans" font-size="14" font-weight="800" fill="#1a1a1a" letter-spacing="-0.3">VitalsSniper</text>
+        <rect x="114" y="3.5" width="28" height="15" rx="3.5" fill="#e63946"/>
         <text x="128" y="14.5" class="font-sans" font-size="8" font-weight="800" fill="#FFFFFF" text-anchor="middle">PRO</text>
-        <text x="150" y="15.5" class="font-sans" font-size="8.5" font-weight="600" fill="#716C64">by webaudits.pro</text>
+        <text x="150" y="15.5" class="font-sans" font-size="8.5" font-weight="600" fill="#5e5e5e">by webaudits.pro</text>
 
         <!-- Action Tools -->
         <g transform="translate(252, 0)">
           <!-- Vs -->
-          <rect x="0" y="0" width="34" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <path d="M6 13L9 9L6 5M14 5L11 9L14 13" fill="none" stroke="#716C64" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-          <text x="21" y="14.5" class="font-sans" font-size="9" font-weight="800" fill="#20201E">Vs</text>
+          <rect x="0" y="0" width="34" height="22" rx="4" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+          <path d="M6 13L9 9L6 5M14 5L11 9L14 13" fill="none" stroke="#5e5e5e" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="21" y="14.5" class="font-sans" font-size="9" font-weight="800" fill="#1a1a1a">Vs</text>
           
           <!-- Pin / Leads 4 -->
-          <rect x="38" y="0" width="34" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <path d="M47 5h7a1 1 0 0 1 1 1v10l-4.5-3L46 16V6a1 1 0 0 1 1-1z" fill="none" stroke="#20201E" stroke-width="1.3" stroke-linejoin="round"/>
-          <rect x="58" y="3" width="10" height="12" rx="4" fill="#B76345"/>
+          <rect x="38" y="0" width="34" height="22" rx="4" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+          <path d="M47 5h7a1 1 0 0 1 1 1v10l-4.5-3L46 16V6a1 1 0 0 1 1-1z" fill="none" stroke="#1a1a1a" stroke-width="1.3" stroke-linejoin="round"/>
+          <rect x="58" y="3" width="10" height="12" rx="4" fill="#e63946"/>
           <text x="63" y="12" class="font-sans" font-size="7.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">4</text>
 
           <!-- Settings Gear -->
-          <rect x="76" y="0" width="26" height="22" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-          <circle cx="89" cy="11" r="2.2" fill="none" stroke="#20201E" stroke-width="1.3"/>
-          <path d="M89 6v1.5M89 14.5v1.5M84 11h1.5M92.5 11h1.5M85.5 7.5l1 1M91.5 13.5l1 1M85.5 14.5l1-1M91.5 8.5l1-1" stroke="#20201E" stroke-width="1.3" stroke-linecap="round"/>
+          <rect x="76" y="0" width="26" height="22" rx="4" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+          <circle cx="89" cy="11" r="2.2" fill="none" stroke="#1a1a1a" stroke-width="1.3"/>
+          <path d="M89 6v1.5M89 14.5v1.5M84 11h1.5M92.5 11h1.5M85.5 7.5l1 1M91.5 13.5l1 1M85.5 14.5l1-1M91.5 8.5l1-1" stroke="#1a1a1a" stroke-width="1.3" stroke-linecap="round"/>
         </g>
       </g>
 
-      <line x1="0" y1="32" x2="358" y2="32" stroke="#DDD7CE" stroke-width="1"/>
+      <line x1="0" y1="32" x2="358" y2="32" stroke="#e3e3e3" stroke-width="1"/>
 
       <!-- 2. Target Site Card -->
       <g transform="translate(0, 42)">
-        <rect width="358" height="74" rx="8" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="358" height="74" rx="8" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <g transform="translate(10, 10)">
           <rect x="0" y="2" width="12" height="12" rx="2" fill="#E63946"/>
-          <text x="16" y="13" class="font-sans" font-size="13" font-weight="700" fill="#20201E">apex-store-demo.com</text>
+          <text x="16" y="13" class="font-sans" font-size="13" font-weight="700" fill="#1a1a1a">apex-store-demo.com</text>
           <rect x="154" y="1" width="40" height="15" rx="3" fill="#EAF7EE" stroke="#BCE6C8" stroke-width="1"/>
           <text x="174" y="12" class="font-sans" font-size="8" font-weight="700" fill="#1B6E38" text-anchor="middle">HTTPS</text>
 
@@ -195,7 +195,7 @@
           <g transform="translate(276, -2)">
             <rect width="60" height="24" rx="5" fill="#FDF1F0" stroke="#F7BDB9" stroke-width="1"/>
             <text x="24" y="17" class="font-mono" font-size="15" font-weight="800" fill="#A8231B" text-anchor="end">36</text>
-            <text x="27" y="16" class="font-sans" font-size="9" font-weight="600" fill="#716C64">/100</text>
+            <text x="27" y="16" class="font-sans" font-size="9" font-weight="600" fill="#5e5e5e">/100</text>
           </g>
         </g>
 
@@ -217,74 +217,74 @@
         <!-- Metric 1: DOM Elements (CRITICAL) -->
         <g transform="translate(0, 0)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7BDB9" stroke-width="1.4"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">DOM ELEMENTS</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#5e5e5e">DOM ELEMENTS</text>
           <rect x="124" y="6" width="42" height="12" rx="2.5" fill="#FDF1F0"/>
           <text x="145" y="15" class="font-sans" font-size="7" font-weight="800" fill="#A8231B" text-anchor="middle">CRITICAL</text>
           <text x="8" y="38" class="font-mono" font-size="16" font-weight="800" fill="#A8231B">4,820</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">Standard: &lt; 1,400</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#5e5e5e">Standard: &lt; 1,400</text>
         </g>
 
         <!-- Metric 2: Page Payload -->
         <g transform="translate(184, 0)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7DCA8" stroke-width="1"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">PAGE PAYLOAD</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#5e5e5e">PAGE PAYLOAD</text>
           <rect x="132" y="6" width="34" height="12" rx="2.5" fill="#FEF7EA"/>
           <text x="149" y="15" class="font-sans" font-size="7" font-weight="800" fill="#8A5308" text-anchor="middle">WARN</text>
-          <text x="8" y="38" class="font-mono" font-size="16" font-weight="800" fill="#20201E">3.1 MB</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">Budget: &lt; 45 KB</text>
+          <text x="8" y="38" class="font-mono" font-size="16" font-weight="800" fill="#1a1a1a">3.1 MB</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#5e5e5e">Budget: &lt; 45 KB</text>
         </g>
 
         <!-- Metric 3: Mobile Scaling -->
         <g transform="translate(0, 68)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7BDB9" stroke-width="1"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">MOBILE SCALING</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#5e5e5e">MOBILE SCALING</text>
           <rect x="136" y="6" width="30" height="12" rx="2.5" fill="#FDF1F0"/>
           <text x="151" y="15" class="font-sans" font-size="7" font-weight="800" fill="#A8231B" text-anchor="middle">FAIL</text>
           <text x="8" y="38" class="font-sans" font-size="13.5" font-weight="800" fill="#A8231B">Blocked</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">WCAG 2.2 Pinch Zoom</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#5e5e5e">WCAG 2.2 Pinch Zoom</text>
         </g>
 
         <!-- Metric 4: AI & Schema -->
         <g transform="translate(184, 68)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7DCA8" stroke-width="1"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">AI &amp; SCHEMA</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#5e5e5e">AI &amp; SCHEMA</text>
           <rect x="132" y="6" width="34" height="12" rx="2.5" fill="#FEF7EA"/>
           <text x="149" y="15" class="font-sans" font-size="7" font-weight="800" fill="#8A5308" text-anchor="middle">WARN</text>
           <text x="8" y="38" class="font-sans" font-size="13.5" font-weight="800" fill="#8A5308">Missing</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">No Product Schema</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#5e5e5e">No Product Schema</text>
         </g>
 
         <!-- Metric 5: Scripts & Bloat -->
         <g transform="translate(0, 136)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7BDB9" stroke-width="1"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">SCRIPTS &amp; BLOAT</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#5e5e5e">SCRIPTS &amp; BLOAT</text>
           <rect x="124" y="6" width="42" height="12" rx="2.5" fill="#FDF1F0"/>
           <text x="145" y="15" class="font-sans" font-size="7" font-weight="800" fill="#A8231B" text-anchor="middle">CRITICAL</text>
-          <text x="8" y="38" class="font-mono" font-size="16" font-weight="800" fill="#20201E">52 Scripts</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">3.4s Execution Latency</text>
+          <text x="8" y="38" class="font-mono" font-size="16" font-weight="800" fill="#1a1a1a">52 Scripts</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#5e5e5e">3.4s Execution Latency</text>
         </g>
 
         <!-- Metric 6: Server TTFB -->
         <g transform="translate(184, 136)">
           <rect width="174" height="60" rx="6" fill="#FFFFFF" stroke="#F7DCA8" stroke-width="1"/>
-          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#716C64">SERVER TTFB</text>
+          <text x="8" y="14" class="font-sans" font-size="8.5" font-weight="700" fill="#5e5e5e">SERVER TTFB</text>
           <rect x="132" y="6" width="34" height="12" rx="2.5" fill="#FEF7EA"/>
           <text x="149" y="15" class="font-sans" font-size="7" font-weight="800" fill="#8A5308" text-anchor="middle">SLOW</text>
-          <text x="8" y="38" class="font-mono" font-size="16" font-weight="800" fill="#20201E">920ms</text>
-          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#716C64">Target: &lt; 200ms</text>
+          <text x="8" y="38" class="font-mono" font-size="16" font-weight="800" fill="#1a1a1a">920ms</text>
+          <text x="8" y="52" class="font-sans" font-size="8" font-weight="500" fill="#5e5e5e">Target: &lt; 200ms</text>
         </g>
       </g>
 
       <!-- 4. Primary Vulnerability Callout -->
       <g transform="translate(0, 334)">
-        <rect width="358" height="76" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="358" height="76" rx="6" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <rect x="0" y="0" width="4" height="76" rx="2" fill="#E63946"/>
         <g transform="translate(12, 10)">
-          <text x="0" y="10" class="font-sans" font-size="9" font-weight="800" fill="#B76345" letter-spacing="0.05em">EVIDENCE ENGINE</text>
+          <text x="0" y="10" class="font-sans" font-size="9" font-weight="800" fill="#e63946" letter-spacing="0.05em">EVIDENCE ENGINE</text>
           <rect x="96" y="1" width="44" height="12" rx="2.5" fill="#FDF1F0"/>
           <text x="118" y="10" class="font-sans" font-size="7" font-weight="800" fill="#A8231B" text-anchor="middle">CRITICAL</text>
           
-          <text x="0" y="28" class="font-sans" font-size="10.5" font-weight="600" fill="#20201E" line-height="1.4">
+          <text x="0" y="28" class="font-sans" font-size="10.5" font-weight="600" fill="#1a1a1a" line-height="1.4">
             <tspan x="0" dy="0">4,820 DOM elements exceed standard threshold by 344%.</tspan>
             <tspan x="0" dy="15">Deep nesting (28 levels) triggers heavy layout thrashing.</tspan>
           </text>
@@ -293,42 +293,42 @@
 
       <!-- 5. Action Buttons -->
       <g transform="translate(0, 422)">
-        <rect width="258" height="38" rx="6" fill="#20201E"/>
-        <text x="129" y="24" class="font-sans" font-size="12" font-weight="700" fill="#F7F4EE" text-anchor="middle">Copy 3-Sentence Email</text>
+        <rect width="258" height="38" rx="6" fill="#1a1a1a"/>
+        <text x="129" y="24" class="font-sans" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">Copy 3-Sentence Email</text>
 
-        <rect x="268" y="0" width="90" height="38" rx="6" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect x="268" y="0" width="90" height="38" rx="6" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <g transform="translate(290, 11)">
-          <path d="M2 1h7a1 1 0 0 1 1 1v11l-4.5-2.5L1 13V2a1 1 0 0 1 1-1z" fill="none" stroke="#20201E" stroke-width="1.3" stroke-linejoin="round"/>
-          <text x="18" y="12" class="font-sans" font-size="11" font-weight="700" fill="#20201E">Save</text>
+          <path d="M2 1h7a1 1 0 0 1 1 1v11l-4.5-2.5L1 13V2a1 1 0 0 1 1-1z" fill="none" stroke="#1a1a1a" stroke-width="1.3" stroke-linejoin="round"/>
+          <text x="18" y="12" class="font-sans" font-size="11" font-weight="700" fill="#1a1a1a">Save</text>
         </g>
       </g>
 
       <!-- 6. Utility Grid -->
       <g transform="translate(0, 470)">
-        <rect width="114" height="30" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect width="114" height="30" rx="4" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <g transform="translate(16, 7)">
-          <path d="M1 1h6l3 3v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" fill="none" stroke="#716C64" stroke-width="1.2" stroke-linejoin="round"/>
-          <path d="M7 1v3h3M3 7h4M3 10h3" stroke="#716C64" stroke-width="1.2" stroke-linecap="round"/>
-          <text x="18" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E">1-Page PDF</text>
+          <path d="M1 1h6l3 3v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" fill="none" stroke="#5e5e5e" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M7 1v3h3M3 7h4M3 10h3" stroke="#5e5e5e" stroke-width="1.2" stroke-linecap="round"/>
+          <text x="18" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#1a1a1a">1-Page PDF</text>
         </g>
 
-        <rect x="122" y="0" width="114" height="30" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
+        <rect x="122" y="0" width="114" height="30" rx="4" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <g transform="translate(130, 7)">
-          <circle cx="7" cy="7" r="5" fill="none" stroke="#716C64" stroke-width="1.2"/>
-          <circle cx="7" cy="7" r="1.8" fill="#B76345"/>
-          <path d="M7 0.5v2M7 11.5v2M0.5 7h2M11.5 7h2" stroke="#716C64" stroke-width="1.2" stroke-linecap="round"/>
-          <text x="20" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E">Highlight LCP</text>
+          <circle cx="7" cy="7" r="5" fill="none" stroke="#5e5e5e" stroke-width="1.2"/>
+          <circle cx="7" cy="7" r="1.8" fill="#e63946"/>
+          <path d="M7 0.5v2M7 11.5v2M0.5 7h2M11.5 7h2" stroke="#5e5e5e" stroke-width="1.2" stroke-linecap="round"/>
+          <text x="20" y="11.5" class="font-sans" font-size="9.5" font-weight="600" fill="#1a1a1a">Highlight LCP</text>
         </g>
 
-        <rect x="244" y="0" width="114" height="30" rx="4" fill="#FFFFFF" stroke="#DDD7CE" stroke-width="1"/>
-        <text x="301" y="19" class="font-sans" font-size="9.5" font-weight="600" fill="#20201E" text-anchor="middle">PageSpeed</text>
+        <rect x="244" y="0" width="114" height="30" rx="4" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
+        <text x="301" y="19" class="font-sans" font-size="9.5" font-weight="600" fill="#1a1a1a" text-anchor="middle">PageSpeed</text>
       </g>
 
       <!-- Footer Micro -->
       <g transform="translate(0, 514)">
-        <line x1="0" y1="0" x2="358" y2="0" stroke="#DDD7CE" stroke-width="1"/>
-        <text x="0" y="14" class="font-sans" font-size="8.5" fill="#716C64">Engineered by WebAudits.pro</text>
-        <text x="358" y="14" class="font-mono" font-size="8.5" font-weight="600" fill="#716C64" text-anchor="end">v1.4.2 PRO</text>
+        <line x1="0" y1="0" x2="358" y2="0" stroke="#e3e3e3" stroke-width="1"/>
+        <text x="0" y="14" class="font-sans" font-size="8.5" fill="#5e5e5e">Engineered by WebAudits.pro</text>
+        <text x="358" y="14" class="font-mono" font-size="8.5" font-weight="600" fill="#5e5e5e" text-anchor="end">v1.4.2 PRO</text>
       </g>
     </g>
   </g>
@@ -338,11 +338,11 @@
        ====================================================================== -->
   <g transform="translate(566, 206)" filter="url(#calloutGlow)">
     <!-- Callout Badge -->
-    <rect x="0" y="0" width="154" height="30" rx="15" fill="#B76345"/>
+    <rect x="0" y="0" width="154" height="30" rx="15" fill="#e63946"/>
     <text x="77" y="19" class="font-sans" font-size="10" font-weight="800" fill="#FFFFFF" text-anchor="middle">4,820 Nodes Flagged</text>
 
     <!-- Pointer Line to Popup -->
-    <path d="M 154 15 L 190 15" stroke="#B76345" stroke-width="2" stroke-dasharray="4 3"/>
-    <circle cx="192" cy="15" r="4" fill="#B76345"/>
+    <path d="M 154 15 L 190 15" stroke="#e63946" stroke-width="2" stroke-dasharray="4 3"/>
+    <circle cx="192" cy="15" r="4" fill="#e63946"/>
   </g>
 </svg>
