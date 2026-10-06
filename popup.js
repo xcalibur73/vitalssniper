@@ -1170,7 +1170,22 @@ class CompetitorService {
                 prospect: this.formatProspect(prospectData)
             };
         }
-        const compDomain = new URL(cleanUrl).hostname.replace(/^www\./, '');
+        let compDomain = '';
+        try {
+            compDomain = new URL(cleanUrl).hostname.replace(/^www\./, '');
+        }
+        catch {
+            compDomain = '';
+        }
+        if (!compDomain || !compDomain.includes('.') || compDomain.endsWith('.')) {
+            return {
+                success: false,
+                auditMethod: 'unavailable',
+                methodologyNote: 'Competitor URL must be a valid domain with a top-level domain.',
+                errorReason: 'Invalid competitor domain format.',
+                prospect: this.formatProspect(prospectData)
+            };
+        }
         const prospectSummary = this.formatProspect(prospectData);
         const categoryInfo = this.getSuggestedCompetitors(prospectSummary.domain, prospectData.seo?.title, prospectData.seo?.metaDescription, prospectData.cms);
         try {

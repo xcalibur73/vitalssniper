@@ -1,0 +1,92 @@
+import asyncio
+import re
+from playwright import async_api
+from playwright.async_api import expect
+
+async def run_test():
+    pw = None
+    browser = None
+    context = None
+
+    try:
+        # Start a Playwright session in asynchronous mode
+        pw = await async_api.async_playwright().start()
+
+        # Launch a Chromium browser in headless mode with custom arguments
+        browser = await pw.chromium.launch(
+            headless=True,
+            args=[
+                "--window-size=1280,720",
+                "--disable-dev-shm-usage",
+                "--ipc=host",
+                "--single-process"
+            ],
+        )
+
+        # Create a new browser context (like an incognito window)
+        context = await browser.new_context()
+        # Wider default timeout to match the agent's DOM-stability budget;
+        # auto-waiting Playwright APIs (expect, locator.wait_for) inherit this.
+        context.set_default_timeout(15000)
+
+        # Open a new page in the browser context
+        page = await context.new_page()
+
+        # Interact with the page elements to simulate user flow
+        # -> navigate
+        await page.goto("http://localhost:5173/")
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=5000)
+        except Exception:
+            pass
+        
+        # -> Navigate to the popup page at /popup.html (http://localhost:5173/popup.html).
+        await page.goto("http://localhost:5173/popup.html")
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=5000)
+        except Exception:
+            pass
+        
+        # -> Click the 'View Saved Lead Pipeline' button to open the saved lead pipeline.
+        # View Saved Lead Pipeline button
+        elem = page.get_by_role("button", name="View Saved Lead Pipeline")
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Export CSV (Instantly / Lemlist)' button in the Saved Prospect Pipeline modal and wait for export confirmation.
+        # Export CSV (Instantly / Lemlist) button
+        elem = page.get_by_role("button", name="Export CSV (Instantly /")
+        await elem.click(timeout=10000)
+        
+        # -> Close the PRO upgrade modal by clicking the 'Close PRO upgrade modal' button to reveal the underlying pipeline UI for verification.
+        # Close PRO upgrade modal button
+        elem = page.get_by_role("button", name="Close PRO upgrade modal")
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Export CSV (Instantly / Lemlist)' button in the Saved Prospect Pipeline modal and observe whether a CSV export confirmation or other UI feedback appears.
+        # Export CSV (Instantly / Lemlist) button
+        elem = page.get_by_role("button", name="Export CSV (Instantly /")
+        await elem.click(timeout=10000)
+        
+        # --> Assertions to verify final state
+        
+        # --> CSV export confirmation did not appear because the export action opened a PRO upgrade modal instead.
+        await page.get_by_role("button", name="Close PRO upgrade modal").nth(0).scroll_into_view_if_needed()
+        # Assert-outcome: failed
+        # Assert: Expected a CSV export confirmation to be visible after clicking Export CSV.
+        await expect(page.get_by_role("button", name="Close PRO upgrade modal").nth(0)).to_be_visible(timeout=15000), "Expected a CSV export confirmation to be visible after clicking Export CSV."
+        
+        # --> Test blocked by environment/access constraints during agent run
+        # Reason: TEST BLOCKED The CSV export could not be verified - the export action is gated behind a PRO upgrade modal and no export confirmation appeared. Observations: - Clicking the 'Export CSV (Instantly / Lemlist)' button opens an 'Upgrade to VitalsSniper PRO' modal instead of producing a CSV export confirmation or download. - The Saved Prospect Pipeline shows 'No prospects saved yet.' and the export a...
+        raise AssertionError("Test blocked during agent run: " + "TEST BLOCKED The CSV export could not be verified \u2014 the export action is gated behind a PRO upgrade modal and no export confirmation appeared. Observations: - Clicking the 'Export CSV (Instantly / Lemlist)' button opens an 'Upgrade to VitalsSniper PRO' modal instead of producing a CSV export confirmation or download. - The Saved Prospect Pipeline shows 'No prospects saved yet.' and the export a..." + " - the exported script cannot reproduce a PASS in this environment.")
+        await asyncio.sleep(5)
+
+    finally:
+        if context:
+            await context.close()
+        if browser:
+            await browser.close()
+        if pw:
+            await pw.stop()
+
+asyncio.run(run_test())
+    
