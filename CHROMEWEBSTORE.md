@@ -11,9 +11,9 @@ VitalsSniper: Proof-of-Flaw Web Inspector
 1-Click CMS & Builder detector, DOM bloat scanner, Core Web Vitals audit, and client outreach email generator.
 
 **Detailed Description** [REQUIRED]
-VitalsSniper PRO is an in-browser technical website auditor and proof-of-flaw inspector for web developers, technical SEO consultants, and digital agency teams.
+VitalsSniper is an in-browser technical website auditor and proof-of-flaw inspector for web developers, technical SEO consultants, and digital agency teams.
 
-Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper PRO inspects the live DOM of the active tab in under 50 milliseconds, extracting concrete technical evidence with zero server latency.
+Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper inspects the live DOM of the active tab directly in your local browser engine without server queue delays.
 
 KEY AUDIT CAPABILITIES
 
@@ -35,11 +35,11 @@ Parses and checks structured data blocks for syntax validity, entity graph conne
 6. Third-Party Script Contention
 Inventories external, inline, and asynchronous scripts competing for main-thread execution time.
 
-7. Evidence-Grounded Outreach Generation
-Transforms observed technical flaws into structured, factual teardowns (cold email, LinkedIn DM, and video teardown outlines) citing measured values instead of vague generalizations.
+7. Evidence-Grounded Outreach Teardowns
+Generates structured diagnostic teardowns (cold email, LinkedIn DM, and video teardown outlines) directly from observed technical flaws, citing measured values instead of vague generalizations.
 
-8. Built-in Prospect CRM and Teardown Export
-Tracks prospect review status locally and exports clean 1-page PDF teardown briefs or RFC 4180 CSV logs.
+8. Teardown Briefs and CRM Exports
+Saves reviewed prospect sites locally and exports client-ready 1-page PDF teardown briefs or RFC 4180 CSV logs.
 
 HOW TO USE IT
 
@@ -51,7 +51,7 @@ Step 5: Export a client-ready 1-page PDF dossier or save the lead to your local 
 
 PRIVACY AND PERMISSIONS
 
-VitalsSniper runs 100% client-side inside your browser sandbox. Your browsing history, visited URLs, and client audit data are never collected, never sold, and never sent to external tracking servers. All analysis executes directly on the active tab only when invoked by the user.
+VitalsSniper runs client-side inside your browser sandbox. Your browsing history, visited URLs, and client audit data are never sold and never sent to external tracking servers. All analysis executes directly on the active tab only when invoked by the user. Optional account authentication occurs only if connecting to your WebAudits.pro workspace.
 
 SUPPORT AND FEEDBACK
 
@@ -64,7 +64,7 @@ Website: https://webaudits.pro
 Developer Tools
 
 **Single Purpose** [REQUIRED]
-Inspects the active browser tab to identify web performance bottlenecks, DOM bloat, CMS fingerprints, and generate factual client audit teardowns.
+Inspects the active browser tab to identify web performance bottlenecks, DOM bloat, and CMS fingerprints, with optional client audit teardown exports.
 
 **Primary Language** [REQUIRED]
 English

@@ -3378,12 +3378,12 @@ Best regards,
 [0:20 - 0:30] "No sales pitch at all: just wanted to share kudos with your team. Keep up the fantastic engineering work!"`;
             }
             else if (tone === 'aggressive') {
-                emailHook = `While ${domain} currently leads competitors with a ${ttfbMs} ms TTFB, maintaining that search advantage requires proactive script containment.`;
-                email = `Subject: Competitive performance advantage on ${domain}
+                emailHook = `While ${domain} currently maintains an advantage with a ${ttfbMs} ms TTFB, preserving that speed requires proactive script containment.`;
+                email = `Subject: Technical performance observation on ${domain}
 
 Hi [First Name],
 
-We benchmarked 10 competitors in your industry this week. While most are burdened by 2,000+ DOM elements and sluggish mobile paints, ${domain} currently holds a measurable speed advantage (${totalElements.toLocaleString()} elements, ${ttfbMs} ms TTFB).
+Our automated audit analyzed ${domain}'s technical performance: the site currently maintains a lean DOM structure (${totalElements.toLocaleString()} elements, ${ttfbMs} ms TTFB).
 
 However, speed advantages degrade quickly as marketing teams add tracking tags and visual widgets without engineering review.
 
@@ -3392,14 +3392,14 @@ Immediate tactical recommendations:
 2. Isolate client-side trackers into Web Workers via Partytown or Cloudflare Zaraz.
 3. Establish automated pull request regression guards for DOM depth.
 
-Would you like to see our comparative industry benchmark report showing exactly where your competitors are slipping?
+Would you like to see our diagnostic breakdown showing exactly where scripts threaten to bloat this baseline?
 
 Best regards,
 [Your Name]`;
-                dm = `Hi [First Name], we benchmarked your category: ${domain} is currently outpacing 80% of competitors in DOM efficiency (${totalElements.toLocaleString()} nodes). Want to see our competitor breakdown showing where they lose ground?`;
-                loom = `[0:00 - 0:10] "Hi [First Name], we ran a speed benchmark across your direct competitors this week, and ${domain} is currently winning on DOM efficiency and server latency."
-[0:10 - 0:20] "You are sitting at ${totalElements.toLocaleString()} elements while competing sites are averaging well over 2,200 nodes. That gives you an immediate conversion edge on mobile."
-[0:20 - 0:30] "I can send over the exact competitive breakdown so you can see where your competitors are dropping mobile traffic. Let me know if that is useful!"`;
+                dm = `Hi [First Name], our technical audit analyzed ${domain}: the site currently maintains an efficient DOM structure (${totalElements.toLocaleString()} nodes). Want to see our breakdown on preserving this speed?`;
+                loom = `[0:00 - 0:10] "Hi [First Name], we ran a technical profile on ${domain}, and your team is currently maintaining strong DOM efficiency and server latency."
+[0:10 - 0:20] "You are sitting at ${totalElements.toLocaleString()} elements, which keeps mobile DOM traversal fast and gives you a strong conversion edge."
+[0:20 - 0:30] "I can send over the exact technical breakdown so you can see how to prevent tag bloat from creeping in. Let me know if that is useful!"`;
             }
             else {
                 // Data-driven (default)
@@ -3427,8 +3427,8 @@ Best regards,
         }
         else if (finding.id === 'missing-viewport') {
             if (tone === 'urgency') {
-                emailHook = `${domain} is currently missing a responsive viewport tag, which causes mobile visitors to see a broken, zoomed-out desktop canvas and drives immediate bounces.`;
-                email = `Subject: URGENT: Mobile layout failure detected on ${domain}
+                emailHook = `${domain} is currently missing a responsive viewport tag, which causes mobile visitors to see a zoomed-out desktop canvas and increases bounces.`;
+                email = `Subject: Notice: Mobile layout issue detected on ${domain}
 
 Hi [First Name],
 
@@ -3469,8 +3469,8 @@ Best regards,
 [0:20 - 0:30] "Adding width=device-width, initial-scale=1.0 will get it adapting fluidly again. Just wanted to share the note in case your frontend team hadn't caught it!"`;
             }
             else if (tone === 'aggressive') {
-                emailHook = `${domain}'s mobile traffic is landing on an unscaled desktop layout due to a missing viewport tag, directly compromising your mobile ad ROI.`;
-                email = `Subject: Critical mobile layout flaw on ${domain}
+                emailHook = `${domain}'s mobile traffic is landing on an unscaled desktop layout due to a missing viewport tag, directly compromising mobile conversion rates.`;
+                email = `Subject: Notice: Mobile layout issue detected on ${domain}
 
 Hi [First Name],
 
@@ -3568,8 +3568,8 @@ Best regards,
 [0:20 - 0:30] "Allowing users to zoom up to 200% improves usability for low-vision visitors and aligns with modern accessibility standards. Happy to answer any questions if helpful!"`;
             }
             else if (tone === 'aggressive') {
-                emailHook = `${domain} is currently failing WCAG 2.2 mobile accessibility standards due to locked viewport zoom, creating legal and search ranking liabilities.`;
-                email = `Subject: Urgent WCAG 2.2 compliance flag on ${domain}
+                emailHook = `${domain} currently restricts mobile viewport zoom, creating accessibility issues for low-vision visitors.`;
+                email = `Subject: Notice: Mobile accessibility setting on ${domain}
 
 Hi [First Name],
 
@@ -3622,8 +3622,8 @@ Best regards,
         }
         else if (finding.id === 'deep-dom-tree' || finding.id === 'critical-dom-bloat' || finding.id === 'warning-dom-size') {
             if (tone === 'urgency') {
-                emailHook = `${domain} is rendering ${totalElements.toLocaleString()} DOM elements across ${maxDepth} levels of nesting, triggering severe mobile layout lag and driving up mobile abandonment.`;
-                email = `Subject: Critical mobile rendering bottleneck on ${domain}
+                emailHook = `${domain} is rendering ${totalElements.toLocaleString()} DOM elements across ${maxDepth} levels of nesting, creating mobile layout lag and driving up mobile abandonment.`;
+                email = `Subject: Notice: Mobile rendering bottleneck on ${domain}
 
 Hi [First Name],
 
@@ -3667,12 +3667,12 @@ Best regards,
 [0:20 - 0:30] "You can often double mobile scroll smoothness just by flattening a few parent containers or deferring lower sections. Happy to share a quick CSS snippet if useful!"`;
             }
             else if (tone === 'aggressive') {
-                emailHook = `${domain} ships ${totalElements.toLocaleString()} DOM elements on mobile, placing it in the bottom 15% of performance in your category and dragging down mobile ad ROI.`;
-                email = `Subject: Urgent mobile performance leak on ${domain}
+                emailHook = `${domain} ships ${totalElements.toLocaleString()} DOM elements on mobile, exceeding optimal layout thresholds and creating unnecessary processing overhead for mobile visitors.`;
+                email = `Subject: Notice: DOM complexity detected on ${domain}
 
 Hi [First Name],
 
-We audited 50 websites in your niche this month. ${domain} currently renders ${totalElements.toLocaleString()} DOM elements across ${maxDepth} levels of nesting, placing your site among the heaviest 15% in the sector.
+Our automated audit detected critical layout complexity on ${domain}: the page renders ${totalElements.toLocaleString()} DOM elements across ${maxDepth} levels of nesting, largely from ${builderText}.
 
 When DOM node counts exceed 1,400, mobile devices take 2x to 3x longer to calculate style updates during user interactions. Every dollar spent driving mobile traffic is undermined by unnecessary container bloat.
 
@@ -3685,9 +3685,9 @@ Can we schedule a 15-minute briefing this week to walk through the exact numbers
 
 Best regards,
 [Your Name]`;
-                dm = `Hi [First Name], ${domain} is currently shipping ${totalElements.toLocaleString()} DOM elements, ranking it among the heaviest in your category. We can reduce that by 50% without altering your design. Open to reviewing the numbers?`;
+                dm = `Hi [First Name], ${domain} is currently shipping ${totalElements.toLocaleString()} DOM elements, creating layout overhead on mobile devices. We can reduce that significantly without altering your design. Open to reviewing the numbers?`;
                 loom = `[0:00 - 0:10] "Hi [First Name], if you care about mobile conversion rates on ${domain}, this 30-second video is for you."
-[0:10 - 0:20] "Your page is loading ${totalElements.toLocaleString()} DOM elements across ${maxDepth} levels of nesting. That is 2x higher than the industry threshold and creates serious input lag on phones."
+[0:10 - 0:20] "Your page is loading ${totalElements.toLocaleString()} DOM elements across ${maxDepth} levels of nesting. That creates unnecessary style calculation delay on mobile phones."
 [0:20 - 0:30] "We have a proven method to strip out those redundant wrappers without touching your front-end design. Let me know when you have 10 minutes to review the fix."`;
             }
             else {
@@ -3873,8 +3873,8 @@ Best regards,
 [0:20 - 0:30] "A simple preload directive in the head will pull that render time firmly under 2 seconds. Happy to share the code snippet if helpful!"`;
             }
             else if (tone === 'aggressive') {
-                emailHook = `${domain} loses mobile visitors to direct competitors due to a ${lcpMs} ms Largest Contentful Paint delay on ${lcpSelector}.`;
-                email = `Subject: Critical Core Web Vitals bottleneck on ${domain}
+                emailHook = `${domain} delays mobile visitors due to a ${lcpMs} ms Largest Contentful Paint on ${lcpSelector}.`;
+                email = `Subject: Notice: Mobile Largest Contentful Paint delay on ${domain}
 
 Hi [First Name],
 
@@ -3978,8 +3978,8 @@ Best regards,
 [0:20 - 0:30] "Deferring non-essential work into idle callbacks restores instant tactile response. Happy to share the code snippet if helpful!"`;
             }
             else if (tone === 'aggressive') {
-                emailHook = `${domain} fails Google's Core Web Vitals INP metric with ${inpMs} ms of interaction latency on ${inpTarget}, degrading mobile user retention.`;
-                email = `Subject: Critical INP responsiveness failure on ${domain}
+                emailHook = `${domain} exceeds Google's Core Web Vitals INP metric with ${inpMs} ms of interaction latency on ${inpTarget}, degrading mobile user retention.`;
+                email = `Subject: Notice: Mobile interaction latency detected on ${domain}
 
 Hi [First Name],
 
@@ -4076,8 +4076,8 @@ Best regards,
 [0:20 - 0:30] "Adding explicit aspect ratios keeps everything rock solid. Happy to share a quick CSS snippet if helpful!"`;
             }
             else if (tone === 'aggressive') {
-                emailHook = `${domain}'s mobile conversion rate is leaking due to a ${clsScore} Cumulative Layout Shift score that causes visitors to mis-tap calls-to-action.`;
-                email = `Subject: Critical layout shift flaw on ${domain}
+                emailHook = `${domain}'s mobile conversion rate is impacted by a ${clsScore} Cumulative Layout Shift score that causes visitors to mis-tap calls-to-action.`;
+                email = `Subject: Notice: Mobile layout shift detected on ${domain}
 
 Hi [First Name],
 
@@ -4127,8 +4127,8 @@ Best regards,
         }
         else {
             if (tone === 'urgency') {
-                emailHook = `I identified a performance bottleneck on ${domain} regarding ${finding.title.toLowerCase()} (${evidenceList}) that is actively impacting mobile load times.`;
-                email = `Subject: Critical performance bottleneck detected on ${domain}
+                emailHook = `I identified an optimization opportunity on ${domain} regarding ${finding.title.toLowerCase()} (${evidenceList}) that impacts mobile load times.`;
+                email = `Subject: Notice: Performance bottleneck detected on ${domain}
 
 Hi [First Name],
 
