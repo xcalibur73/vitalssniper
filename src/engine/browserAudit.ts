@@ -46,6 +46,21 @@ export async function inspectPageForensics() {
     return sel || (node.tagName ? node.tagName.toLowerCase() : '');
   }
 
+  function querySelectorAllDeep<T extends Element = Element>(root: ParentNode, selector: string): T[] {
+    const results: T[] = [];
+    try {
+      const direct = Array.from(root.querySelectorAll(selector)) as T[];
+      results.push(...direct);
+      const allElements = Array.from(root.querySelectorAll('*'));
+      for (const el of allElements) {
+        if (el.shadowRoot) {
+          results.push(...querySelectorAllDeep<T>(el.shadowRoot, selector));
+        }
+      }
+    } catch {}
+    return results;
+  }
+
   // A. Paint entries (FCP)
   try {
     const paintEntries = performance.getEntriesByType('paint');
@@ -268,7 +283,7 @@ export async function inspectPageForensics() {
   // Fallback: If no buffered LCP entry exists, locate the largest visual element in viewport
   if (lcpMs === null) {
     try {
-      const candidates = Array.from(document.querySelectorAll('img, video, h1, h2, p, header, [role="banner"]'));
+      const candidates = querySelectorAllDeep(document, 'img, video, h1, h2, p, header, [role="banner"]');
       let maxArea = 0;
       let bestCandidate: Element | null = null;
       const vpW = window.innerWidth;
@@ -480,9 +495,23 @@ export async function inspectPageForensics() {
     if (depth > maxDepth) maxDepth = depth;
     if (depth > 15) deepBranchCount++;
 
-    const children = (node as Element).children;
+    const element = node as Element;
+    const tag = element.tagName ? element.tagName.toLowerCase() : '';
+    if (tag === 'svg' || tag === 'math') {
+      return;
+    }
+
+    const children = element.children;
     for (let i = 0; i < children.length; i++) {
       walkDom(children[i], depth + 1);
+    }
+
+    const shadowRoot = element.shadowRoot;
+    if (shadowRoot) {
+      const shadowChildren = shadowRoot.children;
+      for (let j = 0; j < shadowChildren.length; j++) {
+        walkDom(shadowChildren[j], depth + 1);
+      }
     }
   }
   walkDom(document.documentElement, 1);
@@ -492,7 +521,7 @@ export async function inspectPageForensics() {
   const documentSerializedKB = Math.round(new Blob([rawHtml]).size / 1024);
 
   // --- 4. IMAGE FORENSICS (HIGH-DPI AWARE & NON-SCARE) ---
-  const imgElements = Array.from(document.querySelectorAll('img'));
+  const imgElements = querySelectorAllDeep<HTMLImageElement>(document, 'img');
   const images: any[] = [];
   let oversizedImagesCount = 0;
   let missingDimensionImagesCount = 0;
@@ -649,7 +678,7 @@ export async function inspectPageForensics() {
   const horizontalOverflow = document.documentElement.scrollWidth > window.innerWidth;
 
   // Touch targets inspection (Distinguish < 24px WCAG 2.5.8 target size concern from < 44px mobile usability heuristic)
-  const interactiveElements = Array.from(document.querySelectorAll('button, a, input, select, textarea, [role="button"]'));
+  const interactiveElements = querySelectorAllDeep(document, 'button, a, input, select, textarea, [role="button"]');
   let undersizedTargets24px = 0;
   let undersizedTargets44px = 0;
   let smallestW = 9999;
@@ -665,7 +694,7 @@ export async function inspectPageForensics() {
     }
   });
 
-  const missingAltCount = Array.from(document.querySelectorAll('img:not([alt]):not([aria-label]):not([aria-labelledby])')).length;
+  const missingAltCount = querySelectorAllDeep(document, 'img:not([alt]):not([aria-label]):not([aria-labelledby])').length;
   let emptyInteractiveCount = 0;
   interactiveElements.forEach(el => {
     const text = (el.textContent || '').trim();

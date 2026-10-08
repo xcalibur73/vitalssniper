@@ -1,6 +1,6 @@
 # Chrome Web Store Listing: VitalsSniper: Proof-of-Flaw Web Inspector
 
-> Last Updated: 2026-10-06
+> Last Updated: 2026-10-07
 
 ## Store Listing
 
@@ -18,7 +18,7 @@ Most site audit tools rely on third-party server queues, taking minutes to crawl
 KEY AUDIT CAPABILITIES
 
 1. CMS and Page Builder Detection
-Instantly detects Elementor, Divi, WPBakery, GeneratePress, Oxygen, Webflow, Squarespace, Shopify, and Next.js from live runtime signatures and script fingerprints.
+Identifies active content management systems, visual site builders, and frontend application frameworks from live runtime signatures and script fingerprints.
 
 2. DOM Bloat and Tree Depth Analysis
 Measures total DOM node count, maximum nesting depth, and flags deep branches exceeding 15 levels that degrade browser layout passes and interaction response times.
@@ -140,9 +140,8 @@ https://webaudits.pro/privacy
 
 ## Version History
 
-| Version | Date | Changes | Status |
-|---|---|---|---|
-| 1.5.1 | 2026-10-06 | Merchant and Agency pitch channels, CWV subpart attribution, WCAG 2.2 contrast compliance, and clean MV3 architecture | Ready for Submission |
+| 1.5.1 | 2026-10-07 | Store listing metadata compliance: removed third-party platform brand lists to resolve Yellow Argon keyword policy | Resubmission |
+| 1.5.1 | 2026-10-06 | Merchant and Agency pitch channels, CWV subpart attribution, WCAG 2.2 contrast compliance, and clean MV3 architecture | Initial Submission |
 | 1.5.0 | 2026-09-24 | Initial production Manifest V3 release with evidence-first outreach generator | Published |
 
 ## Review Notes

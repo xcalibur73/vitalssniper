@@ -276,7 +276,7 @@ export class StorageService {
   public static async getWebAuditsSyncConfig(): Promise<{ apiKey: string; email: string; tier: string }> {
     const res = await this.get(['vs_webaudits_api_key', 'vs_webaudits_email', 'vs_webaudits_tier', 'vs_license_key']);
     let apiKey = res.vs_webaudits_api_key || '';
-    if (!apiKey && res.vs_license_key && (res.vs_license_key.startsWith('wba_live_') || res.vs_license_key === 'r3dxlost88')) {
+    if (!apiKey && res.vs_license_key && res.vs_license_key.startsWith('wba_live_')) {
       apiKey = res.vs_license_key;
     }
     return {

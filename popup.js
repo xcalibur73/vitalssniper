@@ -340,7 +340,7 @@ class StorageService {
     static async getWebAuditsSyncConfig() {
         const res = await this.get(['vs_webaudits_api_key', 'vs_webaudits_email', 'vs_webaudits_tier', 'vs_license_key']);
         let apiKey = res.vs_webaudits_api_key || '';
-        if (!apiKey && res.vs_license_key && (res.vs_license_key.startsWith('wba_live_') || res.vs_license_key === 'r3dxlost88')) {
+        if (!apiKey && res.vs_license_key && res.vs_license_key.startsWith('wba_live_')) {
             apiKey = res.vs_license_key;
         }
         return {
@@ -420,8 +420,6 @@ class LicenseService {
         if (!rawKey || typeof rawKey !== 'string')
             return false;
         const clean = rawKey.trim();
-        if (clean === 'r3dxlost88')
-            return true;
         return this.KEY_PATTERN.test(clean.toUpperCase()) || this.WBA_KEY_PATTERN.test(clean);
     }
     static async getClientInstanceId() {
@@ -566,7 +564,7 @@ class LicenseService {
      */
     static async activate(rawKey) {
         const rawTrimmed = (rawKey || '').trim();
-        const isWbaKey = rawTrimmed.startsWith('wba_live_') || rawTrimmed === 'r3dxlost88';
+        const isWbaKey = rawTrimmed.startsWith('wba_live_');
         const key = isWbaKey ? rawTrimmed : rawTrimmed.toUpperCase();
         if (!this.validateKeyFormat(key)) {
             return {
@@ -911,7 +909,7 @@ class CloudSyncService {
                 }
                 catch {
                     clearTimeout(timeoutId);
-                    if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo' || apiKey === 'r3dxlost88') {
+                    if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo') {
                         return {
                             attempted: true,
                             success: true,
@@ -930,7 +928,7 @@ class CloudSyncService {
             }
             clearTimeout(timeoutId);
             if (!resp || !resp.ok) {
-                if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo' || apiKey === 'r3dxlost88') {
+                if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo') {
                     return {
                         attempted: true,
                         success: true,
@@ -1920,6 +1918,21 @@ async function inspectPageForensics() {
         catch (e) { }
         return sel || (node.tagName ? node.tagName.toLowerCase() : '');
     }
+    function querySelectorAllDeep(root, selector) {
+        const results = [];
+        try {
+            const direct = Array.from(root.querySelectorAll(selector));
+            results.push(...direct);
+            const allElements = Array.from(root.querySelectorAll('*'));
+            for (const el of allElements) {
+                if (el.shadowRoot) {
+                    results.push(...querySelectorAllDeep(el.shadowRoot, selector));
+                }
+            }
+        }
+        catch { }
+        return results;
+    }
     // A. Paint entries (FCP)
     try {
         const paintEntries = performance.getEntriesByType('paint');
@@ -2139,7 +2152,7 @@ async function inspectPageForensics() {
     // Fallback: If no buffered LCP entry exists, locate the largest visual element in viewport
     if (lcpMs === null) {
         try {
-            const candidates = Array.from(document.querySelectorAll('img, video, h1, h2, p, header, [role="banner"]'));
+            const candidates = querySelectorAllDeep(document, 'img, video, h1, h2, p, header, [role="banner"]');
             let maxArea = 0;
             let bestCandidate = null;
             const vpW = window.innerWidth;
@@ -2346,9 +2359,21 @@ async function inspectPageForensics() {
             maxDepth = depth;
         if (depth > 15)
             deepBranchCount++;
-        const children = node.children;
+        const element = node;
+        const tag = element.tagName ? element.tagName.toLowerCase() : '';
+        if (tag === 'svg' || tag === 'math') {
+            return;
+        }
+        const children = element.children;
         for (let i = 0; i < children.length; i++) {
             walkDom(children[i], depth + 1);
+        }
+        const shadowRoot = element.shadowRoot;
+        if (shadowRoot) {
+            const shadowChildren = shadowRoot.children;
+            for (let j = 0; j < shadowChildren.length; j++) {
+                walkDom(shadowChildren[j], depth + 1);
+            }
         }
     }
     walkDom(document.documentElement, 1);
@@ -2356,7 +2381,7 @@ async function inspectPageForensics() {
     const rawHtml = document.documentElement.outerHTML;
     const documentSerializedKB = Math.round(new Blob([rawHtml]).size / 1024);
     // --- 4. IMAGE FORENSICS (HIGH-DPI AWARE & NON-SCARE) ---
-    const imgElements = Array.from(document.querySelectorAll('img'));
+    const imgElements = querySelectorAllDeep(document, 'img');
     const images = [];
     let oversizedImagesCount = 0;
     let missingDimensionImagesCount = 0;
@@ -2519,7 +2544,7 @@ async function inspectPageForensics() {
     // Horizontal layout overflow
     const horizontalOverflow = document.documentElement.scrollWidth > window.innerWidth;
     // Touch targets inspection (Distinguish < 24px WCAG 2.5.8 target size concern from < 44px mobile usability heuristic)
-    const interactiveElements = Array.from(document.querySelectorAll('button, a, input, select, textarea, [role="button"]'));
+    const interactiveElements = querySelectorAllDeep(document, 'button, a, input, select, textarea, [role="button"]');
     let undersizedTargets24px = 0;
     let undersizedTargets44px = 0;
     let smallestW = 9999;
@@ -2537,7 +2562,7 @@ async function inspectPageForensics() {
                 smallestH = Math.round(rect.height);
         }
     });
-    const missingAltCount = Array.from(document.querySelectorAll('img:not([alt]):not([aria-label]):not([aria-labelledby])')).length;
+    const missingAltCount = querySelectorAllDeep(document, 'img:not([alt]):not([aria-label]):not([aria-labelledby])').length;
     let emptyInteractiveCount = 0;
     interactiveElements.forEach(el => {
         const text = (el.textContent || '').trim();

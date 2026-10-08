@@ -9,7 +9,7 @@ VitalsSniper PRO is a Manifest V3 browser extension built for web performance sp
 ## Technical Auditing Engine
 
 The extension inspects the active browser DOM in under 50ms, evaluating key architectural signals:
-- CMS and page builder signatures: detects Elementor, Divi, WPBakery, GeneratePress, Squarespace, Webflow, Shopify, and Next.js.
+- CMS and page builder signatures: detects common content management systems, visual site builders, and frontend frameworks.
 - DOM hierarchy and nesting depth: measures total node count, maximum tree recursion depth, and branches exceeding 15 levels.
 - Document payload footprint: measures serialized in-memory markup and network wire transfer sizes.
 - Viewport scaling directives: flags missing viewport tags or user-scalable restrictions that impair mobile accessibility.

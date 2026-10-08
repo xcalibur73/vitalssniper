@@ -29,7 +29,7 @@ Most site audit tools rely on third-party server queues, taking minutes to crawl
 ### Core Audit Capabilities
 
 1. CMS and Page Builder Detection
-Instantly detects Elementor, Divi, WPBakery, GeneratePress, Oxygen, Webflow, Squarespace, Shopify, and Next.js from live runtime signatures and script fingerprints.
+Instantly detects active content management systems, visual site builders, and frontend application frameworks from live runtime signatures and script fingerprints.
 
 2. DOM Bloat and Tree Depth Analysis
 Measures total DOM node count, maximum nesting depth, and flags deep branches exceeding 15 levels that degrade browser layout passes and interaction response times.
