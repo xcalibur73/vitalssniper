@@ -24,7 +24,7 @@ assert(popupJs.includes('tabAgency'), 'popup.js must wire tabAgency switcher');
 console.log('PASS: popup.js contains all expected orchestrator logic.');
 
 // 2. Verify ReportService generateTeardownHtml output with CWV subpart attribution
-console.log('--- 2. Testing ReportService CWV subpart attribution & Manifest v1.5.1 ---');
+console.log('--- 2. Testing ReportService CWV subpart attribution & Manifest v1.5.2 ---');
 assert(popupJs.includes('LCP Subparts:'), 'popup.js must contain LCP Subparts format in ReportService');
 assert(popupJs.includes('INP Interaction:'), 'popup.js must contain INP Interaction format in ReportService');
 assert(popupJs.includes('CLS Session Score:'), 'popup.js must contain CLS Session Score format in ReportService');
@@ -32,12 +32,12 @@ assert(popupJs.includes('clsSessionScore'), 'popup.js must contain clsSessionSco
 
 const manifestPath = path.resolve(__dirname, '../manifest.json');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-assert.strictEqual(manifest.version, '1.5.1', 'manifest.json version must be 1.5.1');
+assert.strictEqual(manifest.version, '1.5.2', 'manifest.json version must be 1.5.2');
 
 const storeListingPath = path.resolve(__dirname, '../STORE_LISTING.md');
 const storeListing = fs.readFileSync(storeListingPath, 'utf8');
-assert(storeListing.includes('Version: 1.5.1'), 'STORE_LISTING.md must specify Version: 1.5.1');
-console.log('PASS: ReportService, CloudSyncService, and Manifest v1.5.1 verified.');
+assert(storeListing.includes('Version: 1.5.2'), 'STORE_LISTING.md must specify Version: 1.5.2');
+console.log('PASS: ReportService, CloudSyncService, and Manifest v1.5.2 verified.');
 
 // 3. Test for zero em-dash and zero en-dash in all newly edited source files
 console.log('--- 3. Testing zero em-dash and en-dash invariant ---');
