@@ -1918,15 +1918,44 @@ async function inspectPageForensics() {
         catch (e) { }
         return sel || (node.tagName ? node.tagName.toLowerCase() : '');
     }
+    const shadowRootsCache = new WeakMap();
     function querySelectorAllDeep(root, selector) {
         const results = [];
         try {
-            const direct = Array.from(root.querySelectorAll(selector));
-            results.push(...direct);
-            const allElements = Array.from(root.querySelectorAll('*'));
-            for (const el of allElements) {
-                if (el.shadowRoot) {
-                    results.push(...querySelectorAllDeep(el.shadowRoot, selector));
+            const direct = root.querySelectorAll(selector);
+            for (let i = 0; i < direct.length; i++) {
+                results.push(direct[i]);
+            }
+            let shadowRoots = shadowRootsCache.get(root);
+            if (!shadowRoots) {
+                shadowRoots = [];
+                const doc = root.ownerDocument || root || (typeof document !== 'undefined' ? document : null);
+                if (doc && typeof doc.createTreeWalker === 'function') {
+                    const filter = typeof NodeFilter !== 'undefined' ? NodeFilter.SHOW_ELEMENT : 1;
+                    const walker = doc.createTreeWalker(root, filter);
+                    let el = walker.nextNode();
+                    while (el) {
+                        if (el.shadowRoot) {
+                            shadowRoots.push(el.shadowRoot);
+                        }
+                        el = walker.nextNode();
+                    }
+                }
+                else {
+                    const allElements = root.querySelectorAll('*');
+                    for (let i = 0; i < allElements.length; i++) {
+                        const el = allElements[i];
+                        if (el.shadowRoot) {
+                            shadowRoots.push(el.shadowRoot);
+                        }
+                    }
+                }
+                shadowRootsCache.set(root, shadowRoots);
+            }
+            for (let i = 0; i < shadowRoots.length; i++) {
+                const sub = querySelectorAllDeep(shadowRoots[i], selector);
+                for (let j = 0; j < sub.length; j++) {
+                    results.push(sub[j]);
                 }
             }
         }

@@ -46,15 +46,46 @@ export async function inspectPageForensics() {
     return sel || (node.tagName ? node.tagName.toLowerCase() : '');
   }
 
+  const shadowRootsCache = new WeakMap<ParentNode, ShadowRoot[]>();
+
   function querySelectorAllDeep<T extends Element = Element>(root: ParentNode, selector: string): T[] {
     const results: T[] = [];
     try {
-      const direct = Array.from(root.querySelectorAll(selector)) as T[];
-      results.push(...direct);
-      const allElements = Array.from(root.querySelectorAll('*'));
-      for (const el of allElements) {
-        if (el.shadowRoot) {
-          results.push(...querySelectorAllDeep<T>(el.shadowRoot, selector));
+      const direct = root.querySelectorAll(selector);
+      for (let i = 0; i < direct.length; i++) {
+        results.push(direct[i] as T);
+      }
+
+      let shadowRoots = shadowRootsCache.get(root);
+      if (!shadowRoots) {
+        shadowRoots = [];
+        const doc = (root as any).ownerDocument || (root as Document) || (typeof document !== 'undefined' ? document : null);
+        if (doc && typeof doc.createTreeWalker === 'function') {
+          const filter = typeof NodeFilter !== 'undefined' ? NodeFilter.SHOW_ELEMENT : 1;
+          const walker = doc.createTreeWalker(root as Node, filter);
+          let el = walker.nextNode() as Element | null;
+          while (el) {
+            if (el.shadowRoot) {
+              shadowRoots.push(el.shadowRoot);
+            }
+            el = walker.nextNode() as Element | null;
+          }
+        } else {
+          const allElements = root.querySelectorAll('*');
+          for (let i = 0; i < allElements.length; i++) {
+            const el = allElements[i];
+            if (el.shadowRoot) {
+              shadowRoots.push(el.shadowRoot);
+            }
+          }
+        }
+        shadowRootsCache.set(root, shadowRoots);
+      }
+
+      for (let i = 0; i < shadowRoots.length; i++) {
+        const sub = querySelectorAllDeep<T>(shadowRoots[i], selector);
+        for (let j = 0; j < sub.length; j++) {
+          results.push(sub[j]);
         }
       }
     } catch {}
