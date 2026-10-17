@@ -1,5 +1,5 @@
 // Lost Revenue and Financial ROI Engine
-// Reverse-engineered MyWebAudit and Google/Deloitte conversion decay curve
+// Industry-standard Google/Deloitte conversion decay curve
 // Thresholds: LCP > 2.5s, INP > 200ms, CLS > 0.10
 // Decoupled latency conversion decay and visual friction penalties
 // Zero em-dash compliance: strictly hyphens or colons

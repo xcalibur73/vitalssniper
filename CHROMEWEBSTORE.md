@@ -17,13 +17,14 @@ Most site audit tools rely on third-party server queues, taking minutes to crawl
 
 WHAT IS NEW IN VERSION 1.6.1
 
-- Wappalyzer & BuiltWith Stack Signature Engine: Real-time runtime detection across 60+ platforms including Shopify, WooCommerce, WordPress, Elementor, Next.js, Meta Pixel, GA4, Klaviyo, and Cloudflare.
-- MyWebAudit Lost Revenue & Financial ROI Calculator: Computes estimated monthly and annual revenue loss based on Google/Deloitte latency decay curve when Core Web Vitals exceed thresholds.
-- Ahrefs HTTP Header & Redirect Chain Forensics: Parses x-robots-tag, canonical match, edge cache status, and redirect hops.
+- Full-Stack Technology Detection Engine: Real-time runtime detection across 60+ CMS platforms, visual site builders, analytics pixels, and frontend application frameworks.
+- Financial Revenue Leakage and Conversion ROI Calculator: Computes estimated monthly and annual revenue loss based on Google and Deloitte latency decay curves when Core Web Vitals exceed thresholds.
+- HTTP Header and Edge Cache Forensics: Parses x-robots-tag indexing directives, canonical URL parity, CDN edge cache status, and redirect hops.
 - Long Animation Frames (LoAF) Script Attribution: Tracks main-thread blocking scripts with exact duration, invoker type, and source URL to diagnose Interaction to Next Paint (INP) issues.
 - Layout Shift Live Tracking: Identifies cumulative layout shifts and flags shifting DOM elements with visual coordinates.
 - On-Page SEO Heading Hierarchy: Complete H1-H6 outline inspection with automated alerts for missing primary H1 tags, duplicates, and skipped-level hierarchy breaks.
 - Link Graph Forensics: Classifies internal vs external links, audits nofollow, sponsored, and UGC tags, and warns on empty anchor elements.
+- Search Bot Header Emulation: Simulates Googlebot, Bingbot, and GPTBot session headers to audit mobile-first cloaking and paywall gating.
 
 KEY AUDIT CAPABILITIES
 
@@ -119,6 +120,7 @@ English
 | tabs | permissions | Required to display the current website title, URL, and favicon in the inspector header and detect tab changes during an active audit session. |
 | scripting | permissions | Required to inject lightweight, non-destructive audit routines into the active page context to measure DOM tree depth and script tags. |
 | storage | permissions | Required to store user settings, local audit history, CRM prospect status records, and license keys locally in chrome.storage.local. |
+| declarativeNetRequest | permissions | Required for tab-isolated search crawler simulation (Googlebot Smartphone, Googlebot Desktop, Bingbot, GPTBot) via temporary session-scoped request header modification rules to audit mobile cloaking, paywall gating, and crawler rendering without affecting other tabs. |
 | &lt;all_urls&gt; | host_permissions | Required to enable user-initiated technical audits on any public website the user opens and inspects. |
 | https://vitalssniper-web.vercel.app/* | host_permissions | Required to validate subscription license keys and synchronize audit reports to the WebAudits.pro cloud workspace. |
 | https://webaudits.pro/* | host_permissions | Required to validate subscription license keys and synchronize audit reports to the WebAudits.pro cloud workspace. |
@@ -166,7 +168,7 @@ https://webaudits.pro/privacy
 
 ## Version History
 
-| 1.6.1 | 2026-10-17 | Wappalyzer stack signatures, MyWebAudit revenue loss calculator, Ahrefs HTTP headers, LoAF attribution, and H1-H6 heading hierarchy | Pending Submission |
+| 1.6.1 | 2026-10-17 | Full-stack technology signatures, revenue loss calculator, HTTP header forensics, LoAF attribution, and H1-H6 heading hierarchy | Pending Submission |
 | 1.6.0 | 2026-10-17 | Long Animation Frames (LoAF) script attribution, Layout Shift DOM tracking, H1-H6 heading hierarchy, and link graph forensics | Previous Submission |
 | 1.5.3 | 2026-10-12 | Brand Harmonization palette, demo key access, and competitor benchmark updates | Approved & Published |
 | 1.5.2 | 2026-10-09 | Production hardening: shadow root DOM traversal, testing key removal, and Quiet Paper theme alignment | Approved & Published |
@@ -177,7 +179,7 @@ https://webaudits.pro/privacy
 ## Review Notes
 
 ### Notes for the Reviewer
-Version 1.6.1 adds Wappalyzer & BuiltWith stack signatures, MyWebAudit revenue loss calculator, Ahrefs HTTP headers, Long Animation Frames (LoAF) PerformanceObserver, and on-page DOM heading and link metrics. All audits run locally on activeTab in the user's browser without external servers. Zero remote code execution, zero eval calls, and strict Manifest V3 compliance. Demo key 'r3dxlost88' is pre-configured to test all PRO features.
+Version 1.6.1 adds full-stack technology signatures, financial revenue loss calculation, HTTP header and edge cache forensics, Long Animation Frames (LoAF) PerformanceObserver, search bot header emulation, and on-page DOM heading and link metrics. All audits run locally on activeTab in the user's browser without external servers. Zero remote code execution, zero eval calls, and strict Manifest V3 compliance. Demo key 'r3dxlost88' is pre-configured to test all PRO features.
 
 ### Known Issues / Limitations
 None. All scripts are bundled locally inside the extension package with zero remote code execution, zero inline scripts, and zero eval calls in accordance with Chrome Web Store Manifest V3 guidelines.

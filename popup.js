@@ -2602,7 +2602,7 @@ function extractTechVersion(techName, doc, windowObj, rawHtml) {
 // ====================================================================
 
 // Lost Revenue and Financial ROI Engine
-// Reverse-engineered MyWebAudit and Google/Deloitte conversion decay curve
+// Industry-standard Google/Deloitte conversion decay curve
 // Thresholds: LCP > 2.5s, INP > 200ms, CLS > 0.10
 // Decoupled latency conversion decay and visual friction penalties
 // Zero em-dash compliance: strictly hyphens or colons
@@ -2686,7 +2686,7 @@ function calculateLostRevenue(lcpSec, inpMs, cls, isEcommerce, monthlyVisitors, 
 // ====================================================================
 
 // HTTP Header and Redirect Chain Forensics Engine
-// Reverse-engineered Ahrefs site audit header inspector
+// Edge cache, canonical match, and search indexing directives inspector
 // Zero em-dash compliance: strictly hyphens or colons
 function parseHttpHeaderForensics(headers, redirectCount = 0) {
     const norm = {};

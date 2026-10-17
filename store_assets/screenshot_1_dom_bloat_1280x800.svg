@@ -82,7 +82,7 @@
       <text x="0" y="16" class="font-sans" font-size="14" font-weight="500" fill="#5e5e5e">
         <tspan x="0" dy="0">Real-time client-side DOM audit with 0 queue delays.</tspan>
         <tspan x="0" dy="22">Pinpoint LCP, INP, CLS, and estimated lost revenue</tspan>
-        <tspan x="0" dy="22">with automated Wappalyzer stack signatures.</tspan>
+        <tspan x="0" dy="22">with automated technology stack signatures.</tspan>
       </text>
     </g>
 
@@ -100,7 +100,7 @@
       <g transform="translate(0, 76)">
         <rect width="360" height="64" rx="8" fill="#FFFFFF" stroke="#e3e3e3" stroke-width="1"/>
         <rect x="0" y="0" width="5" height="64" rx="2" fill="#2563eb"/>
-        <text x="16" y="23" class="font-sans" font-size="12" font-weight="800" fill="#1a1a1a">60+ Wappalyzer Stack Signatures</text>
+        <text x="16" y="23" class="font-sans" font-size="12" font-weight="800" fill="#1a1a1a">60+ Full-Stack Signatures</text>
         <text x="16" y="43" class="font-sans" font-size="10.5" fill="#5e5e5e">Detects Shopify, Next.js, Klaviyo, Meta, and Cloudflare.</text>
       </g>
 

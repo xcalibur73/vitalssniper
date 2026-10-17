@@ -1,5 +1,5 @@
 // HTTP Header and Redirect Chain Forensics Engine
-// Reverse-engineered Ahrefs site audit header inspector
+// Edge cache, canonical match, and search indexing directives inspector
 // Zero em-dash compliance: strictly hyphens or colons
 
 import { HttpHeaderForensics } from '../types/audit';

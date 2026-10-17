@@ -28,13 +28,14 @@ Most site audit tools rely on third-party server queues, taking minutes to crawl
 
 ### What is New in Version 1.6.1
 
-- Wappalyzer & BuiltWith Stack Signature Engine: Real-time runtime detection across 60+ platforms including Shopify, WooCommerce, WordPress, Elementor, Next.js, Meta Pixel, GA4, Klaviyo, and Cloudflare.
-- MyWebAudit Lost Revenue & Financial ROI Calculator: Computes estimated monthly and annual revenue loss based on Google/Deloitte latency decay curve when Core Web Vitals exceed thresholds.
-- Ahrefs HTTP Header & Redirect Chain Forensics: Parses x-robots-tag, canonical match, edge cache status, and redirect hops.
+- Full-Stack Technology Detection Engine: Real-time runtime detection across 60+ CMS platforms, visual site builders, analytics pixels, and frontend application frameworks.
+- Financial Revenue Leakage and Conversion ROI Calculator: Computes estimated monthly and annual revenue loss based on Google and Deloitte latency decay curves when Core Web Vitals exceed thresholds.
+- HTTP Header and Edge Cache Forensics: Parses x-robots-tag indexing directives, canonical URL parity, CDN edge cache status, and redirect hops.
 - Long Animation Frames (LoAF) Script Attribution: Tracks main-thread blocking scripts with exact duration, invoker type, and source URL to diagnose Interaction to Next Paint (INP) issues.
 - Layout Shift Live Tracking: Identifies cumulative layout shifts and flags shifting DOM elements with visual coordinates.
 - On-Page SEO Heading Hierarchy: Complete H1-H6 outline inspection with automated alerts for missing primary H1 tags, duplicates, and skipped-level hierarchy breaks.
 - Link Graph Forensics: Classifies internal vs external links, audits nofollow, sponsored, and UGC tags, and warns on empty anchor elements.
+- Search Bot Header Emulation: Simulates Googlebot, Bingbot, and GPTBot session headers to audit mobile-first cloaking and paywall gating.
 
 ### Core Audit Capabilities
 
@@ -95,6 +96,9 @@ Required to inject lightweight, non-destructive audit routines into the active t
 
 - storage:
 Required to save user preferences, local audit history, CRM prospect status records, and API key settings in local browser storage (`chrome.storage.local`).
+
+- declarativeNetRequest:
+Required to enable tab-isolated search crawler simulation (Googlebot Smartphone, Googlebot Desktop, Bingbot, and GPTBot) via session-scoped request header modification rules (`declarativeNetRequest.updateSessionRules`). This allows auditors to detect mobile cloaking, paywall gating, and crawler rendering on the active tab without altering global browser network traffic.
 
 - host_permissions:
   - `<all_urls>`: Required to allow the user to audit any arbitrary website they choose to inspect via activeTab invocation and compare against competitor URLs.
