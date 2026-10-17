@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initCompetitorModal();
   initPipelineDrawer();
   initBulkAuditModal();
+  initTabs();
 
   const defaultFinding: Finding = {
     id: 'baseline',
@@ -165,12 +166,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!/^https?:\/\//i.test(clean)) {
       clean = 'https://' + clean;
     }
-    let targetDomain = 'unknown';
-    try {
-      targetDomain = new URL(clean).hostname.replace(/^www\./, '');
-    } catch {
-      targetDomain = clean;
+    const domainCandidate = clean.replace(/^https?:\/\//i, '').split('/')[0].split('?')[0].split('#')[0].trim();
+    const urlPattern = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?::\d+)?$/;
+    if (!urlPattern.test(domainCandidate)) {
+      const td = document.getElementById('targetDomain');
+      if (td) td.innerText = 'Please enter a valid domain or URL (e.g. example.com).';
+      return;
     }
+    let targetDomain = domainCandidate.replace(/^www\./, '');
 
     const td = document.getElementById('targetDomain');
     if (td) td.innerText = targetDomain;
@@ -779,44 +782,93 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
     const cls = data.performance.cls || 0;
     const isEcom = (data.technologies || []).some((t: any) => t.category === 'Ecommerce') ||
                    (data.cms || []).some((c: string) => /shopify|woocommerce|magento|bigcommerce/i.test(c));
+    const hasLeadGen = Boolean(data.hasLeadGenForm);
 
-    const revenueLoss = calculateLostRevenue(lcpSec, inpMs, cls, isEcom);
+    const revenueLoss = calculateLostRevenue(lcpSec, inpMs, cls, isEcom, undefined, undefined, hasLeadGen);
     data.revenueLoss = revenueLoss;
 
-    let cardRev = document.getElementById('cardRevenueImpact');
-    if (!revenueLoss.isOptimal) {
-      if (!cardRev) {
-        cardRev = document.createElement('section');
-        cardRev.id = 'cardRevenueImpact';
-        cardRev.className = 'revenue-impact-card';
-        cardRev.style.cssText = 'margin: 10px 0; padding: 12px; background: rgba(225, 29, 72, 0.06); border: 1px solid rgba(225, 29, 72, 0.25); border-radius: 8px; font-family: system-ui, -apple-system, sans-serif;';
-
-        const flawBanner = document.getElementById('flawBanner');
-        if (flawBanner && flawBanner.parentNode) {
-          flawBanner.parentNode.insertBefore(cardRev, flawBanner);
-        } else {
-          document.querySelector('.container')?.appendChild(cardRev);
-        }
+    const cardRev = document.getElementById('cardRevenueImpact');
+    if (cardRev) {
+      if (!revenueLoss.isOptimal) {
+        cardRev.style.display = 'block';
+        cardRev.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #e11d48;">REVENUE LEAKAGE FORENSICS</span>
+            <span style="display: inline-block; padding: 2px 7px; font-size: 10px; font-weight: 700; border-radius: 4px; background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.4);">
+              ${revenueLoss.conversionDropPct}% CONVERSION DRAG
+            </span>
+          </div>
+          <div style="font-size: 15px; font-weight: 700; color: #e11d48; margin-bottom: 4px;">
+            Estimated Monthly Revenue Leaked: $${revenueLoss.lostMonthly.toLocaleString()}/mo
+          </div>
+          <div style="font-size: 11px; color: var(--color-muted); line-height: 1.4;">
+            ${escapeHtml(revenueLoss.roiHeadline)}
+          </div>
+        `;
+      } else {
+        cardRev.style.display = 'none';
       }
-
-      cardRev.style.display = 'block';
-      cardRev.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #e11d48;">REVENUE LEAKAGE FORENSICS</span>
-          <span style="display: inline-block; padding: 2px 7px; font-size: 10px; font-weight: 700; border-radius: 4px; background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.4);">
-            ${revenueLoss.conversionDropPct}% CONVERSION DRAG
-          </span>
-        </div>
-        <div style="font-size: 15px; font-weight: 700; color: #e11d48; margin-bottom: 4px;">
-          Estimated Monthly Revenue Leaked: $${revenueLoss.lostMonthly.toLocaleString()}/mo
-        </div>
-        <div style="font-size: 11px; color: var(--color-muted); line-height: 1.4;">
-          ${escapeHtml(revenueLoss.roiHeadline)}
-        </div>
-      `;
-    } else if (cardRev) {
-      cardRev.style.display = 'none';
     }
+
+    // 4d. Populate Forensics Tab Elements
+    const cwvLcpVal = document.getElementById('cwvLcpVal');
+    const cwvInpVal = document.getElementById('cwvInpVal');
+    const cwvClsVal = document.getElementById('cwvClsVal');
+    if (cwvLcpVal) cwvLcpVal.innerText = `${lcpSec.toFixed(2)}s`;
+    if (cwvInpVal) cwvInpVal.innerText = `${inpMs}ms`;
+    if (cwvClsVal) cwvClsVal.innerText = cls.toFixed(3);
+
+    const parts = data.performance.lcpSubparts;
+    const subpartTtfb = document.getElementById('subpartTtfb');
+    const subpartLoadDelay = document.getElementById('subpartLoadDelay');
+    const subpartLoadDuration = document.getElementById('subpartLoadDuration');
+    const subpartRenderDelay = document.getElementById('subpartRenderDelay');
+    if (parts) {
+      if (subpartTtfb) subpartTtfb.innerText = `${parts.ttfbMs || 0}ms`;
+      if (subpartLoadDelay) subpartLoadDelay.innerText = `${parts.loadDelayMs || 0}ms`;
+      if (subpartLoadDuration) subpartLoadDuration.innerText = `${parts.loadDurationMs || 0}ms`;
+      if (subpartRenderDelay) subpartRenderDelay.innerText = `${parts.renderDelayMs || 0}ms`;
+    }
+
+    const loafTableWrapper = document.getElementById('loafTableWrapper');
+    const loafSummaryText = document.getElementById('loafSummaryText');
+    const loafScripts = data.performance.loafAttribution?.longScripts || [];
+    if (loafTableWrapper) {
+      if (loafScripts.length > 0) {
+        if (loafSummaryText) loafSummaryText.innerText = `Attributed ${loafScripts.length} heavy script culprits:`;
+        let rows = '<table style="width:100%; font-size:10px; border-collapse:collapse;">';
+        loafScripts.slice(0, 4).forEach((s: any) => {
+          rows += `<tr><td style="padding:2px 0; color:var(--color-text);">${escapeHtml(s.scriptUrl || 'inline')}</td><td style="text-align:right; font-weight:700; color:var(--color-red);">${s.blockingDurationMs}ms</td></tr>`;
+        });
+        rows += '</table>';
+        loafTableWrapper.innerHTML = rows;
+      } else {
+        if (loafSummaryText) loafSummaryText.innerText = 'Main-thread execution telemetry:';
+        loafTableWrapper.innerHTML = '<div class="loaf-empty">0 Long Animation Frames detected (&gt;50ms). Main thread is responsive.</div>';
+      }
+    }
+
+    const hEdgeCache = document.getElementById('hEdgeCache');
+    const hRobotsTag = document.getElementById('hRobotsTag');
+    const hRedirectHops = document.getElementById('hRedirectHops');
+    const hSecurity = document.getElementById('hSecurity');
+    if (data.httpHeaders) {
+      if (hEdgeCache) hEdgeCache.innerText = data.httpHeaders.cacheStatus || 'Direct Origin';
+      if (hRobotsTag) hRobotsTag.innerText = data.httpHeaders.xRobotsTag || (data.httpHeaders.isNoindex ? 'noindex' : 'index, follow');
+      if (hRedirectHops) hRedirectHops.innerText = `${data.httpHeaders.redirectCount || 0} (${data.httpHeaders.redirectCount > 0 ? 'Chain' : 'Direct'})`;
+      if (hSecurity) hSecurity.innerText = 'HSTS Active';
+    }
+  }
+
+  // 4e. Populate SEO Outline Tree
+  const treeContainer = document.getElementById('headingTreeContainer');
+  const headingsData = data.seo?.headings;
+  if (treeContainer && headingsData && headingsData.tree && headingsData.tree.length > 0) {
+    let treeHtml = '';
+    headingsData.tree.slice(0, 8).forEach((node: any) => {
+      treeHtml += `<div class="heading-tree-item ${node.tag}-item" style="padding-left:${(node.level - 1) * 8}px;"><span class="h-tag">${node.tag.toUpperCase()}</span> <span class="h-text">${escapeHtml(node.text || 'Empty Heading')}</span></div>`;
+    });
+    treeContainer.innerHTML = treeHtml;
   }
 
   // 5. Evidence Engine Flaw Banner
@@ -1295,6 +1347,37 @@ function showProUpgradeModal(featureDescription: string) {
   }
 }
 
+function initTabs() {
+  const tabBtns = document.querySelectorAll<HTMLButtonElement>('.tab-btn');
+  const panes: Record<string, HTMLElement | null> = {
+    overview: document.getElementById('paneOverview'),
+    forensics: document.getElementById('paneForensics'),
+    seotree: document.getElementById('paneSeo'),
+    pitch: document.getElementById('panePitch')
+  };
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTab = btn.getAttribute('data-tab');
+      if (!targetTab) return;
+
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      Object.entries(panes).forEach(([tabId, pane]) => {
+        if (!pane) return;
+        if (tabId === targetTab) {
+          pane.style.display = 'flex';
+          pane.classList.add('active');
+        } else {
+          pane.style.display = 'none';
+          pane.classList.remove('active');
+        }
+      });
+    });
+  });
+}
+
 function initProUpgradeModal() {
   const modal = document.getElementById('proUpgradeModal');
   const btnClose = document.getElementById('proUpgradeClose');
@@ -1464,6 +1547,22 @@ function initCompetitorModal() {
     btnCompare.onclick = async () => {
       const url = input.value.trim();
       if (!url) return;
+
+      const compCandidate = url.replace(/^https?:\/\//i, '').split('/')[0].split('?')[0].split('#')[0].trim();
+      const urlPattern = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?::\d+)?$/;
+      if (!urlPattern.test(compCandidate)) {
+        const resultsArea = document.getElementById('comparisonResultsArea');
+        const tableBody = document.getElementById('comparisonTableBody');
+        if (resultsArea && tableBody) {
+          resultsArea.style.display = 'block';
+          tableBody.innerHTML = `
+            <tr><td colspan="4" style="color: var(--color-red); padding: 12px; font-size: 11px; font-weight: 600;">
+              Please enter a valid domain or URL (e.g. example.com).
+            </td></tr>
+          `;
+        }
+        return;
+      }
 
       btnCompare.innerText = 'Scanning...';
       const resultsArea = document.getElementById('comparisonResultsArea');

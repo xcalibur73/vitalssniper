@@ -63,169 +63,267 @@
       </div>
     </section>
 
-    <!-- 6 Diagnostic Metrics Grid -->
-    <section class="metrics-grid">
-      <!-- Card 1: DOM Elements -->
-      <div class="metric-card" id="cardDom">
-        <div class="metric-header">
-          <span class="metric-label">DOM Elements</span>
-          <span class="metric-tag" id="tagDom">--</span>
+    <!-- 4-Tab Segmented Navigation Bar -->
+    <nav class="tab-nav" role="tablist" aria-label="Audit Navigation">
+      <button type="button" class="tab-btn active" data-tab="overview" role="tab" id="tabBtnOverview">Overview</button>
+      <button type="button" class="tab-btn" data-tab="forensics" role="tab" id="tabBtnForensics">Forensics</button>
+      <button type="button" class="tab-btn" data-tab="seotree" role="tab" id="tabBtnSeo">SEO Tree</button>
+      <button type="button" class="tab-btn" data-tab="pitch" role="tab" id="tabBtnPitch">Client Pitch</button>
+    </nav>
+
+    <!-- TAB PANE 1: OVERVIEW -->
+    <div class="tab-pane active" id="paneOverview" role="tabpanel">
+      <!-- Revenue Impact Card Container -->
+      <section class="revenue-impact-card" id="cardRevenueImpact" style="display: none;"></section>
+
+      <!-- 6 Diagnostic Metrics Grid -->
+      <section class="metrics-grid">
+        <!-- Card 1: DOM Elements -->
+        <div class="metric-card" id="cardDom">
+          <div class="metric-header">
+            <span class="metric-label">DOM Elements</span>
+            <span class="metric-tag" id="tagDom">--</span>
+          </div>
+          <div class="metric-value" id="valDom">--</div>
+          <div class="metric-footer" id="descDom">Standard: &lt; 1,400</div>
         </div>
-        <div class="metric-value" id="valDom">--</div>
-        <div class="metric-footer" id="descDom">Standard: &lt; 1,400</div>
-      </div>
 
-      <!-- Card 2: Document Size -->
-      <div class="metric-card" id="cardSize">
-        <div class="metric-header">
-          <span class="metric-label">Page Payload</span>
-          <span class="metric-tag" id="tagSize">--</span>
+        <!-- Card 2: Document Size -->
+        <div class="metric-card" id="cardSize">
+          <div class="metric-header">
+            <span class="metric-label">Page Payload</span>
+            <span class="metric-tag" id="tagSize">--</span>
+          </div>
+          <div class="metric-value" id="valSize">--</div>
+          <div class="metric-footer" id="descSize">Budget: &lt; 45 KB</div>
         </div>
-        <div class="metric-value" id="valSize">--</div>
-        <div class="metric-footer" id="descSize">Budget: &lt; 45 KB</div>
-      </div>
 
-      <!-- Card 3: Mobile Viewport -->
-      <div class="metric-card" id="cardViewport">
-        <div class="metric-header">
-          <span class="metric-label">Mobile Scaling</span>
-          <span class="metric-tag" id="tagViewport">--</span>
+        <!-- Card 3: Mobile Viewport -->
+        <div class="metric-card" id="cardViewport">
+          <div class="metric-header">
+            <span class="metric-label">Mobile Scaling</span>
+            <span class="metric-tag" id="tagViewport">--</span>
+          </div>
+          <div class="metric-value" id="valViewport">--</div>
+          <div class="metric-footer" id="descViewport">WCAG Mobile Scale</div>
         </div>
-        <div class="metric-value" id="valViewport">--</div>
-        <div class="metric-footer" id="descViewport">WCAG Mobile Scale</div>
-      </div>
 
-      <!-- Card 4: AI & Schema Ready -->
-      <div class="metric-card" id="cardSchema">
-        <div class="metric-header">
-          <span class="metric-label">AI &amp; Schema</span>
-          <span class="metric-tag" id="tagSchema">--</span>
+        <!-- Card 4: AI & Schema Ready -->
+        <div class="metric-card" id="cardSchema">
+          <div class="metric-header">
+            <span class="metric-label">AI &amp; Schema</span>
+            <span class="metric-tag" id="tagSchema">--</span>
+          </div>
+          <div class="metric-value" id="valSchema">--</div>
+          <div class="metric-footer" id="descSchema">JSON-LD Entity Graph</div>
         </div>
-        <div class="metric-value" id="valSchema">--</div>
-        <div class="metric-footer" id="descSchema">JSON-LD Entity Graph</div>
-      </div>
 
-      <!-- Card 5: Scripts & Bloat -->
-      <div class="metric-card" id="cardAssets">
-        <div class="metric-header">
-          <span class="metric-label">Scripts &amp; Bloat</span>
-          <span class="metric-tag" id="tagAssets">--</span>
+        <!-- Card 5: Scripts & Bloat -->
+        <div class="metric-card" id="cardAssets">
+          <div class="metric-header">
+            <span class="metric-label">Scripts &amp; Bloat</span>
+            <span class="metric-tag" id="tagAssets">--</span>
+          </div>
+          <div class="metric-value" id="valAssets">--</div>
+          <div class="metric-footer" id="descAssets">Payload Analysis</div>
         </div>
-        <div class="metric-value" id="valAssets">--</div>
-        <div class="metric-footer" id="descAssets">Payload Analysis</div>
-      </div>
 
-      <!-- Card 6: Server TTFB -->
-      <div class="metric-card" id="cardSpeed">
-        <div class="metric-header">
-          <span class="metric-label">Server TTFB</span>
-          <span class="metric-tag" id="tagSpeed">--</span>
+        <!-- Card 6: Server TTFB -->
+        <div class="metric-card" id="cardSpeed">
+          <div class="metric-header">
+            <span class="metric-label">Server TTFB</span>
+            <span class="metric-tag" id="tagSpeed">--</span>
+          </div>
+          <div class="metric-value" id="valSpeed">--</div>
+          <div class="metric-footer" id="descSpeed">Response Latency</div>
         </div>
-        <div class="metric-value" id="valSpeed">--</div>
-        <div class="metric-footer" id="descSpeed">Response Latency</div>
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <!-- SEO & Structure Architecture Card -->
-    <section class="seo-structure-card" id="cardSeoStructure" style="display: none;">
-      <div class="seo-card-header">
-        <div class="seo-header-left">
-          <span class="seo-card-title">SEO &amp; STRUCTURE</span>
-          <span class="seo-canonical-pill tag-green" id="seoCanonicalPill" style="display: none;">Matches URL</span>
+    <!-- TAB PANE 2: FORENSICS & TELEMETRY -->
+    <div class="tab-pane" id="paneForensics" role="tabpanel" style="display: none;">
+      <section class="forensics-card" id="cardForensicsLcp">
+        <div class="forensics-header">
+          <span class="forensics-title">CORE WEB VITALS &amp; LCP SUBPARTS</span>
+          <span class="forensics-badge" id="cwvSummaryBadge">DIAGNOSTIC INSTRUMENT</span>
         </div>
-        <span class="seo-word-count-badge" id="seoWordCountBadge" style="display: none;">-- words</span>
-      </div>
-      <div class="seo-card-body">
-        <div class="seo-headings-row" id="seoHeadingsRow">
-          <span class="heading-summary-pill" id="headingSummaryPill" style="display: none;">H1: 0 | H2: 0 | H3: 0 | H4: 0</span>
-          <span class="heading-skipped-pill tag-amber" id="headingSkippedPill" style="display: none;">Skipped: H1 -&gt; H3</span>
+        <div class="cwv-trio-row" id="cwvTrioRow">
+          <div class="cwv-item" id="cwvLcpItem">
+            <span class="cwv-label">LCP</span>
+            <span class="cwv-value" id="cwvLcpVal">--</span>
+            <span class="cwv-status" id="cwvLcpStatus">Budget: 2.5s</span>
+          </div>
+          <div class="cwv-item" id="cwvInpItem">
+            <span class="cwv-label">INP</span>
+            <span class="cwv-value" id="cwvInpVal">--</span>
+            <span class="cwv-status" id="cwvInpStatus">Budget: 200ms</span>
+          </div>
+          <div class="cwv-item" id="cwvClsItem">
+            <span class="cwv-label">CLS</span>
+            <span class="cwv-value" id="cwvClsVal">--</span>
+            <span class="cwv-status" id="cwvClsStatus">Budget: 0.10</span>
+          </div>
         </div>
-        <div class="seo-links-chips" id="seoLinksChips">
-          <span class="seo-chip" id="chipInternal">Internal: 0</span>
-          <span class="seo-chip" id="chipExternal">External: 0</span>
-          <span class="seo-chip" id="chipNofollow">Nofollow: 0</span>
+        <div class="lcp-breakdown-box" id="lcpBreakdownBox">
+          <div class="lcp-subpart-item">
+            <span class="subpart-label">TTFB</span>
+            <span class="subpart-val" id="subpartTtfb">--</span>
+          </div>
+          <div class="lcp-subpart-item">
+            <span class="subpart-label">Resource Load Delay</span>
+            <span class="subpart-val" id="subpartLoadDelay">--</span>
+          </div>
+          <div class="lcp-subpart-item">
+            <span class="subpart-label">Resource Load Duration</span>
+            <span class="subpart-val" id="subpartLoadDuration">--</span>
+          </div>
+          <div class="lcp-subpart-item">
+            <span class="subpart-label">Element Render Delay</span>
+            <span class="subpart-val" id="subpartRenderDelay">--</span>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Primary Vulnerability Callout -->
-    <section class="flaw-banner" id="flawBanner">
-      <div class="flaw-banner-header">
-        <div class="flaw-header-left">
-          <span class="flaw-title">EVIDENCE ENGINE</span>
-          <span class="severity-badge critical" id="flawSeverityBadge">CRITICAL</span>
+      <section class="forensics-card" id="cardForensicsLoaf">
+        <div class="forensics-header">
+          <span class="forensics-title">LONG ANIMATION FRAMES (LoAF) &amp; SCRIPTS</span>
         </div>
-        <button class="btn-copy-hook" id="btnCopyHook" title="Copy hook sentence only">Copy Hook</button>
-      </div>
-      <div class="flaw-desc" id="flawDesc">Analyzing DOM structure and mobile bottlenecks...</div>
-      <div class="improvements-box" id="improvementsBox" style="display: none;">
-        <div class="improvements-title">
-          <svg class="imp-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#B76345" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 14h4M6.5 15.5h3M8 1a5 5 0 0 0-3.5 8.5c.8.8 1.5 2 1.5 3h4c0-1 .7-2.2 1.5-3A5 5 0 0 0 8 1z"/></svg>
-          <span>RECOMMENDED FIXES (0 DESIGN CHANGES):</span>
+        <div class="loaf-summary" id="loafSummaryText">Main-thread execution telemetry:</div>
+        <div class="loaf-table-wrapper" id="loafTableWrapper">
+          <div class="loaf-empty" id="loafEmptyMsg">Evaluating scripts and animation frame durations...</div>
         </div>
-        <ul class="improvements-list" id="improvementsList"></ul>
-      </div>
-    </section>
+      </section>
 
-    <!-- Outreach Channel Segmented Control & Tone Variations -->
-    <section class="channel-section">
-      <div class="tone-bar">
-        <span class="tone-label">AI TONE:</span>
-        <div class="tone-tabs">
-          <button class="tone-tab active" data-tone="data-driven" id="toneDataDriven">Data</button>
-          <button class="tone-tab" data-tone="urgency" id="toneUrgency">Urgency</button>
-          <button class="tone-tab" data-tone="soft-sell" id="toneSoftSell">Soft-Sell</button>
-          <button class="tone-tab" data-tone="aggressive" id="toneAggressive">Direct</button>
+      <section class="forensics-card" id="cardForensicsHeaders">
+        <div class="forensics-header">
+          <span class="forensics-title">HTTP HEADER &amp; CACHE FORENSICS</span>
         </div>
-      </div>
+        <div class="header-forensics-grid" id="headerForensicsGrid">
+          <div class="header-item"><span class="h-label">Edge Cache:</span> <span class="h-val" id="hEdgeCache">Direct Origin</span></div>
+          <div class="header-item"><span class="h-label">X-Robots-Tag:</span> <span class="h-val" id="hRobotsTag">index, follow</span></div>
+          <div class="header-item"><span class="h-label">Redirect Hops:</span> <span class="h-val" id="hRedirectHops">0 (Direct)</span></div>
+          <div class="header-item"><span class="h-label">Security Header:</span> <span class="h-val" id="hSecurity">HSTS Active</span></div>
+        </div>
+      </section>
+    </div>
 
-      <div class="channel-tabs">
-        <button class="channel-tab active" data-channel="email" id="tabEmail">Cold Email</button>
-        <button class="channel-tab" data-channel="merchant" id="tabMerchant">Merchant</button>
-        <button class="channel-tab" data-channel="agency" id="tabAgency">Agency</button>
-        <button class="channel-tab" data-channel="dm" id="tabDm">LinkedIn DM</button>
-        <button class="channel-tab" data-channel="loom" id="tabLoom">Loom Pitch</button>
-      </div>
+    <!-- TAB PANE 3: SEO TREE & LINK GRAPH -->
+    <div class="tab-pane" id="paneSeo" role="tabpanel" style="display: none;">
+      <!-- SEO & Structure Architecture Card -->
+      <section class="seo-structure-card" id="cardSeoStructure">
+        <div class="seo-card-header">
+          <div class="seo-header-left">
+            <span class="seo-card-title">SEO &amp; STRUCTURE</span>
+            <span class="seo-canonical-pill tag-green" id="seoCanonicalPill" style="display: none;">Matches URL</span>
+          </div>
+          <span class="seo-word-count-badge" id="seoWordCountBadge" style="display: none;">-- words</span>
+        </div>
+        <div class="seo-card-body">
+          <div class="seo-headings-row" id="seoHeadingsRow">
+            <span class="heading-summary-pill" id="headingSummaryPill" style="display: none;">H1: 0 | H2: 0 | H3: 0 | H4: 0</span>
+            <span class="heading-skipped-pill tag-amber" id="headingSkippedPill" style="display: none;">Skipped: H1 -&gt; H3</span>
+          </div>
+          <div class="seo-links-chips" id="seoLinksChips">
+            <span class="seo-chip" id="chipInternal">Internal: 0</span>
+            <span class="seo-chip" id="chipExternal">External: 0</span>
+            <span class="seo-chip" id="chipNofollow">Nofollow: 0</span>
+          </div>
+        </div>
+      </section>
 
-      <div class="email-box" id="emailPreviewBox">Generating tailored outreach copy...</div>
-    </section>
+      <!-- Headings Outline Tree Preview Container -->
+      <section class="seo-structure-card" id="cardHeadingOutline">
+        <div class="seo-card-header">
+          <span class="seo-card-title">HEADINGS OUTLINE (H1 - H6)</span>
+        </div>
+        <div class="heading-tree-container" id="headingTreeContainer">
+          <div class="heading-tree-item h1-item"><span class="h-tag">H1</span> <span class="h-text" id="treeH1Text">Primary Page Heading</span></div>
+          <div class="heading-tree-item h2-item"><span class="h-tag">H2</span> <span class="h-text" id="treeH2Text">Secondary Section Heading</span></div>
+        </div>
+      </section>
+    </div>
 
-    <!-- Action Buttons -->
-    <section class="action-section">
-      <div class="primary-action-row">
-        <button class="btn-primary" id="btnCopyEmail">
-          <span class="btn-text" id="btnCopyText">Copy 3-Sentence Email</span>
-        </button>
-        <button class="btn-pipeline-save" id="btnSavePipeline" title="Save prospect to lead pipeline">
-          <span id="savePipelineIcon"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3 2h10a1 1 0 0 1 1 1v11l-6-3.5L2 14V3a1 1 0 0 1 1-1z"/></svg></span>
-          <span id="savePipelineText">Save</span>
-        </button>
-      </div>
+    <!-- TAB PANE 4: CLIENT PITCH & OUTREACH DECK -->
+    <div class="tab-pane" id="panePitch" role="tabpanel" style="display: none;">
+      <!-- Primary Vulnerability Callout -->
+      <section class="flaw-banner" id="flawBanner">
+        <div class="flaw-banner-header">
+          <div class="flaw-header-left">
+            <span class="flaw-title">EVIDENCE ENGINE</span>
+            <span class="severity-badge critical" id="flawSeverityBadge">CRITICAL</span>
+          </div>
+          <button class="btn-copy-hook" id="btnCopyHook" title="Copy hook sentence only">Copy Hook</button>
+        </div>
+        <div class="flaw-desc" id="flawDesc">Analyzing DOM structure and mobile bottlenecks...</div>
+        <div class="improvements-box" id="improvementsBox" style="display: none;">
+          <div class="improvements-title">
+            <svg class="imp-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#B76345" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 14h4M6.5 15.5h3M8 1a5 5 0 0 0-3.5 8.5c.8.8 1.5 2 1.5 3h4c0-1 .7-2.2 1.5-3A5 5 0 0 0 8 1z"/></svg>
+            <span>RECOMMENDED FIXES (0 DESIGN CHANGES):</span>
+          </div>
+          <ul class="improvements-list" id="improvementsList"></ul>
+        </div>
+      </section>
 
-      <div class="utility-grid">
-        <button class="btn-secondary" id="btnExportCard" title="Open confidential 1-page executive teardown">
-          <span>1-Page PDF</span>
-        </button>
+      <!-- Outreach Channel Segmented Control & Tone Variations -->
+      <section class="channel-section">
+        <div class="tone-bar">
+          <span class="tone-label">AI TONE:</span>
+          <div class="tone-tabs">
+            <button class="tone-tab active" data-tone="data-driven" id="toneDataDriven">Data</button>
+            <button class="tone-tab" data-tone="urgency" id="toneUrgency">Urgency</button>
+            <button class="tone-tab" data-tone="soft-sell" id="toneSoftSell">Soft-Sell</button>
+            <button class="tone-tab" data-tone="aggressive" id="toneAggressive">Direct</button>
+          </div>
+        </div>
 
-        <button class="btn-secondary" id="btnHighlightLcp" title="Highlight Largest Contentful Paint (LCP) element on live page">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" style="margin-right: 4px;"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2" fill="currentColor"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg>
-          <span>Highlight LCP</span>
-        </button>
+        <div class="channel-tabs">
+          <button class="channel-tab active" data-channel="email" id="tabEmail">Cold Email</button>
+          <button class="channel-tab" data-channel="merchant" id="tabMerchant">Merchant</button>
+          <button class="channel-tab" data-channel="agency" id="tabAgency">Agency</button>
+          <button class="channel-tab" data-channel="dm" id="tabDm">LinkedIn DM</button>
+          <button class="channel-tab" data-channel="loom" id="tabLoom">Loom Pitch</button>
+        </div>
 
-        <button class="btn-secondary" id="btnBulkAudit" title="Audit multiple prospect URLs in batch">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true" style="margin-right: 4px;"><path d="M1 5l7-3 7 3-7 3-7-3z"/><path d="M1 8.5l7 3 7-3M1 12l7 3 7-3"/></svg>
-          <span>Bulk Audit</span>
-        </button>
+        <div class="email-box" id="emailPreviewBox">Generating tailored outreach copy...</div>
+      </section>
 
-        <button class="btn-secondary" id="btnPageSpeed" title="Test URL on Google PageSpeed Insights">
-          <span>PageSpeed</span>
-        </button>
+      <!-- Action Buttons -->
+      <section class="action-section">
+        <div class="primary-action-row">
+          <button class="btn-primary" id="btnCopyEmail">
+            <span class="btn-text" id="btnCopyText">Copy 3-Sentence Email</span>
+          </button>
+          <button class="btn-pipeline-save" id="btnSavePipeline" title="Save prospect to lead pipeline">
+            <span id="savePipelineIcon"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3 2h10a1 1 0 0 1 1 1v11l-6-3.5L2 14V3a1 1 0 0 1 1-1z"/></svg></span>
+            <span id="savePipelineText">Save</span>
+          </button>
+        </div>
 
-        <button class="btn-secondary" id="btnCopyJson" title="Copy raw diagnostic metrics JSON">
-          <span>JSON</span>
-        </button>
-      </div>
-    </section>
+        <div class="utility-grid">
+          <button class="btn-secondary" id="btnExportCard" title="Open confidential 1-page executive teardown">
+            <span>1-Page PDF</span>
+          </button>
+
+          <button class="btn-secondary" id="btnHighlightLcp" title="Highlight Largest Contentful Paint (LCP) element on live page">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" style="margin-right: 4px;"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2" fill="currentColor"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg>
+            <span>Highlight LCP</span>
+          </button>
+
+          <button class="btn-secondary" id="btnBulkAudit" title="Audit multiple prospect URLs in batch">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true" style="margin-right: 4px;"><path d="M1 5l7-3 7 3-7 3-7-3z"/><path d="M1 8.5l7 3 7-3M1 12l7 3 7-3"/></svg>
+            <span>Bulk Audit</span>
+          </button>
+
+          <button class="btn-secondary" id="btnPageSpeed" title="Test URL on Google PageSpeed Insights">
+            <span>PageSpeed</span>
+          </button>
+
+          <button class="btn-secondary" id="btnCopyJson" title="Copy raw diagnostic metrics JSON">
+            <span>JSON</span>
+          </button>
+        </div>
+      </section>
+    </div>
 
     <!-- Hidden compatibility elements to preserve JS contract -->
     <div id="healthBarFill" style="display:none;"></div>

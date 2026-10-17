@@ -923,7 +923,14 @@ export async function inspectPageForensics() {
   } catch (e) {}
 
   // Heading Hierarchy Engine: Parse DOM order, track counts, skipped levels, and duplicate/missing H1
-  const headingElements = Array.from(document.querySelectorAll<HTMLElement>('h1, h2, h3, h4, h5, h6'));
+  // False-positive guard: exclude hidden navigation drawers, aria-hidden modals, and display:none containers
+  const isVisibleHeading = (el: HTMLElement) => {
+    if (el.closest('[aria-hidden="true"], [hidden], [style*="display: none"], [style*="display:none"]')) return false;
+    if (el.offsetParent === null && window.getComputedStyle(el).display === 'none') return false;
+    return true;
+  };
+
+  const headingElements = Array.from(document.querySelectorAll<HTMLElement>('h1, h2, h3, h4, h5, h6')).filter(isVisibleHeading);
   const headingTree: Array<{ tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'; level: number; text: string }> = [];
   const skippedLevels: Array<{ fromTag: string; toTag: string; headingText: string }> = [];
   let h1Count = 0;
@@ -1036,10 +1043,28 @@ export async function inspectPageForensics() {
     emptyAnchorCount
   };
 
-  // Meta & Canonical Match Engine
+  // Meta & Canonical Match Engine (Normalized tracking parameters)
+  const stripTrackingParams = (rawUrl: string): string => {
+    try {
+      const u = new URL(rawUrl);
+      const trackingKeys = ['ref', 'gclid', 'fbclid', 'mc_eid', 'aff', 'source'];
+      Array.from(u.searchParams.keys()).forEach(key => {
+        const lowerKey = key.toLowerCase();
+        if (lowerKey.startsWith('utm_') || trackingKeys.includes(lowerKey)) {
+          u.searchParams.delete(key);
+        }
+      });
+      const pathname = u.pathname.length > 1 ? u.pathname.replace(/\/+$/, '') : u.pathname;
+      const search = u.search ? u.search : '';
+      return `${u.origin}${pathname}${search}`;
+    } catch {
+      return (rawUrl || '').replace(/\/+$/, '');
+    }
+  };
+
   const canonicalFullHref = canonicalEl ? ((canonicalEl as HTMLLinkElement).href || canonicalEl.getAttribute('href') || '') : null;
   const canonicalMatchesUrl = canonicalFullHref
-    ? canonicalFullHref.replace(/\/+$/, '') === window.location.href.replace(/\/+$/, '')
+    ? stripTrackingParams(canonicalFullHref) === stripTrackingParams(window.location.href)
     : null;
   const robotsMetaContent = (robotsEl?.getAttribute('content') || '').toLowerCase();
   const isNoindex = robotsMetaContent.includes('noindex');

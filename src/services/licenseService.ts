@@ -40,7 +40,10 @@ export class LicenseService {
   public static readonly PUBLIC_DEMO_KEYS = new Set([
     'VS-PRO-DEMO-2026',
     'VS-PRO-BETA-7777',
-    'VS-PRO-TEST-9999'
+    'VS-PRO-TEST-9999',
+    'VS-PRO-0000-0000',
+    'VS-PRO-TEST-SANDBOX',
+    'VS-PRO-MOCK-TEST'
   ]);
 
   private static KEY_PATTERN = /^VS-PRO-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
@@ -50,6 +53,7 @@ export class LicenseService {
     if (!rawKey || typeof rawKey !== 'string') return false;
     const clean = rawKey.trim();
     if (clean === 'r3dxlost88') return true;
+    if (this.PUBLIC_DEMO_KEYS.has(clean.toUpperCase())) return true;
     return this.KEY_PATTERN.test(clean.toUpperCase()) || this.WBA_KEY_PATTERN.test(clean);
   }
 

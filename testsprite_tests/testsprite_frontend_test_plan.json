@@ -1,8 +1,8 @@
 [
   {
     "id": "TC001",
-    "title": "Run a manual audit on a target site",
-    "description": "Verifies that a user can enter a target URL, run a manual audit, and review the resulting health score and telemetry details.",
+    "title": "Run a manual audit and review key diagnostics",
+    "description": "This verifies that a user can inspect a target site in the popup, run a manual audit, and see the resulting health score, Core Web Vitals telemetry, and DOM diagnostics.",
     "category": "Core Web Vitals and DOM Diagnostics",
     "steps": [
       {
@@ -11,11 +11,11 @@
       },
       {
         "type": "action",
-        "description": "Enter a target URL in the manual target input"
+        "description": "Fill in the manual target URL field with a valid website URL"
       },
       {
         "type": "action",
-        "description": "Run a manual audit"
+        "description": "Run the manual audit"
       },
       {
         "type": "assertion",
@@ -23,15 +23,48 @@
       },
       {
         "type": "assertion",
-        "description": "Verify telemetry cards and LCP breakdown details are displayed"
+        "description": "Verify Core Web Vitals telemetry is displayed"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC002",
-    "title": "Audit the active target site context",
-    "description": "Verifies that a user can use the active site context to run a manual audit and review Core Web Vitals diagnostics and attribution details.",
+    "title": "Activate Pro with a valid license key",
+    "description": "This verifies that entering a valid license or API key activates Pro and updates the subscription status in the popup.",
+    "category": "License Activation and Cloud Sync",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
+      },
+      {
+        "type": "action",
+        "description": "Open the activation modal"
+      },
+      {
+        "type": "action",
+        "description": "Enter {{LOGIN_USER}} into the license or API key field"
+      },
+      {
+        "type": "action",
+        "description": "Activate the license"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify premium subscription status is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify activation success is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Review the full LCP breakdown after an audit",
+    "description": "This verifies that a completed audit exposes the detailed four-part LCP breakdown needed for performance analysis.",
     "category": "Core Web Vitals and DOM Diagnostics",
     "steps": [
       {
@@ -40,23 +73,213 @@
       },
       {
         "type": "action",
-        "description": "Run a manual audit using the active target site context"
+        "description": "Fill in the manual target URL field with a valid website URL"
+      },
+      {
+        "type": "action",
+        "description": "Run the manual audit"
       },
       {
         "type": "assertion",
-        "description": "Verify Core Web Vitals diagnostics are displayed"
+        "description": "Verify the LCP breakdown is displayed"
       },
       {
         "type": "assertion",
-        "description": "Verify element-level attribution details are displayed"
+        "description": "Verify all LCP subparts are available"
       }
     ],
     "priority": "High"
   },
   {
-    "id": "TC003",
-    "title": "Save a prospect to the lead pipeline",
-    "description": "Verifies that a user can save the current prospect site and see the new lead appear in the saved pipeline.",
+    "id": "TC004",
+    "title": "Use the active tab as the audit target",
+    "description": "This verifies that a user can run an audit without manually entering a URL by using the current page as the target.",
+    "category": "Core Web Vitals and DOM Diagnostics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
+      },
+      {
+        "type": "action",
+        "description": "Use the current page as the audit target"
+      },
+      {
+        "type": "action",
+        "description": "Run the manual audit"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a health score is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify telemetry results are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Compare a target site against a competitor URL",
+    "description": "This verifies that a user can launch a competitor comparison from the popup and view the resulting win-loss metrics for pitching.",
+    "category": "Core Web Vitals and DOM Diagnostics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the manual target URL field with a valid website URL"
+      },
+      {
+        "type": "action",
+        "description": "Enter a competitor URL"
+      },
+      {
+        "type": "action",
+        "description": "Run the competitor comparison"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify comparison results are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify win-loss metrics are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Copy an outreach script for use in another app",
+    "description": "This verifies that a generated outreach script can be copied so the user can paste it into another app.",
+    "category": "Outreach Script Generator",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
+      },
+      {
+        "type": "action",
+        "description": "Switch to an outreach channel"
+      },
+      {
+        "type": "action",
+        "description": "Select a pitch tone"
+      },
+      {
+        "type": "action",
+        "description": "Copy the generated script"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a copy confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the generated script remains displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Generate an outreach script with a chosen channel and tone",
+    "description": "This verifies that a user can switch outreach format and tone and receive a generated script suitable for pitching.",
+    "category": "Outreach Script Generator",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
+      },
+      {
+        "type": "action",
+        "description": "Switch to an outreach channel"
+      },
+      {
+        "type": "action",
+        "description": "Select a pitch tone"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an outreach script is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected tone is reflected in the generated script"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Run a head-to-head comparison and review the results",
+    "description": "This verifies that a user can enter a competitor URL, run a comparison, and see the win/loss metrics rendered in the popup.",
+    "category": "Head-to-Head Competitor Comparison",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
+      },
+      {
+        "type": "action",
+        "description": "Click the competitor comparison control"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid competitor website URL into the competitor field"
+      },
+      {
+        "type": "action",
+        "description": "Run the head-to-head comparison"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify comparative metrics are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a win/loss breakdown is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Inspect DOM element counts and issue breakdown",
+    "description": "This verifies that a user can review DOM diagnostics from the popup and see element counts or problem indicators after an audit.",
+    "category": "Core Web Vitals and DOM Diagnostics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the manual target URL field with a valid website URL"
+      },
+      {
+        "type": "action",
+        "description": "Run the manual audit"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify DOM diagnostics are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify DOM element counts are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Save the inspected site as a lead",
+    "description": "This verifies that a user can add the current prospect site to the saved lead pipeline from the popup.",
     "category": "Saved Lead Pipeline",
     "steps": [
       {
@@ -65,24 +288,65 @@
       },
       {
         "type": "action",
-        "description": "Save the current prospect site"
+        "description": "Fill in the manual target URL field with a valid website URL"
+      },
+      {
+        "type": "action",
+        "description": "Save the current site as a lead"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the lead was saved"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved lead appears in the pipeline"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Manage a saved lead in the pipeline",
+    "description": "This verifies that a user can open the saved lead pipeline, change a lead stage, and delete a lead when needed.",
+    "category": "Saved Lead Pipeline",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
       },
       {
         "type": "action",
         "description": "Open the saved lead pipeline"
       },
       {
+        "type": "action",
+        "description": "Select an existing lead"
+      },
+      {
+        "type": "action",
+        "description": "Change the lead stage"
+      },
+      {
+        "type": "action",
+        "description": "Delete the lead"
+      },
+      {
         "type": "assertion",
-        "description": "Verify the saved lead entry is displayed"
+        "description": "Verify the lead is removed from the pipeline"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the pipeline remains accessible"
       }
     ],
     "priority": "High"
   },
   {
-    "id": "TC004",
-    "title": "Generate an outreach script for each channel",
-    "description": "Verifies that a user can switch among outreach channels and generate a usable pitch script for the selected channel.",
-    "category": "Outreach Script Generator",
+    "id": "TC012",
+    "title": "Generate and copy an outreach script",
+    "description": "This verifies that a user can generate an outreach script for a chosen channel and tone, then copy the result for use elsewhere.",
+    "category": "Outreach Script Generation",
     "steps": [
       {
         "type": "action",
@@ -90,126 +354,19 @@
       },
       {
         "type": "action",
-        "description": "Open the outreach generator"
+        "description": "Open the outreach script generator"
       },
       {
         "type": "action",
-        "description": "Switch to the Email channel"
+        "description": "Select a valid outreach channel"
       },
       {
         "type": "action",
-        "description": "Switch to the Merchant Pitch channel"
+        "description": "Select a valid tone"
       },
       {
         "type": "action",
-        "description": "Switch to the Agency Pitch channel"
-      },
-      {
-        "type": "action",
-        "description": "Switch to the DM channel"
-      },
-      {
-        "type": "action",
-        "description": "Switch to the Loom channel"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a generated outreach script is displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC005",
-    "title": "Run a head-to-head comparison against a competitor site",
-    "description": "This verifies that a user can open competitor comparison, enter a competitor URL, run the comparison, and review the performance breakdown.",
-    "category": "Head-to-Head Competitor Comparison",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /popup.html"
-      },
-      {
-        "type": "action",
-        "description": "Click the competitor comparison control"
-      },
-      {
-        "type": "action",
-        "description": "Enter a valid competitor website URL into the competitor field"
-      },
-      {
-        "type": "action",
-        "description": "Run the head-to-head comparison"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify comparative metrics are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a win-loss breakdown is displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC006",
-    "title": "Compare the current target against a competitor after using the active site",
-    "description": "This verifies that the comparison flow works when the user uses the currently active target site instead of entering a new target first.",
-    "category": "Head-to-Head Competitor Comparison",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /popup.html"
-      },
-      {
-        "type": "action",
-        "description": "Click the competitor comparison control"
-      },
-      {
-        "type": "action",
-        "description": "Enter a valid competitor website URL into the competitor field"
-      },
-      {
-        "type": "action",
-        "description": "Run the head-to-head comparison"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the target site is included in the comparison results"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify comparative metrics are displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC007",
-    "title": "Update outreach tone and copy the script",
-    "description": "Verifies that changing the outreach tone updates the generated script and that the user can copy it to the clipboard.",
-    "category": "Outreach Script Generator",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /popup.html"
-      },
-      {
-        "type": "action",
-        "description": "Open the outreach generator"
-      },
-      {
-        "type": "action",
-        "description": "Select the Data-Driven tone"
-      },
-      {
-        "type": "action",
-        "description": "Select the Urgency tone"
-      },
-      {
-        "type": "action",
-        "description": "Select the Soft-Sell tone"
+        "description": "Generate the outreach script"
       },
       {
         "type": "action",
@@ -217,7 +374,7 @@
       },
       {
         "type": "assertion",
-        "description": "Verify the outreach script reflects the selected tone"
+        "description": "Verify a generated outreach script is displayed"
       },
       {
         "type": "assertion",
@@ -227,9 +384,9 @@
     "priority": "High"
   },
   {
-    "id": "TC008",
-    "title": "Change a saved lead deal status",
-    "description": "Verifies that a user can update a lead's deal status and keep the pipeline organized with the new status reflected.",
+    "id": "TC013",
+    "title": "Change a saved lead stage and keep it in the pipeline",
+    "description": "This verifies that a user can open the saved lead pipeline, update a lead stage, and see the updated lead remain in the list.",
     "category": "Saved Lead Pipeline",
     "steps": [
       {
@@ -238,97 +395,31 @@
       },
       {
         "type": "action",
-        "description": "Save the current prospect site"
+        "description": "Save the current site as a lead"
       },
       {
         "type": "action",
-        "description": "Open the saved lead pipeline"
+        "description": "Open the saved lead pipeline drawer"
       },
       {
         "type": "action",
-        "description": "Change the lead deal status"
+        "description": "Change the saved lead stage"
       },
       {
         "type": "assertion",
-        "description": "Verify the updated deal status is displayed"
+        "description": "Verify the lead remains in the pipeline"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated stage is shown"
       }
     ],
-    "priority": "Medium"
+    "priority": "High"
   },
   {
-    "id": "TC009",
-    "title": "Activate Pro with a valid license key",
-    "description": "This verifies that a user can open activation, submit a valid key, and see the subscription status update successfully.",
-    "category": "License Activation and Cloud Sync",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /popup.html"
-      },
-      {
-        "type": "action",
-        "description": "Click the PRO badge or upgrade control"
-      },
-      {
-        "type": "action",
-        "description": "Enter a valid license key into the activation field"
-      },
-      {
-        "type": "action",
-        "description": "Activate the license"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a success confirmation is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the active subscription badge is visible"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC010",
-    "title": "Start cloud vault synchronization after activation",
-    "description": "This verifies that a user can activate Pro and then start cloud vault synchronization successfully.",
-    "category": "License Activation and Cloud Sync",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /popup.html"
-      },
-      {
-        "type": "action",
-        "description": "Click the PRO badge or upgrade control"
-      },
-      {
-        "type": "action",
-        "description": "Enter a valid activation key into the activation field"
-      },
-      {
-        "type": "action",
-        "description": "Activate the license"
-      },
-      {
-        "type": "action",
-        "description": "Start cloud vault synchronization"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify cloud synchronization is active"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the active subscription badge is visible"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC011",
-    "title": "Delete a lead from the pipeline",
-    "description": "Verifies that a user can remove a lead from the saved pipeline and no longer see it in the list.",
+    "id": "TC014",
+    "title": "Export the saved lead pipeline to CSV",
+    "description": "This verifies that a user can export their saved leads as a CSV file from the pipeline drawer.",
     "category": "Saved Lead Pipeline",
     "steps": [
       {
@@ -337,36 +428,11 @@
       },
       {
         "type": "action",
-        "description": "Save the current prospect site"
+        "description": "Save the current site as a lead"
       },
       {
         "type": "action",
-        "description": "Open the saved lead pipeline"
-      },
-      {
-        "type": "action",
-        "description": "Delete the lead"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the lead is removed from the pipeline"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC012",
-    "title": "Export the lead pipeline as CSV",
-    "description": "Verifies that a user can export the saved leads list as a CSV file from the pipeline.",
-    "category": "Saved Lead Pipeline",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /popup.html"
-      },
-      {
-        "type": "action",
-        "description": "Open the saved lead pipeline"
+        "description": "Open the saved lead pipeline drawer"
       },
       {
         "type": "action",
@@ -374,134 +440,19 @@
       },
       {
         "type": "assertion",
-        "description": "Verify a CSV export confirmation is visible"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC013",
-    "title": "Save agency branding details",
-    "description": "This verifies that a user can enter agency branding details and save them for white-label use.",
-    "category": "Agency White-Label Branding Settings",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /popup.html"
-      },
-      {
-        "type": "action",
-        "description": "Click the agency settings control"
-      },
-      {
-        "type": "action",
-        "description": "Enter an agency brand name into the brand name field"
-      },
-      {
-        "type": "action",
-        "description": "Enter an auditor name into the auditor name field"
-      },
-      {
-        "type": "action",
-        "description": "Enter a website into the website field"
-      },
-      {
-        "type": "action",
-        "description": "Save the settings"
+        "description": "Verify the export action completes"
       },
       {
         "type": "assertion",
-        "description": "Verify the saved branding details are retained"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a success confirmation is visible"
+        "description": "Verify the pipeline remains visible after export"
       }
     ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC014",
-    "title": "Keep agency branding after reopening settings",
-    "description": "This verifies that saved white-label branding values remain available after the user returns to the settings panel.",
-    "category": "Agency White-Label Branding Settings",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /popup.html"
-      },
-      {
-        "type": "action",
-        "description": "Click the agency settings control"
-      },
-      {
-        "type": "action",
-        "description": "Enter an agency brand name into the brand name field"
-      },
-      {
-        "type": "action",
-        "description": "Enter an auditor name into the auditor name field"
-      },
-      {
-        "type": "action",
-        "description": "Enter a website into the website field"
-      },
-      {
-        "type": "action",
-        "description": "Save the settings"
-      },
-      {
-        "type": "action",
-        "description": "Close the settings panel"
-      },
-      {
-        "type": "action",
-        "description": "Open the agency settings control again"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the saved branding details are retained"
-      }
-    ],
-    "priority": "Medium"
+    "priority": "High"
   },
   {
     "id": "TC015",
-    "title": "Reject an empty competitor URL",
-    "description": "This verifies that the comparison modal prevents running a comparison when the competitor URL is missing and shows validation feedback.",
-    "category": "Head-to-Head Competitor Comparison",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /popup.html"
-      },
-      {
-        "type": "action",
-        "description": "Click the competitor comparison control"
-      },
-      {
-        "type": "action",
-        "description": "Leave the competitor URL field empty"
-      },
-      {
-        "type": "action",
-        "description": "Run the head-to-head comparison"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a URL validation error is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify no comparison results are displayed"
-      }
-    ],
-    "priority": "Low"
-  },
-  {
-    "id": "TC016",
-    "title": "Show duplicate save handling for a prospect",
-    "description": "Verifies that saving the same current prospect again does not create a duplicate lead entry.",
+    "title": "Delete a saved lead from the pipeline",
+    "description": "This verifies that a user can remove a saved lead from the pipeline and no longer see it listed.",
     "category": "Saved Lead Pipeline",
     "steps": [
       {
@@ -510,27 +461,179 @@
       },
       {
         "type": "action",
-        "description": "Save the current prospect site"
+        "description": "Save the current site as a lead"
       },
       {
         "type": "action",
-        "description": "Save the current prospect site again"
+        "description": "Open the saved lead pipeline drawer"
+      },
+      {
+        "type": "action",
+        "description": "Delete the saved lead"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the lead is removed from the pipeline"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty or updated pipeline state is shown"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC016",
+    "title": "Preserve agency branding settings after saving",
+    "description": "This verifies that an agency can enter branding details, save them, and see the stored branding reflected in the popup.",
+    "category": "Agency White-Label Branding Settings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
+      },
+      {
+        "type": "action",
+        "description": "Click the agency settings control"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the agency name field with a unique agency name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the auditor name field with a unique auditor name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the website field with a valid website URL"
+      },
+      {
+        "type": "action",
+        "description": "Save the agency settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated branding is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the branding settings were stored"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC017",
+    "title": "Switch outreach script tone and regenerate copy",
+    "description": "This verifies that changing the tone updates the generated outreach message while keeping the selected channel workflow intact.",
+    "category": "Outreach Script Generation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
+      },
+      {
+        "type": "action",
+        "description": "Open the outreach script generator"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid outreach channel"
+      },
+      {
+        "type": "action",
+        "description": "Select one tone"
+      },
+      {
+        "type": "action",
+        "description": "Generate the outreach script"
+      },
+      {
+        "type": "action",
+        "description": "Select a different tone"
+      },
+      {
+        "type": "action",
+        "description": "Generate the outreach script again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the outreach script is updated"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected channel remains in use"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC018",
+    "title": "Export saved leads to CSV",
+    "description": "This verifies that the user can export the saved lead pipeline into a CSV file from the popup.",
+    "category": "Saved Lead Pipeline",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
       },
       {
         "type": "action",
         "description": "Open the saved lead pipeline"
       },
       {
+        "type": "action",
+        "description": "Export the pipeline to CSV"
+      },
+      {
         "type": "assertion",
-        "description": "Verify only one lead entry is displayed for the prospect"
+        "description": "Verify an export confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the pipeline data remains visible after export"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC019",
+    "title": "Reject an invalid license key",
+    "description": "This verifies that an invalid license or API key is rejected and the popup shows a failed activation state.",
+    "category": "License Activation and Cloud Sync",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /popup.html"
+      },
+      {
+        "type": "action",
+        "description": "Open the activation modal"
+      },
+      {
+        "type": "action",
+        "description": "Enter a clearly invalid license key into the license or API key field"
+      },
+      {
+        "type": "action",
+        "description": "Activate the license"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify activation rejection is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify premium subscription status is not displayed"
       }
     ],
     "priority": "Low"
   },
   {
-    "id": "TC017",
-    "title": "Reject an invalid competitor URL",
-    "description": "This verifies that the comparison flow validates malformed competitor URLs before starting a comparison.",
+    "id": "TC020",
+    "title": "Keep the competitor comparison from running without a competitor URL",
+    "description": "This verifies that the comparison flow protects against empty competitor input and does not proceed without a URL.",
     "category": "Head-to-Head Competitor Comparison",
     "steps": [
       {
@@ -543,52 +646,15 @@
       },
       {
         "type": "action",
-        "description": "Enter an invalid competitor website URL into the competitor field"
-      },
-      {
-        "type": "action",
         "description": "Run the head-to-head comparison"
       },
       {
         "type": "assertion",
-        "description": "Verify a URL validation error is visible"
+        "description": "Verify a competitor URL validation error is visible"
       },
       {
         "type": "assertion",
-        "description": "Verify no comparison results are displayed"
-      }
-    ],
-    "priority": "Low"
-  },
-  {
-    "id": "TC018",
-    "title": "Reject a malformed activation key",
-    "description": "This verifies that malformed activation input is blocked and the user sees activation validation feedback.",
-    "category": "License Activation and Cloud Sync",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /popup.html"
-      },
-      {
-        "type": "action",
-        "description": "Click the PRO badge or upgrade control"
-      },
-      {
-        "type": "action",
-        "description": "Enter a malformed license key into the activation field"
-      },
-      {
-        "type": "action",
-        "description": "Activate the license"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify an activation validation error is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the active subscription badge is not visible"
+        "description": "Verify comparative results are not displayed"
       }
     ],
     "priority": "Low"

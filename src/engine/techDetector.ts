@@ -26,8 +26,9 @@ export function detectTechnologies(doc: Document | null, windowObj: any, rawHtml
 
   // WooCommerce
   const wooEvidence: string[] = [];
-  if (htmlLower.includes('woocommerce')) wooEvidence.push('Markup signature: woocommerce');
-  if (htmlLower.includes('wc-blocks')) wooEvidence.push('CSS/block signature: wc-blocks');
+  if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('body.woocommerce, .woocommerce, link[href*="woocommerce"], script[src*="woocommerce"]')) {
+    wooEvidence.push('Scoped DOM signature: WooCommerce class or script asset');
+  }
   if (wooEvidence.length > 0) {
     detections.push({
       name: 'WooCommerce',
@@ -165,9 +166,12 @@ export function detectTechnologies(doc: Document | null, windowObj: any, rawHtml
   // 3. Frameworks
   // Next.js
   const nextEvidence: string[] = [];
-  if (htmlLower.includes('/_next/static/')) nextEvidence.push('Path: /_next/static/');
-  if (htmlLower.includes('__next_data__') || safeWin.__NEXT_DATA__ !== undefined) nextEvidence.push('Hydration data: __NEXT_DATA__');
-  if (safeDoc && safeDoc.getElementById && safeDoc.getElementById('__next') !== null) nextEvidence.push('Root node: #__next');
+  if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('#__next, script[src*="/_next/static/"]')) {
+    nextEvidence.push('DOM/Script signature: Next.js root node or /_next/static/ bundle');
+  }
+  if (safeWin.__NEXT_DATA__ !== undefined) {
+    nextEvidence.push('Hydration data: Global window.__NEXT_DATA__ detected');
+  }
   if (nextEvidence.length > 0) {
     detections.push({
       name: 'Next.js',
@@ -177,12 +181,11 @@ export function detectTechnologies(doc: Document | null, windowObj: any, rawHtml
     });
   }
 
-  // React
+  // React (False-positive devtools hook removed)
   const reactEvidence: string[] = [];
-  if (htmlLower.includes('data-reactroot') || (safeDoc && safeDoc.querySelector && safeDoc.querySelector('[data-reactroot]'))) {
-    reactEvidence.push('DOM attribute: data-reactroot');
+  if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('[data-reactroot], #root[data-react-checksum], script[src*="react.production"], script[src*="react-dom"], script[src*="react@"]')) {
+    reactEvidence.push('DOM/Script signature: React root node or bundle script');
   }
-  if (safeWin.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== undefined) reactEvidence.push('Global __REACT_DEVTOOLS_GLOBAL_HOOK__ detected');
   if (reactEvidence.length > 0) {
     detections.push({
       name: 'React',
@@ -194,10 +197,12 @@ export function detectTechnologies(doc: Document | null, windowObj: any, rawHtml
 
   // Vue.js
   const vueEvidence: string[] = [];
-  if (htmlLower.includes('data-v-') || (safeDoc && safeDoc.querySelector && safeDoc.querySelector('[data-v-]'))) {
-    vueEvidence.push('Scoped style attribute: data-v-');
+  if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('[data-v-], [v-cloak], script[src*="vue.runtime"]')) {
+    vueEvidence.push('DOM/Script signature: Vue scoped attribute or runtime script');
   }
-  if (safeWin.__VUE__ !== undefined) vueEvidence.push('Global window.__VUE__ detected');
+  if (safeWin.__VUE__ !== undefined) {
+    vueEvidence.push('Global window.__VUE__ detected');
+  }
   if (vueEvidence.length > 0) {
     detections.push({
       name: 'Vue.js',
@@ -209,8 +214,12 @@ export function detectTechnologies(doc: Document | null, windowObj: any, rawHtml
 
   // Nuxt.js
   const nuxtEvidence: string[] = [];
-  if (htmlLower.includes('/_nuxt/')) nuxtEvidence.push('Path: /_nuxt/');
-  if (htmlLower.includes('__nuxt__') || safeWin.__NUXT__ !== undefined) nuxtEvidence.push('Global window.__NUXT__ detected');
+  if (htmlLower.includes('/_nuxt/') || (safeDoc && safeDoc.querySelector && safeDoc.querySelector('script[src*="/_nuxt/"]'))) {
+    nuxtEvidence.push('Path: /_nuxt/');
+  }
+  if (htmlLower.includes('__nuxt__') || safeWin.__NUXT__ !== undefined) {
+    nuxtEvidence.push('Global window.__NUXT__ detected');
+  }
   if (nuxtEvidence.length > 0) {
     detections.push({
       name: 'Nuxt.js',
@@ -222,8 +231,8 @@ export function detectTechnologies(doc: Document | null, windowObj: any, rawHtml
 
   // Astro
   const astroEvidence: string[] = [];
-  if (htmlLower.includes('<astro-island') || (safeDoc && safeDoc.querySelector && safeDoc.querySelector('astro-island'))) {
-    astroEvidence.push('Custom element: <astro-island>');
+  if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('astro-island, [data-astro-cid]')) {
+    astroEvidence.push('DOM signature: astro-island element or data-astro-cid attribute');
   }
   if (astroEvidence.length > 0) {
     detections.push({
@@ -374,11 +383,11 @@ export function detectTechnologies(doc: Document | null, windowObj: any, rawHtml
   }
 
   // 6. CDN
-  // Cloudflare
+  // Cloudflare (cdnjs false positive eliminated)
   const cfEvidence: string[] = [];
-  if (htmlLower.includes('cdnjs.cloudflare.com')) cfEvidence.push('Resource path: cdnjs.cloudflare.com');
-  if (htmlLower.includes('rocket-loader')) cfEvidence.push('Cloudflare Rocket Loader signature');
-  if (htmlLower.includes('/cdn-cgi/')) cfEvidence.push('Path: /cdn-cgi/');
+  if ((safeDoc && safeDoc.querySelector && safeDoc.querySelector('script[src*="rocket-loader"], script[data-cfasync], script[src*="/cdn-cgi/"]')) || htmlLower.includes('/cdn-cgi/')) {
+    cfEvidence.push('Infrastructure signature: Cloudflare Rocket Loader or /cdn-cgi/ endpoint');
+  }
   if (cfEvidence.length > 0) {
     detections.push({
       name: 'Cloudflare',
