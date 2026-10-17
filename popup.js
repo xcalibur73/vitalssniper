@@ -1769,6 +1769,525 @@ class ReportService {
 }
 
 // ====================================================================
+// MODULE: dist/engine/techDetector.js
+// ====================================================================
+
+// Technology Stack Signature Detection Engine
+// Reverse-engineered signatures for Ecommerce, CMS, Frameworks, Pixels, Analytics, and CDN
+// Zero em-dash compliance: strictly hyphens or colons
+function detectTechnologies(doc, windowObj, rawHtml) {
+    const detections = [];
+    const htmlLower = (rawHtml || '').toLowerCase();
+    const safeDoc = doc || (typeof document !== 'undefined' ? document : null);
+    const safeWin = windowObj || (typeof window !== 'undefined' ? window : {});
+    // 1. Ecommerce
+    // Shopify
+    const shopifyEvidence = [];
+    if (htmlLower.includes('cdn.shopify.com'))
+        shopifyEvidence.push('CDN resource: cdn.shopify.com');
+    if (safeWin.Shopify !== undefined)
+        shopifyEvidence.push('Global window.Shopify object detected');
+    if (shopifyEvidence.length > 0) {
+        detections.push({
+            name: 'Shopify',
+            category: 'Ecommerce',
+            confidence: 'high',
+            evidence: shopifyEvidence
+        });
+    }
+    // WooCommerce
+    const wooEvidence = [];
+    if (htmlLower.includes('woocommerce'))
+        wooEvidence.push('Markup signature: woocommerce');
+    if (htmlLower.includes('wc-blocks'))
+        wooEvidence.push('CSS/block signature: wc-blocks');
+    if (wooEvidence.length > 0) {
+        detections.push({
+            name: 'WooCommerce',
+            category: 'Ecommerce',
+            confidence: 'high',
+            evidence: wooEvidence
+        });
+    }
+    // Magento
+    const magentoEvidence = [];
+    if (htmlLower.includes('mage/cookies.js'))
+        magentoEvidence.push('Script path: mage/cookies.js');
+    if (htmlLower.includes('text/x-magento-init'))
+        magentoEvidence.push('Config block: text/x-magento-init');
+    if (magentoEvidence.length > 0) {
+        detections.push({
+            name: 'Magento',
+            category: 'Ecommerce',
+            confidence: 'high',
+            evidence: magentoEvidence
+        });
+    }
+    // BigCommerce
+    const bcEvidence = [];
+    if (htmlLower.includes('stencil-config'))
+        bcEvidence.push('Template signature: stencil-config');
+    if (/cdn\d*\.bigcommerce\.com/.test(htmlLower) || htmlLower.includes('cdn.bigcommerce.com')) {
+        bcEvidence.push('CDN resource: cdn*.bigcommerce.com');
+    }
+    if (bcEvidence.length > 0) {
+        detections.push({
+            name: 'BigCommerce',
+            category: 'Ecommerce',
+            confidence: 'high',
+            evidence: bcEvidence
+        });
+    }
+    // 2. CMS & Builders
+    // WordPress
+    const wpEvidence = [];
+    if (htmlLower.includes('/wp-content/'))
+        wpEvidence.push('Path: /wp-content/');
+    if (htmlLower.includes('/wp-includes/'))
+        wpEvidence.push('Path: /wp-includes/');
+    if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('meta[name="generator"][content*="WordPress"]')) {
+        wpEvidence.push('Meta generator: WordPress');
+    }
+    if (wpEvidence.length > 0) {
+        detections.push({
+            name: 'WordPress',
+            category: 'CMS',
+            confidence: wpEvidence.length > 1 ? 'high' : 'medium',
+            evidence: wpEvidence
+        });
+    }
+    // Elementor
+    const elementorEvidence = [];
+    if (htmlLower.includes('elementor-widget'))
+        elementorEvidence.push('DOM class: elementor-widget');
+    if (safeWin.elementorFrontend !== undefined)
+        elementorEvidence.push('Global window.elementorFrontend detected');
+    if (elementorEvidence.length > 0) {
+        detections.push({
+            name: 'Elementor',
+            category: 'Page Builder',
+            confidence: 'high',
+            evidence: elementorEvidence
+        });
+    }
+    // Divi
+    const diviEvidence = [];
+    if (htmlLower.includes('et_pb_section') || htmlLower.includes('et_pb_'))
+        diviEvidence.push('Class signature: et_pb_section');
+    if (htmlLower.includes('themes/divi'))
+        diviEvidence.push('Theme path: themes/Divi');
+    if (diviEvidence.length > 0) {
+        detections.push({
+            name: 'Divi',
+            category: 'Page Builder',
+            confidence: 'high',
+            evidence: diviEvidence
+        });
+    }
+    // GeneratePress
+    const gpEvidence = [];
+    if (htmlLower.includes('generatepress'))
+        gpEvidence.push('Theme token: generatepress');
+    if (htmlLower.includes('generateblocks'))
+        gpEvidence.push('Block token: generateblocks');
+    if (gpEvidence.length > 0) {
+        detections.push({
+            name: 'GeneratePress',
+            category: 'Page Builder',
+            confidence: 'high',
+            evidence: gpEvidence
+        });
+    }
+    // Webflow
+    const wfEvidence = [];
+    if (htmlLower.includes('w-mod-js') || (safeDoc && safeDoc.documentElement && safeDoc.documentElement.classList && safeDoc.documentElement.classList.contains('w-mod-js'))) {
+        wfEvidence.push('HTML class: w-mod-js');
+    }
+    if (htmlLower.includes('data-wf-page'))
+        wfEvidence.push('Attribute: data-wf-page');
+    if (wfEvidence.length > 0) {
+        detections.push({
+            name: 'Webflow',
+            category: 'CMS',
+            confidence: 'high',
+            evidence: wfEvidence
+        });
+    }
+    // Wix
+    const wixEvidence = [];
+    if (htmlLower.includes('parastorage') || htmlLower.includes('static.parastorage.com'))
+        wixEvidence.push('CDN resource: parastorage');
+    if (safeWin.wixBiSession !== undefined)
+        wixEvidence.push('Global window.wixBiSession detected');
+    if (wixEvidence.length > 0) {
+        detections.push({
+            name: 'Wix',
+            category: 'CMS',
+            confidence: 'high',
+            evidence: wixEvidence
+        });
+    }
+    // Squarespace
+    const sqsEvidence = [];
+    if (htmlLower.includes('sqs-block'))
+        sqsEvidence.push('Markup signature: sqs-block');
+    if (safeWin.Static && safeWin.Static.SQUARESPACE_CONTEXT)
+        sqsEvidence.push('Global Static.SQUARESPACE_CONTEXT detected');
+    if (sqsEvidence.length > 0) {
+        detections.push({
+            name: 'Squarespace',
+            category: 'CMS',
+            confidence: 'high',
+            evidence: sqsEvidence
+        });
+    }
+    // 3. Frameworks
+    // Next.js
+    const nextEvidence = [];
+    if (htmlLower.includes('/_next/static/'))
+        nextEvidence.push('Path: /_next/static/');
+    if (htmlLower.includes('__next_data__') || safeWin.__NEXT_DATA__ !== undefined)
+        nextEvidence.push('Hydration data: __NEXT_DATA__');
+    if (safeDoc && safeDoc.getElementById && safeDoc.getElementById('__next') !== null)
+        nextEvidence.push('Root node: #__next');
+    if (nextEvidence.length > 0) {
+        detections.push({
+            name: 'Next.js',
+            category: 'Framework',
+            confidence: 'high',
+            evidence: nextEvidence
+        });
+    }
+    // React
+    const reactEvidence = [];
+    if (htmlLower.includes('data-reactroot') || (safeDoc && safeDoc.querySelector && safeDoc.querySelector('[data-reactroot]'))) {
+        reactEvidence.push('DOM attribute: data-reactroot');
+    }
+    if (safeWin.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== undefined)
+        reactEvidence.push('Global __REACT_DEVTOOLS_GLOBAL_HOOK__ detected');
+    if (reactEvidence.length > 0) {
+        detections.push({
+            name: 'React',
+            category: 'Framework',
+            confidence: 'high',
+            evidence: reactEvidence
+        });
+    }
+    // Vue.js
+    const vueEvidence = [];
+    if (htmlLower.includes('data-v-') || (safeDoc && safeDoc.querySelector && safeDoc.querySelector('[data-v-]'))) {
+        vueEvidence.push('Scoped style attribute: data-v-');
+    }
+    if (safeWin.__VUE__ !== undefined)
+        vueEvidence.push('Global window.__VUE__ detected');
+    if (vueEvidence.length > 0) {
+        detections.push({
+            name: 'Vue.js',
+            category: 'Framework',
+            confidence: 'high',
+            evidence: vueEvidence
+        });
+    }
+    // Nuxt.js
+    const nuxtEvidence = [];
+    if (htmlLower.includes('/_nuxt/'))
+        nuxtEvidence.push('Path: /_nuxt/');
+    if (htmlLower.includes('__nuxt__') || safeWin.__NUXT__ !== undefined)
+        nuxtEvidence.push('Global window.__NUXT__ detected');
+    if (nuxtEvidence.length > 0) {
+        detections.push({
+            name: 'Nuxt.js',
+            category: 'Framework',
+            confidence: 'high',
+            evidence: nuxtEvidence
+        });
+    }
+    // Astro
+    const astroEvidence = [];
+    if (htmlLower.includes('<astro-island') || (safeDoc && safeDoc.querySelector && safeDoc.querySelector('astro-island'))) {
+        astroEvidence.push('Custom element: <astro-island>');
+    }
+    if (astroEvidence.length > 0) {
+        detections.push({
+            name: 'Astro',
+            category: 'Framework',
+            confidence: 'high',
+            evidence: astroEvidence
+        });
+    }
+    // 4. Marketing Pixels
+    // Meta Pixel
+    const metaEvidence = [];
+    if (htmlLower.includes('connect.facebook.net/fbevents.js') || htmlLower.includes('connect.facebook.net')) {
+        metaEvidence.push('Script: connect.facebook.net/fbevents.js');
+    }
+    if (typeof safeWin.fbq === 'function')
+        metaEvidence.push('Global window.fbq detected');
+    if (metaEvidence.length > 0) {
+        detections.push({
+            name: 'Meta Pixel',
+            category: 'Marketing Pixel',
+            confidence: 'high',
+            evidence: metaEvidence
+        });
+    }
+    // Google Tag Manager
+    const gtmEvidence = [];
+    if (htmlLower.includes('googletagmanager.com/gtm.js'))
+        gtmEvidence.push('Script: googletagmanager.com/gtm.js');
+    if (safeWin.google_tag_manager !== undefined)
+        gtmEvidence.push('Global window.google_tag_manager detected');
+    if (gtmEvidence.length > 0) {
+        detections.push({
+            name: 'Google Tag Manager',
+            category: 'Marketing Pixel',
+            confidence: 'high',
+            evidence: gtmEvidence
+        });
+    }
+    // Google Analytics 4
+    const gaEvidence = [];
+    if (htmlLower.includes('googletagmanager.com/gtag/js') || htmlLower.includes('google-analytics.com/analytics.js')) {
+        gaEvidence.push('Script: googletagmanager.com/gtag/js');
+    }
+    if (typeof safeWin.gtag === 'function')
+        gaEvidence.push('Global window.gtag detected');
+    if (gaEvidence.length > 0) {
+        detections.push({
+            name: 'Google Analytics 4',
+            category: 'Marketing Pixel',
+            confidence: 'high',
+            evidence: gaEvidence
+        });
+    }
+    // TikTok Pixel
+    const ttEvidence = [];
+    if (htmlLower.includes('analytics.tiktok.com/i18n/pixel/'))
+        ttEvidence.push('Script: analytics.tiktok.com/i18n/pixel/');
+    if (safeWin.ttq !== undefined)
+        ttEvidence.push('Global window.ttq detected');
+    if (ttEvidence.length > 0) {
+        detections.push({
+            name: 'TikTok Pixel',
+            category: 'Marketing Pixel',
+            confidence: 'high',
+            evidence: ttEvidence
+        });
+    }
+    // Klaviyo
+    const klaviyoEvidence = [];
+    if (htmlLower.includes('static.klaviyo.com/onsite/js/klaviyo.js') || htmlLower.includes('static.klaviyo.com')) {
+        klaviyoEvidence.push('Script: static.klaviyo.com/onsite/js/klaviyo.js');
+    }
+    if (safeWin._learnq !== undefined)
+        klaviyoEvidence.push('Global window._learnq detected');
+    if (klaviyoEvidence.length > 0) {
+        detections.push({
+            name: 'Klaviyo',
+            category: 'Marketing Pixel',
+            confidence: 'high',
+            evidence: klaviyoEvidence
+        });
+    }
+    // Pinterest Pixel
+    const pintrkEvidence = [];
+    if (htmlLower.includes('assets.pinterest.com/js/pintrk.js'))
+        pintrkEvidence.push('Script: assets.pinterest.com/js/pintrk.js');
+    if (typeof safeWin.pintrk === 'function')
+        pintrkEvidence.push('Global window.pintrk detected');
+    if (pintrkEvidence.length > 0) {
+        detections.push({
+            name: 'Pinterest Pixel',
+            category: 'Marketing Pixel',
+            confidence: 'high',
+            evidence: pintrkEvidence
+        });
+    }
+    // Postscript
+    const postscriptEvidence = [];
+    if (htmlLower.includes('sdk.postscript.io'))
+        postscriptEvidence.push('Script: sdk.postscript.io');
+    if (safeWin.postscript !== undefined)
+        postscriptEvidence.push('Global window.postscript detected');
+    if (postscriptEvidence.length > 0) {
+        detections.push({
+            name: 'Postscript',
+            category: 'Marketing Pixel',
+            confidence: 'high',
+            evidence: postscriptEvidence
+        });
+    }
+    // Triple Whale
+    const twEvidence = [];
+    if (htmlLower.includes('triplewhale-pixel.triplewhale.com') || htmlLower.includes('triplewhale.com')) {
+        twEvidence.push('Script: triplewhale-pixel.triplewhale.com');
+    }
+    if (twEvidence.length > 0) {
+        detections.push({
+            name: 'Triple Whale',
+            category: 'Marketing Pixel',
+            confidence: 'high',
+            evidence: twEvidence
+        });
+    }
+    // 5. Analytics
+    // Hotjar
+    const hotjarEvidence = [];
+    if (htmlLower.includes('static.hotjar.com'))
+        hotjarEvidence.push('Script: static.hotjar.com');
+    if (typeof safeWin.hj === 'function')
+        hotjarEvidence.push('Global window.hj detected');
+    if (hotjarEvidence.length > 0) {
+        detections.push({
+            name: 'Hotjar',
+            category: 'Analytics',
+            confidence: 'high',
+            evidence: hotjarEvidence
+        });
+    }
+    // Microsoft Clarity
+    const clarityEvidence = [];
+    if (htmlLower.includes('clarity.ms'))
+        clarityEvidence.push('Script: clarity.ms');
+    if (typeof safeWin.clarity === 'function')
+        clarityEvidence.push('Global window.clarity detected');
+    if (clarityEvidence.length > 0) {
+        detections.push({
+            name: 'Microsoft Clarity',
+            category: 'Analytics',
+            confidence: 'high',
+            evidence: clarityEvidence
+        });
+    }
+    // 6. CDN
+    // Cloudflare
+    const cfEvidence = [];
+    if (htmlLower.includes('cdnjs.cloudflare.com'))
+        cfEvidence.push('Resource path: cdnjs.cloudflare.com');
+    if (htmlLower.includes('rocket-loader'))
+        cfEvidence.push('Cloudflare Rocket Loader signature');
+    if (htmlLower.includes('/cdn-cgi/'))
+        cfEvidence.push('Path: /cdn-cgi/');
+    if (cfEvidence.length > 0) {
+        detections.push({
+            name: 'Cloudflare',
+            category: 'CDN',
+            confidence: 'high',
+            evidence: cfEvidence
+        });
+    }
+    return detections;
+}
+
+// ====================================================================
+// MODULE: dist/engine/revenueLossEngine.js
+// ====================================================================
+
+// Lost Revenue and Financial ROI Engine
+// Reverse-engineered MyWebAudit and Google/Deloitte conversion decay curve
+// Thresholds: LCP > 2.5s, INP > 200ms, CLS > 0.10
+// Latency conversion decay rate: 1.11% drop per 100ms excess latency
+// Zero em-dash compliance: strictly hyphens or colons
+function calculateLostRevenue(lcpSec, inpMs, cls, isEcommerce, monthlyVisitors, aovOrLeadValue) {
+    const excessLcpMs = Math.max(0, Math.round((lcpSec - 2.5) * 1000));
+    const excessInpMs = Math.max(0, Math.round(inpMs - 200));
+    const excessClsPenaltyMs = Math.max(0, Math.round((cls - 0.10) * 1000));
+    const totalExcessMs = excessLcpMs + excessInpMs + excessClsPenaltyMs;
+    const totalExcessSeconds = parseFloat((totalExcessMs / 1000).toFixed(2));
+    if (totalExcessMs <= 0) {
+        return {
+            isOptimal: true,
+            modelType: isEcommerce ? 'ecommerce' : 'leadgen',
+            totalExcessSeconds: 0,
+            conversionDropPct: 0,
+            lostMonthly: 0,
+            lostAnnual: 0,
+            roiHeadline: 'Core Web Vitals are within optimal thresholds with 0 estimated latency revenue leakage.'
+        };
+    }
+    // Conversion decay rate: 1.11% drop per 100ms of excess latency, capped at 50%
+    const calculatedDrop = (totalExcessMs / 100) * 1.11;
+    const conversionDropPct = parseFloat(Math.min(50, calculatedDrop).toFixed(2));
+    let visitors = monthlyVisitors && monthlyVisitors > 0 ? monthlyVisitors : 0;
+    let unitValue = aovOrLeadValue && aovOrLeadValue > 0 ? aovOrLeadValue : 0;
+    let baselineConversionRate = 0.02;
+    const modelType = isEcommerce ? 'ecommerce' : 'leadgen';
+    if (isEcommerce) {
+        if (!visitors)
+            visitors = 15000;
+        if (!unitValue)
+            unitValue = 85;
+        baselineConversionRate = 0.02;
+    }
+    else {
+        if (!visitors)
+            visitors = 5000;
+        if (!unitValue)
+            unitValue = 250;
+        baselineConversionRate = 0.03;
+    }
+    const baselineMonthlyConversions = visitors * baselineConversionRate;
+    const baselineMonthlyRevenue = baselineMonthlyConversions * unitValue;
+    const lostMonthly = Math.round(baselineMonthlyRevenue * (conversionDropPct / 100));
+    const lostAnnual = Math.round(lostMonthly * 12);
+    const conversionTerm = isEcommerce ? 'orders' : 'conversions';
+    const roiHeadline = `Resolving ${totalExcessMs}ms latency penalty recovers an estimated $${lostMonthly.toLocaleString()}/mo in lost ${conversionTerm}.`;
+    return {
+        isOptimal: false,
+        modelType,
+        totalExcessSeconds,
+        conversionDropPct,
+        lostMonthly,
+        lostAnnual,
+        roiHeadline
+    };
+}
+
+// ====================================================================
+// MODULE: dist/engine/httpHeaderAudit.js
+// ====================================================================
+
+// HTTP Header and Redirect Chain Forensics Engine
+// Reverse-engineered Ahrefs site audit header inspector
+// Zero em-dash compliance: strictly hyphens or colons
+function parseHttpHeaderForensics(headers, redirectCount = 0) {
+    const norm = {};
+    if (headers && typeof headers === 'object') {
+        Object.keys(headers).forEach(k => {
+            norm[k.toLowerCase()] = headers[k];
+        });
+    }
+    const xRobots = norm['x-robots-tag'] || undefined;
+    const isNoindex = Boolean(xRobots && /noindex/i.test(xRobots));
+    const isNofollow = Boolean(xRobots && /nofollow/i.test(xRobots));
+    let canonicalHeaderUrl = undefined;
+    const linkHeader = norm['link'];
+    if (linkHeader) {
+        const match = linkHeader.match(/<([^>]+)>;\s*rel=["']?canonical["']?/i);
+        if (match) {
+            canonicalHeaderUrl = match[1];
+        }
+    }
+    const cfCache = norm['cf-cache-status'];
+    const xCache = norm['x-cache'] || norm['x-cache-lookup'];
+    const cacheStatus = (cfCache || xCache || norm['cache-control'] || 'UNCACHED').toUpperCase();
+    const isCachedEdge = /HIT/i.test(cacheStatus);
+    const serverBanner = norm['server'] || undefined;
+    const hasRedirectChain = redirectCount > 1;
+    return {
+        xRobotsTag: xRobots,
+        isNoindex,
+        isNofollow,
+        canonicalHeaderUrl,
+        cacheStatus,
+        isCachedEdge,
+        serverBanner,
+        redirectCount,
+        hasRedirectChain
+    };
+}
+
+// ====================================================================
 // MODULE: dist/engine/externalAudit.js
 // ====================================================================
 
@@ -2987,47 +3506,54 @@ async function inspectPageForensics() {
     }
     catch (e) { }
     // --- 8. TECHNOLOGY & CMS MULTI-SIGNAL DETECTION ---
-    const techDetections = [];
-    const hLower = rawHtml.toLowerCase();
-    // WordPress
-    const wpEvidence = [];
-    if (hLower.includes('/wp-content/'))
-        wpEvidence.push('Path: /wp-content/');
-    if (hLower.includes('/wp-includes/'))
-        wpEvidence.push('Path: /wp-includes/');
-    if (document.querySelector('meta[name="generator"][content*="WordPress"]'))
-        wpEvidence.push('Meta generator: WordPress');
-    if (wpEvidence.length > 0) {
-        techDetections.push({ name: 'WordPress', category: 'CMS', confidence: wpEvidence.length > 1 ? 'high' : 'medium', evidence: wpEvidence });
+    let techDetections = [];
+    try {
+        if (typeof detectTechnologies === 'function') {
+            techDetections = detectTechnologies(document, window, rawHtml);
+        }
     }
-    // Page Builders
-    if (hLower.includes('elementor') || window.elementorFrontend) {
-        techDetections.push({ name: 'Elementor', category: 'Page Builder', confidence: 'high', evidence: ['Elementor DOM classes / frontend object'] });
+    catch (e) {
+        techDetections = [];
     }
-    if (hLower.includes('et_pb_') || hLower.includes('/themes/divi/')) {
-        techDetections.push({ name: 'Divi', category: 'Page Builder', confidence: 'high', evidence: ['Divi et_pb class signatures'] });
-    }
-    if (hLower.includes('wpbakery') || hLower.includes('js_composer')) {
-        techDetections.push({ name: 'WPBakery', category: 'Page Builder', confidence: 'high', evidence: ['WPBakery js_composer signatures'] });
-    }
-    if (hLower.includes('generatepress') || hLower.includes('generateblocks')) {
-        techDetections.push({ name: 'GeneratePress', category: 'Page Builder', confidence: 'high', evidence: ['GeneratePress / GenerateBlocks tokens'] });
-    }
-    // SaaS Platforms
-    if (hLower.includes('sqs-block') || window.Static?.SQUARESPACE_CONTEXT) {
-        techDetections.push({ name: 'Squarespace', category: 'CMS', confidence: 'high', evidence: ['Squarespace context / layout tokens'] });
-    }
-    if (document.documentElement.classList.contains('w-mod-js') || hLower.includes('data-wf-page')) {
-        techDetections.push({ name: 'Webflow', category: 'CMS', confidence: 'high', evidence: ['Webflow data-wf attributes'] });
-    }
-    if (document.getElementById('__next') !== null || window.__NEXT_DATA__ !== undefined) {
-        techDetections.push({ name: 'Next.js', category: 'Framework', confidence: 'high', evidence: ['Next.js __NEXT_DATA__ hydration node'] });
-    }
-    if (window.Shopify !== undefined || hLower.includes('cdn.shopify.com')) {
-        techDetections.push({ name: 'Shopify', category: 'CMS', confidence: 'high', evidence: ['Shopify global object / CDN resources'] });
-    }
-    if (window.wixBiSession !== undefined || hLower.includes('static.parastorage.com')) {
-        techDetections.push({ name: 'Wix', category: 'CMS', confidence: 'high', evidence: ['Wix runtime session / Parastorage CDN'] });
+    if (!techDetections || techDetections.length === 0) {
+        const hLower = rawHtml.toLowerCase();
+        const wpEvidence = [];
+        if (hLower.includes('/wp-content/'))
+            wpEvidence.push('Path: /wp-content/');
+        if (hLower.includes('/wp-includes/'))
+            wpEvidence.push('Path: /wp-includes/');
+        if (document.querySelector('meta[name="generator"][content*="WordPress"]'))
+            wpEvidence.push('Meta generator: WordPress');
+        if (wpEvidence.length > 0) {
+            techDetections.push({ name: 'WordPress', category: 'CMS', confidence: wpEvidence.length > 1 ? 'high' : 'medium', evidence: wpEvidence });
+        }
+        if (hLower.includes('elementor') || window.elementorFrontend) {
+            techDetections.push({ name: 'Elementor', category: 'Page Builder', confidence: 'high', evidence: ['Elementor DOM classes / frontend object'] });
+        }
+        if (hLower.includes('et_pb_') || hLower.includes('/themes/divi/')) {
+            techDetections.push({ name: 'Divi', category: 'Page Builder', confidence: 'high', evidence: ['Divi et_pb class signatures'] });
+        }
+        if (hLower.includes('generatepress') || hLower.includes('generateblocks')) {
+            techDetections.push({ name: 'GeneratePress', category: 'Page Builder', confidence: 'high', evidence: ['GeneratePress / GenerateBlocks tokens'] });
+        }
+        if (hLower.includes('sqs-block') || window.Static?.SQUARESPACE_CONTEXT) {
+            techDetections.push({ name: 'Squarespace', category: 'CMS', confidence: 'high', evidence: ['Squarespace context / layout tokens'] });
+        }
+        if (document.documentElement.classList.contains('w-mod-js') || hLower.includes('data-wf-page')) {
+            techDetections.push({ name: 'Webflow', category: 'CMS', confidence: 'high', evidence: ['Webflow data-wf attributes'] });
+        }
+        if (document.getElementById('__next') !== null || window.__NEXT_DATA__ !== undefined) {
+            techDetections.push({ name: 'Next.js', category: 'Framework', confidence: 'high', evidence: ['Next.js __NEXT_DATA__ hydration node'] });
+        }
+        if (window.Shopify !== undefined || hLower.includes('cdn.shopify.com')) {
+            techDetections.push({ name: 'Shopify', category: 'Ecommerce', confidence: 'high', evidence: ['Shopify global object / CDN resources'] });
+        }
+        if (hLower.includes('woocommerce') || hLower.includes('wc-blocks')) {
+            techDetections.push({ name: 'WooCommerce', category: 'Ecommerce', confidence: 'high', evidence: ['WooCommerce class and markup tokens'] });
+        }
+        if (window.wixBiSession !== undefined || hLower.includes('static.parastorage.com')) {
+            techDetections.push({ name: 'Wix', category: 'CMS', confidence: 'high', evidence: ['Wix runtime session / Parastorage CDN'] });
+        }
     }
     const scanDurationMs = Math.round(performance.now() - scanStartTime);
     // Format canonical display strings
@@ -5505,17 +6031,82 @@ function renderAuditData(domain, currentUrl, data) {
         else
             scoreBadge.className = 'score-badge score-red';
     }
-    // 3. Tech Stack Badges
+    // 3. Tech Stack Badges & Header Alerts
     const techRow = document.getElementById('techStackRow');
     if (techRow) {
         techRow.innerHTML = '';
-        const items = data.cms && data.cms.length > 0 ? data.cms : ['Custom Stack'];
-        items.forEach((t) => {
-            const badge = document.createElement('span');
-            badge.className = 'tech-badge';
-            badge.innerText = t;
-            techRow.appendChild(badge);
-        });
+        const detections = data.technologies || [];
+        if (detections.length > 0) {
+            const groups = {
+                'Ecommerce': [],
+                'Marketing Pixel': [],
+                'CMS/Builder': [],
+                'Framework': []
+            };
+            detections.forEach((item) => {
+                if (item.category === 'Ecommerce') {
+                    groups['Ecommerce'].push(item.name);
+                }
+                else if (item.category === 'Marketing Pixel') {
+                    groups['Marketing Pixel'].push(item.name);
+                }
+                else if (item.category === 'CMS' || item.category === 'Page Builder') {
+                    groups['CMS/Builder'].push(item.name);
+                }
+                else if (item.category === 'Framework') {
+                    groups['Framework'].push(item.name);
+                }
+            });
+            const categoryStyles = {
+                'Ecommerce': 'background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);',
+                'Marketing Pixel': 'background: rgba(139, 92, 246, 0.12); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3);',
+                'CMS/Builder': 'background: rgba(59, 130, 246, 0.12); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3);',
+                'Framework': 'background: rgba(245, 158, 11, 0.12); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);'
+            };
+            let renderedAny = false;
+            Object.entries(groups).forEach(([category, names]) => {
+                if (names.length > 0) {
+                    renderedAny = true;
+                    const badge = document.createElement('span');
+                    badge.className = 'tech-badge';
+                    badge.style.cssText = categoryStyles[category] || '';
+                    badge.innerText = `${category}: ${names.join(', ')}`;
+                    techRow.appendChild(badge);
+                }
+            });
+            if (!renderedAny) {
+                const badge = document.createElement('span');
+                badge.className = 'tech-badge';
+                badge.innerText = 'Custom Platform';
+                techRow.appendChild(badge);
+            }
+        }
+        else {
+            const items = data.cms && data.cms.length > 0 ? data.cms : ['Custom Stack'];
+            items.forEach((t) => {
+                const badge = document.createElement('span');
+                badge.className = 'tech-badge';
+                badge.innerText = t;
+                techRow.appendChild(badge);
+            });
+        }
+        // Server Header Alert Pills
+        if (data.httpHeaders) {
+            if (data.httpHeaders.isNoindex) {
+                const noindexPill = document.createElement('span');
+                noindexPill.className = 'tech-badge';
+                noindexPill.style.cssText = 'background: rgba(220, 38, 38, 0.15); color: #dc2626; border: 1px solid #dc2626; font-weight: 700;';
+                noindexPill.innerText = 'ALERT: HTTP NOINDEX';
+                techRow.appendChild(noindexPill);
+            }
+            if (data.httpHeaders.redirectCount && data.httpHeaders.redirectCount > 0) {
+                const redirPill = document.createElement('span');
+                redirPill.className = 'tech-badge';
+                redirPill.style.cssText = 'background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid #f59e0b; font-weight: 600;';
+                redirPill.innerText = `Redirect Chain: ${data.httpHeaders.redirectCount} hops`;
+                techRow.appendChild(redirPill);
+            }
+        }
     }
     // 4. Metric Cards (1 to 6)
     // Card 1: DOM Elements
@@ -5811,6 +6402,50 @@ function renderAuditData(domain, currentUrl, data) {
     }
     else if (cardSeo) {
         cardSeo.style.display = 'none';
+    }
+    // 4c. Revenue Impact Card Rendering
+    if (data.performance) {
+        const lcpSec = (data.performance.lcpMs || 0) / 1000;
+        const inpMs = data.performance.inpMs || 0;
+        const cls = data.performance.cls || 0;
+        const isEcom = (data.technologies || []).some((t) => t.category === 'Ecommerce') ||
+            (data.cms || []).some((c) => /shopify|woocommerce|magento|bigcommerce/i.test(c));
+        const revenueLoss = calculateLostRevenue(lcpSec, inpMs, cls, isEcom);
+        data.revenueLoss = revenueLoss;
+        let cardRev = document.getElementById('cardRevenueImpact');
+        if (!revenueLoss.isOptimal) {
+            if (!cardRev) {
+                cardRev = document.createElement('section');
+                cardRev.id = 'cardRevenueImpact';
+                cardRev.className = 'revenue-impact-card';
+                cardRev.style.cssText = 'margin: 10px 0; padding: 12px; background: rgba(225, 29, 72, 0.06); border: 1px solid rgba(225, 29, 72, 0.25); border-radius: 8px; font-family: system-ui, -apple-system, sans-serif;';
+                const flawBanner = document.getElementById('flawBanner');
+                if (flawBanner && flawBanner.parentNode) {
+                    flawBanner.parentNode.insertBefore(cardRev, flawBanner);
+                }
+                else {
+                    document.querySelector('.container')?.appendChild(cardRev);
+                }
+            }
+            cardRev.style.display = 'block';
+            cardRev.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #e11d48;">REVENUE LEAKAGE FORENSICS</span>
+          <span style="display: inline-block; padding: 2px 7px; font-size: 10px; font-weight: 700; border-radius: 4px; background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.4);">
+            ${revenueLoss.conversionDropPct}% CONVERSION DRAG
+          </span>
+        </div>
+        <div style="font-size: 15px; font-weight: 700; color: #e11d48; margin-bottom: 4px;">
+          Estimated Monthly Revenue Leaked: $${revenueLoss.lostMonthly.toLocaleString()}/mo
+        </div>
+        <div style="font-size: 11px; color: var(--color-muted); line-height: 1.4;">
+          ${escapeHtml(revenueLoss.roiHeadline)}
+        </div>
+      `;
+        }
+        else if (cardRev) {
+            cardRev.style.display = 'none';
+        }
     }
     // 5. Evidence Engine Flaw Banner
     const badgeEl = document.getElementById('flawSeverityBadge');

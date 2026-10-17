@@ -1,13 +1,15 @@
 // Popup UI Orchestrator: Event Handlers, Metric Rendering, and Navigation
 // Zero em-dash compliance: strictly hyphens or colons
 
-import { RawObservations, ExternalMetrics } from './types/audit';
+import { RawObservations, ExternalMetrics, TechnologyDetection, RevenueLossAnalysis, HttpHeaderForensics } from './types/audit';
 import { Finding, AuditScorecard, SeverityLevel } from './types/findings';
 import { SavedLead, AgencySettings } from './types/pipeline';
 import { inspectPageForensics, renderLayoutShiftOverlay } from './engine/browserAudit';
 import { ExternalAudit } from './engine/externalAudit';
 import { FindingsEngine } from './engine/findingsEngine';
 import { OutreachGenerator, OutreachScripts, OutreachTone } from './engine/outreachGenerator';
+import { calculateLostRevenue } from './engine/revenueLossEngine';
+import { parseHttpHeaderForensics } from './engine/httpHeaderAudit';
 import { StorageService } from './services/storageService';
 import { LicenseService } from './services/licenseService';
 import { CompetitorService } from './services/competitorService';
@@ -424,17 +426,83 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
     else scoreBadge.className = 'score-badge score-red';
   }
 
-  // 3. Tech Stack Badges
+  // 3. Tech Stack Badges & Header Alerts
   const techRow = document.getElementById('techStackRow');
   if (techRow) {
     techRow.innerHTML = '';
-    const items = data.cms && data.cms.length > 0 ? data.cms : ['Custom Stack'];
-    items.forEach((t: string) => {
-      const badge = document.createElement('span');
-      badge.className = 'tech-badge';
-      badge.innerText = t;
-      techRow.appendChild(badge);
-    });
+    const detections: TechnologyDetection[] = data.technologies || [];
+    if (detections.length > 0) {
+      const groups: { [key: string]: string[] } = {
+        'Ecommerce': [],
+        'Marketing Pixel': [],
+        'CMS/Builder': [],
+        'Framework': []
+      };
+
+      detections.forEach((item: TechnologyDetection) => {
+        if (item.category === 'Ecommerce') {
+          groups['Ecommerce'].push(item.name);
+        } else if (item.category === 'Marketing Pixel') {
+          groups['Marketing Pixel'].push(item.name);
+        } else if (item.category === 'CMS' || item.category === 'Page Builder') {
+          groups['CMS/Builder'].push(item.name);
+        } else if (item.category === 'Framework') {
+          groups['Framework'].push(item.name);
+        }
+      });
+
+      const categoryStyles: { [key: string]: string } = {
+        'Ecommerce': 'background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);',
+        'Marketing Pixel': 'background: rgba(139, 92, 246, 0.12); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3);',
+        'CMS/Builder': 'background: rgba(59, 130, 246, 0.12); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3);',
+        'Framework': 'background: rgba(245, 158, 11, 0.12); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);'
+      };
+
+      let renderedAny = false;
+      Object.entries(groups).forEach(([category, names]) => {
+        if (names.length > 0) {
+          renderedAny = true;
+          const badge = document.createElement('span');
+          badge.className = 'tech-badge';
+          badge.style.cssText = categoryStyles[category] || '';
+          badge.innerText = `${category}: ${names.join(', ')}`;
+          techRow.appendChild(badge);
+        }
+      });
+
+      if (!renderedAny) {
+        const badge = document.createElement('span');
+        badge.className = 'tech-badge';
+        badge.innerText = 'Custom Platform';
+        techRow.appendChild(badge);
+      }
+    } else {
+      const items = data.cms && data.cms.length > 0 ? data.cms : ['Custom Stack'];
+      items.forEach((t: string) => {
+        const badge = document.createElement('span');
+        badge.className = 'tech-badge';
+        badge.innerText = t;
+        techRow.appendChild(badge);
+      });
+    }
+
+    // Server Header Alert Pills
+    if (data.httpHeaders) {
+      if (data.httpHeaders.isNoindex) {
+        const noindexPill = document.createElement('span');
+        noindexPill.className = 'tech-badge';
+        noindexPill.style.cssText = 'background: rgba(220, 38, 38, 0.15); color: #dc2626; border: 1px solid #dc2626; font-weight: 700;';
+        noindexPill.innerText = 'ALERT: HTTP NOINDEX';
+        techRow.appendChild(noindexPill);
+      }
+      if (data.httpHeaders.redirectCount && data.httpHeaders.redirectCount > 0) {
+        const redirPill = document.createElement('span');
+        redirPill.className = 'tech-badge';
+        redirPill.style.cssText = 'background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid #f59e0b; font-weight: 600;';
+        redirPill.innerText = `Redirect Chain: ${data.httpHeaders.redirectCount} hops`;
+        techRow.appendChild(redirPill);
+      }
+    }
   }
 
   // 4. Metric Cards (1 to 6)
@@ -702,6 +770,53 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
     }
   } else if (cardSeo) {
     cardSeo.style.display = 'none';
+  }
+
+  // 4c. Revenue Impact Card Rendering
+  if (data.performance) {
+    const lcpSec = (data.performance.lcpMs || 0) / 1000;
+    const inpMs = data.performance.inpMs || 0;
+    const cls = data.performance.cls || 0;
+    const isEcom = (data.technologies || []).some((t: any) => t.category === 'Ecommerce') ||
+                   (data.cms || []).some((c: string) => /shopify|woocommerce|magento|bigcommerce/i.test(c));
+
+    const revenueLoss = calculateLostRevenue(lcpSec, inpMs, cls, isEcom);
+    data.revenueLoss = revenueLoss;
+
+    let cardRev = document.getElementById('cardRevenueImpact');
+    if (!revenueLoss.isOptimal) {
+      if (!cardRev) {
+        cardRev = document.createElement('section');
+        cardRev.id = 'cardRevenueImpact';
+        cardRev.className = 'revenue-impact-card';
+        cardRev.style.cssText = 'margin: 10px 0; padding: 12px; background: rgba(225, 29, 72, 0.06); border: 1px solid rgba(225, 29, 72, 0.25); border-radius: 8px; font-family: system-ui, -apple-system, sans-serif;';
+
+        const flawBanner = document.getElementById('flawBanner');
+        if (flawBanner && flawBanner.parentNode) {
+          flawBanner.parentNode.insertBefore(cardRev, flawBanner);
+        } else {
+          document.querySelector('.container')?.appendChild(cardRev);
+        }
+      }
+
+      cardRev.style.display = 'block';
+      cardRev.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #e11d48;">REVENUE LEAKAGE FORENSICS</span>
+          <span style="display: inline-block; padding: 2px 7px; font-size: 10px; font-weight: 700; border-radius: 4px; background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.4);">
+            ${revenueLoss.conversionDropPct}% CONVERSION DRAG
+          </span>
+        </div>
+        <div style="font-size: 15px; font-weight: 700; color: #e11d48; margin-bottom: 4px;">
+          Estimated Monthly Revenue Leaked: $${revenueLoss.lostMonthly.toLocaleString()}/mo
+        </div>
+        <div style="font-size: 11px; color: var(--color-muted); line-height: 1.4;">
+          ${escapeHtml(revenueLoss.roiHeadline)}
+        </div>
+      `;
+    } else if (cardRev) {
+      cardRev.style.display = 'none';
+    }
   }
 
   // 5. Evidence Engine Flaw Banner

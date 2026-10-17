@@ -274,9 +274,31 @@ export interface ResourceMetrics {
 
 export interface TechnologyDetection {
   name: string;
-  category: 'CMS' | 'Page Builder' | 'Framework' | 'Analytics';
-  confidence: 'high' | 'medium' | 'low';
+  category: 'CMS' | 'Page Builder' | 'Framework' | 'Analytics' | 'Marketing Pixel' | 'Ecommerce' | 'CDN';
+  confidence: 'high' | 'medium';
   evidence: string[];
+}
+
+export interface RevenueLossAnalysis {
+  isOptimal: boolean;
+  modelType: string;
+  totalExcessSeconds: number;
+  conversionDropPct: number;
+  lostMonthly: number;
+  lostAnnual: number;
+  roiHeadline: string;
+}
+
+export interface HttpHeaderForensics {
+  xRobotsTag?: string;
+  isNoindex: boolean;
+  isNofollow: boolean;
+  canonicalHeaderUrl?: string;
+  cacheStatus: string;
+  isCachedEdge: boolean;
+  serverBanner?: string;
+  redirectCount: number;
+  hasRedirectChain: boolean;
 }
 
 export interface LabMetrics {
@@ -336,4 +358,22 @@ export interface RawObservations {
   accessibility: AccessibilityMetrics;
   resources: ResourceMetrics;
   technologies: TechnologyDetection[];
+  revenueLoss?: RevenueLossAnalysis;
+  httpHeaders?: HttpHeaderForensics;
+}
+
+export interface AuditData {
+  metadata?: AuditMetadata;
+  performance?: PerformanceMetrics;
+  mainThread?: MainThreadMetrics;
+  dom?: DomMetrics;
+  htmlSize?: HtmlSizeMetrics;
+  images?: ImageAuditItem[];
+  seo?: SeoStructuredDataAudit;
+  accessibility?: AccessibilityMetrics;
+  resources?: ResourceMetrics;
+  technologies?: TechnologyDetection[];
+  revenueLoss?: RevenueLossAnalysis;
+  httpHeaders?: HttpHeaderForensics;
+  [key: string]: any;
 }
