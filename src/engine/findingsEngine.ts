@@ -8,7 +8,7 @@ export class FindingsEngine {
    * Evaluates measured observations against evidence thresholds.
    * Produces grounded findings without fabricating unsupported claims or forcing flaws.
    */
-  public static evaluateFindings(data: any, domain: string): AuditScorecard {
+  public static evaluateFindings(data: any, domain: string, isPaidUser: boolean = false): AuditScorecard {
     const findings: Finding[] = [];
 
     const domStats = data.domStats || { totalElements: 0, maxDepth: 0 };
@@ -40,9 +40,9 @@ export class FindingsEngine {
     const inpMs = data.performance ? data.performance.inpMs : null;
     const inpObserved = data.performance ? Boolean(data.performance.inpObserved) : false;
     const inpTarget = data.performance ? (data.performance.inpTarget || data.performance.inpAttribution?.interactionTarget) : null;
-    const inpProcessingDelay = data.performance?.inpProcessingDelayMs || 0;
-    const inpInputDelay = data.performance?.inpInputDelayMs || 0;
     const inpAttribution = data.performance?.inpAttribution || null;
+    const inpProcessingDelay = data.performance?.inpProcessingDelayMs ?? (inpAttribution?.processingDelayMs || 0);
+    const inpInputDelay = data.performance?.inpInputDelayMs || 0;
 
     const cls = data.performance ? data.performance.cls : null;
     const clsTarget = data.performance?.clsAttribution?.largestShiftTarget || null;
@@ -107,11 +107,36 @@ export class FindingsEngine {
         { label: 'Measurement Source', value: 'Google Web Vitals Event Timing Observer' }
       ];
 
-      if (inpAttribution && inpAttribution.culpritScriptUrl) {
+      const hasSignificantCulprit = Boolean(
+        inpAttribution &&
+        inpAttribution.culpritScriptUrl &&
+        (inpAttribution.culpritExecutionMs || 0) >= 16 &&
+        (inpAttribution.culpritExecutionMs || 0) >= inpProcessingDelay * 0.15
+      );
+
+      if (hasSignificantCulprit) {
+        if (isPaidUser) {
+          inpEvidence.push({
+            label: 'Offending Script Culprit',
+            value: `${inpAttribution.culpritFunctionName || 'anonymous'} in ${inpAttribution.culpritScriptUrl.split('/').pop()}`,
+            context: `${inpAttribution.culpritExecutionMs}ms execution (${inpAttribution.culpritForcedStyleMs}ms forced layout thrashing)`
+          });
+        } else {
+          inpEvidence.push({
+            label: 'Offending Script Culprit',
+            value: 'Main-thread script contention identified (PRO)',
+            context: `${inpAttribution.culpritExecutionMs}ms execution during event processing`
+          });
+        }
+      } else {
+        const presentationDelay = data.performance?.inpPresentationDelayMs || inpAttribution?.presentationDelayMs || 0;
+        const latencyType = (inpInputDelay >= presentationDelay)
+          ? 'queue latency (input delay)'
+          : 'rendering latency (presentation delay)';
         inpEvidence.push({
-          label: 'Offending Script Culprit',
-          value: `${inpAttribution.culpritFunctionName || 'anonymous'} in ${inpAttribution.culpritScriptUrl.split('/').pop()}`,
-          context: `${inpAttribution.culpritExecutionMs}ms execution (${inpAttribution.culpritForcedStyleMs}ms forced layout thrashing)`
+          label: 'Attribution Classification',
+          value: latencyType,
+          context: 'Script execution sub-threshold (<16ms or <15% of processing phase); delay dominated by queue or rendering latency'
         });
       }
 
@@ -123,8 +148,18 @@ export class FindingsEngine {
       }
 
       let inpExplanation = `User interaction on ${inpTarget || 'interactive elements'} took ${inpMs} ms to present the next frame, causing visible UI lag on mobile devices.`;
-      if (inpAttribution && inpAttribution.culpritScriptUrl) {
-        inpExplanation += ` Long Animation Frame telemetry identified ${inpAttribution.culpritFunctionName || 'handler'} in ${inpAttribution.culpritScriptUrl.split('/').pop()} executing for ${inpAttribution.culpritExecutionMs}ms during event processing.`;
+      if (hasSignificantCulprit) {
+        if (isPaidUser) {
+          inpExplanation += ` Long Animation Frame telemetry identified ${inpAttribution.culpritFunctionName || 'handler'} in ${inpAttribution.culpritScriptUrl.split('/').pop()} executing for ${inpAttribution.culpritExecutionMs}ms during event processing.`;
+        } else {
+          inpExplanation += ` Long Animation Frame telemetry identified heavy main-thread script contention executing for ${inpAttribution.culpritExecutionMs}ms during event processing.`;
+        }
+      } else {
+        const presentationDelay = data.performance?.inpPresentationDelayMs || inpAttribution?.presentationDelayMs || 0;
+        const latencyType = (inpInputDelay >= presentationDelay)
+          ? 'input queue latency'
+          : 'presentation rendering latency';
+        inpExplanation += ` Telemetry indicates the delay was primarily driven by ${latencyType} rather than synchronous script execution bottlenecks.`;
       }
 
       findings.push({

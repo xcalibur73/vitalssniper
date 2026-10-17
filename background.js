@@ -49,6 +49,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.action === 'setUserAgent') {
     const userAgent = message.userAgent || 'default';
+    const activeTabId = typeof message.tabId === 'number'
+      ? message.tabId
+      : (sender && sender.tab && typeof sender.tab.id === 'number' ? sender.tab.id : undefined);
 
     if (userAgent === 'default' || !BOT_USER_AGENTS[userAgent]) {
       const storage = getStorageSession();
@@ -93,7 +96,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         },
         condition: {
           urlFilter: '*',
-          resourceTypes: ALL_RESOURCE_TYPES
+          resourceTypes: ALL_RESOURCE_TYPES,
+          ...(typeof activeTabId === 'number' ? { tabIds: [activeTabId] } : {})
         }
       };
 

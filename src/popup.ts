@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function renderAuditData(domain: string, currentUrl: string, data: any) {
   // 1. Evaluate Findings through Evidence Engine
-  const scorecard = FindingsEngine.evaluateFindings(data, domain);
+  const scorecard = FindingsEngine.evaluateFindings(data, domain, isPaidUser);
   const primaryFinding = scorecard.primaryFinding;
   const score = scorecard.overallScore;
 
@@ -793,20 +793,56 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
     if (cardRev) {
       if (!revenueLoss.isOptimal) {
         cardRev.style.display = 'block';
-        cardRev.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #e11d48;">REVENUE LEAKAGE FORENSICS</span>
-            <span style="display: inline-block; padding: 2px 7px; font-size: 10px; font-weight: 700; border-radius: 4px; background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.4);">
-              ${revenueLoss.conversionDropPct}% CONVERSION DRAG
-            </span>
-          </div>
-          <div style="font-size: 15px; font-weight: 700; color: #e11d48; margin-bottom: 4px;">
-            Estimated Monthly Revenue Leaked: $${revenueLoss.lostMonthly.toLocaleString()}/mo
-          </div>
-          <div style="font-size: 11px; color: var(--color-muted); line-height: 1.4;">
-            ${escapeHtml(revenueLoss.roiHeadline)}
-          </div>
-        `;
+        if (revenueLoss.modelType === 'editorial') {
+          cardRev.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #e11d48;">AUDIENCE ENGAGEMENT FORENSICS</span>
+              <span style="display: inline-block; padding: 2px 7px; font-size: 10px; font-weight: 700; border-radius: 4px; background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.4);">
+                ${revenueLoss.conversionDropPct}% ENGAGEMENT DRAG
+              </span>
+            </div>
+            <div style="font-size: 14px; font-weight: 700; color: #e11d48; margin-bottom: 4px;">
+              Estimated Audience Drag: ${revenueLoss.conversionDropPct}% Reader Bounce Inflation
+            </div>
+            <div style="font-size: 11px; color: var(--color-muted); line-height: 1.4;">
+              ${escapeHtml(revenueLoss.roiHeadline)}
+            </div>
+          `;
+        } else if (!isPaidUser) {
+          cardRev.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #e11d48;">REVENUE LEAKAGE FORENSICS</span>
+              <span style="display: inline-block; padding: 2px 7px; font-size: 10px; font-weight: 700; border-radius: 4px; background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.4);">
+                ${revenueLoss.conversionDropPct}% CONVERSION DRAG
+              </span>
+            </div>
+            <div style="font-size: 15px; font-weight: 700; color: #e11d48; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;"><span>Estimated Monthly Revenue Leaked: <span style="filter: blur(4px); user-select: none;">$3,420</span>/mo</span> <button id="btnUnlockRevenuePro" class="btn-sm" style="font-size: 10px; padding: 2px 8px; background: #e11d48; color: #fff; border-radius: 4px; border: none; font-weight: 700; cursor: pointer;">Unlock with PRO</button></div>
+            <div style="font-size: 11px; color: var(--color-muted); line-height: 1.4;">
+              ${escapeHtml(revenueLoss.roiHeadline)}
+            </div>
+          `;
+          const btnUnlockRevenue = document.getElementById('btnUnlockRevenuePro');
+          if (btnUnlockRevenue) {
+            btnUnlockRevenue.onclick = () => {
+              showProUpgradeModal('Financial Revenue Leakage Calculator: Unlock exact monthly and annual revenue loss calculations based on Google and Deloitte latency decay curves, customizable order values, and conversion modeling.');
+            };
+          }
+        } else {
+          cardRev.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #e11d48;">REVENUE LEAKAGE FORENSICS</span>
+              <span style="display: inline-block; padding: 2px 7px; font-size: 10px; font-weight: 700; border-radius: 4px; background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.4);">
+                ${revenueLoss.conversionDropPct}% CONVERSION DRAG
+              </span>
+            </div>
+            <div style="font-size: 15px; font-weight: 700; color: #e11d48; margin-bottom: 4px;">
+              Estimated Monthly Revenue Leaked: $${revenueLoss.lostMonthly.toLocaleString()}/mo
+            </div>
+            <div style="font-size: 11px; color: var(--color-muted); line-height: 1.4;">
+              ${escapeHtml(revenueLoss.roiHeadline)}
+            </div>
+          `;
+        }
       } else {
         cardRev.style.display = 'none';
       }
@@ -834,7 +870,12 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
 
     const inpAttribution = data.performance?.inpAttribution;
     let inpCulpritRow = document.getElementById('inpCulpritRow');
-    if (inpAttribution?.culpritScriptUrl) {
+    const isSignificantCulprit = Boolean(
+      inpAttribution?.culpritScriptUrl &&
+      (inpAttribution.culpritExecutionMs || 0) >= 16 &&
+      (inpAttribution.culpritExecutionMs || 0) >= (data.performance?.inpProcessingDelayMs ?? inpAttribution?.processingDelayMs ?? 0) * 0.15
+    );
+    if (isSignificantCulprit && inpAttribution?.culpritScriptUrl) {
       if (!inpCulpritRow) {
         inpCulpritRow = document.createElement('div');
         inpCulpritRow.id = 'inpCulpritRow';
@@ -843,12 +884,23 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
           cardForensicsLcp.appendChild(inpCulpritRow);
         }
       }
-      const culpritFile = inpAttribution.culpritScriptUrl.split('/').pop() || inpAttribution.culpritScriptUrl;
-      const culpritFunc = inpAttribution.culpritFunctionName || 'anonymous';
-      const execMs = inpAttribution.culpritExecutionMs || 0;
-      const forcedMs = inpAttribution.culpritForcedStyleMs || 0;
       inpCulpritRow.style.display = 'block';
-      inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:6px 10px; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:4px; font-size:11px; color:var(--color-text);"><strong style="color:var(--color-red);">INP Culprit:</strong> ${escapeHtml(culpritFunc)} in <code>${escapeHtml(culpritFile)}</code> (${execMs}ms execution, ${forcedMs}ms forced layout thrashing)</div>`;
+      if (!isPaidUser) {
+        const auditInpMs = data.performance?.inpMs || 0;
+        inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:6px 10px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:4px; font-size:11px; color:var(--color-text); display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--color-red);">INP Interaction Delay:</strong> ${auditInpMs}ms detected during event processing. Main-thread script contention identified.</div><button id="btnUnlockInpPro" class="btn-sm" style="font-size:10px; padding:2px 8px; background:#e11d48; color:#fff; border-radius:4px; border:none; font-weight:700; cursor:pointer;">Unlock Script Culprit</button></div>`;
+        const btnUnlockInp = document.getElementById('btnUnlockInpPro');
+        if (btnUnlockInp) {
+          btnUnlockInp.onclick = () => {
+            showProUpgradeModal('Long Animation Frames (LoAF) Script Attribution: Identify the exact JavaScript filename, function name, execution duration, and forced layout thrashing causing interaction delays.');
+          };
+        }
+      } else {
+        const culpritFile = inpAttribution.culpritScriptUrl.split('/').pop() || inpAttribution.culpritScriptUrl;
+        const culpritFunc = inpAttribution.culpritFunctionName || 'anonymous';
+        const execMs = inpAttribution.culpritExecutionMs || 0;
+        const forcedMs = inpAttribution.culpritForcedStyleMs || 0;
+        inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:6px 10px; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:4px; font-size:11px; color:var(--color-text);"><strong style="color:var(--color-red);">INP Culprit:</strong> ${escapeHtml(culpritFunc)} in <code>${escapeHtml(culpritFile)}</code> (${execMs}ms execution, ${forcedMs}ms forced layout thrashing)</div>`;
+      }
     } else if (inpCulpritRow) {
       inpCulpritRow.style.display = 'none';
     }
@@ -963,9 +1015,15 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
   // 6. AI Interpreter Outreach Copy Generation
   currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone, configuredAuditorName);
   const auditInpMs = data.performance?.inpMs || 0;
-  if (data.performance?.inpAttribution?.culpritScriptUrl && auditInpMs > 200) {
-    const culpritScript = data.performance.inpAttribution.culpritScriptUrl.split('/').pop() || data.performance.inpAttribution.culpritScriptUrl;
-    const forcedDuration = data.performance.inpAttribution.culpritForcedStyleMs || 0;
+  const inpAttr = data.performance?.inpAttribution;
+  const isSignificantCulprit = Boolean(
+    inpAttr?.culpritScriptUrl &&
+    (inpAttr.culpritExecutionMs || 0) >= 16 &&
+    (inpAttr.culpritExecutionMs || 0) >= (data.performance?.inpProcessingDelayMs ?? inpAttr?.processingDelayMs ?? 0) * 0.15
+  );
+  if (isSignificantCulprit && inpAttr?.culpritScriptUrl && auditInpMs > 200) {
+    const culpritScript = inpAttr.culpritScriptUrl.split('/').pop() || inpAttr.culpritScriptUrl;
+    const forcedDuration = inpAttr.culpritForcedStyleMs || 0;
     const culpritPitchNote = `\n\nForensic INP Telemetry: Offending script ${culpritScript} introduced ${forcedDuration}ms of forced layout thrashing during user interactions.`;
     if (currentScripts.merchantPitch && !currentScripts.merchantPitch.includes(culpritScript)) {
       currentScripts.merchantPitch += culpritPitchNote;
@@ -1021,9 +1079,15 @@ function updateActiveToneView(domain: string, primaryFinding: Finding, data: any
 
   currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone, configuredAuditorName);
   const activeInpMs = data.performance ? (data.performance.inpMs || 0) : 0;
-  if (data.performance?.inpAttribution?.culpritScriptUrl && activeInpMs > 200) {
-    const culpritScript = data.performance.inpAttribution.culpritScriptUrl.split('/').pop() || data.performance.inpAttribution.culpritScriptUrl;
-    const forcedDuration = data.performance.inpAttribution.culpritForcedStyleMs || 0;
+  const activeInpAttr = data.performance?.inpAttribution;
+  const isActiveSignificantCulprit = Boolean(
+    activeInpAttr?.culpritScriptUrl &&
+    (activeInpAttr.culpritExecutionMs || 0) >= 16 &&
+    (activeInpAttr.culpritExecutionMs || 0) >= (data.performance?.inpProcessingDelayMs ?? activeInpAttr?.processingDelayMs ?? 0) * 0.15
+  );
+  if (isActiveSignificantCulprit && activeInpAttr?.culpritScriptUrl && activeInpMs > 200) {
+    const culpritScript = activeInpAttr.culpritScriptUrl.split('/').pop() || activeInpAttr.culpritScriptUrl;
+    const forcedDuration = activeInpAttr.culpritForcedStyleMs || 0;
     const culpritPitchNote = `\n\nForensic INP Telemetry: Offending script ${culpritScript} introduced ${forcedDuration}ms of forced layout thrashing during user interactions.`;
     if (currentScripts.merchantPitch && !currentScripts.merchantPitch.includes(culpritScript)) {
       currentScripts.merchantPitch += culpritPitchNote;
@@ -1120,8 +1184,26 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
   const tabLoom = document.getElementById('tabLoom');
 
   if (tabEmail) tabEmail.onclick = () => { activeChannel = 'email'; updateActiveChannelView(); };
-  if (tabMerchant) tabMerchant.onclick = () => { activeChannel = 'merchant'; updateActiveChannelView(); };
-  if (tabAgency) tabAgency.onclick = () => { activeChannel = 'agency'; updateActiveChannelView(); };
+  if (tabMerchant) {
+    tabMerchant.onclick = () => {
+      if (!isPaidUser) {
+        showProUpgradeModal('Specialized Outreach Teardowns: Unlock tailored Merchant Pitch and eCommerce revenue recovery scripts citing live performance metrics.');
+        return;
+      }
+      activeChannel = 'merchant';
+      updateActiveChannelView();
+    };
+  }
+  if (tabAgency) {
+    tabAgency.onclick = () => {
+      if (!isPaidUser) {
+        showProUpgradeModal('Specialized Outreach Teardowns: Unlock tailored Agency Partner Proposal and white-label retainer scripts citing live performance metrics.');
+        return;
+      }
+      activeChannel = 'agency';
+      updateActiveChannelView();
+    };
+  }
   if (tabDm) tabDm.onclick = () => { activeChannel = 'dm'; updateActiveChannelView(); };
   if (tabLoom) {
     tabLoom.onclick = () => {
@@ -1453,18 +1535,42 @@ function initBotEmulation(): void {
 
   btnApply.onclick = () => {
     const targetUa = selectBot.value;
+    if (!isPaidUser && (targetUa === 'googlebot-smartphone' || targetUa === 'gptbot' || targetUa === 'bingbot')) {
+      showProUpgradeModal('Advanced Search Bot Emulation: Simulate Googlebot Smartphone, Bingbot, and GPTBot to audit mobile-first cloaking, paywalls, and AI crawler access.');
+      selectBot.value = 'default';
+      updateBadge('default');
+      return;
+    }
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
-      chrome.runtime.sendMessage({ action: 'setUserAgent', userAgent: targetUa }, () => {
-        updateBadge(targetUa);
-        if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
-          chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
-            const activeTab = tabs && tabs[0];
+      if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
+          let activeTab = tabs && tabs[0];
+          if (!activeTab) {
+            chrome.tabs.query({ active: true, lastFocusedWindow: true }, (fallbackTabs: any[]) => {
+              activeTab = fallbackTabs && fallbackTabs[0];
+              const activeTabId = (activeTab && typeof activeTab.id === 'number') ? activeTab.id : undefined;
+              chrome.runtime.sendMessage({ action: 'setUserAgent', userAgent: targetUa, tabId: activeTabId }, () => {
+                updateBadge(targetUa);
+                if (activeTab && typeof activeTab.id === 'number') {
+                  chrome.tabs.reload(activeTab.id);
+                }
+              });
+            });
+            return;
+          }
+          const activeTabId = (activeTab && typeof activeTab.id === 'number') ? activeTab.id : undefined;
+          chrome.runtime.sendMessage({ action: 'setUserAgent', userAgent: targetUa, tabId: activeTabId }, () => {
+            updateBadge(targetUa);
             if (activeTab && typeof activeTab.id === 'number') {
               chrome.tabs.reload(activeTab.id);
             }
           });
-        }
-      });
+        });
+      } else {
+        chrome.runtime.sendMessage({ action: 'setUserAgent', userAgent: targetUa }, () => {
+          updateBadge(targetUa);
+        });
+      }
     }
   };
 }
@@ -2268,6 +2374,11 @@ async function initLicense() {
         await syncModalState();
         if (activeKeyDisplay) activeKeyDisplay.innerText = rawKey.substring(0, 10) + '****-****';
 
+        // Re-render audit data immediately so UI unmasks PRO features reactively
+        if (currentAuditState.domain && currentAuditState.url && currentAuditState.data) {
+          renderAuditData(currentAuditState.domain, currentAuditState.url, currentAuditState.data);
+        }
+
         // Auto-sync active audit to WebAudits.pro
         const cloudBadge = document.getElementById('cloudSyncBadge');
         if (currentAuditState.url && !currentAuditState.url.includes('example.com') && currentAuditState.scorecard) {
@@ -2310,7 +2421,9 @@ async function initLicense() {
           proTag.innerText = 'ACTIVATE';
           proTag.classList.remove('active');
         }
-        if (currentAuditState.domain && currentAuditState.scorecard?.primaryFinding) {
+        if (currentAuditState.domain && currentAuditState.url && currentAuditState.data) {
+          renderAuditData(currentAuditState.domain, currentAuditState.url, currentAuditState.data);
+        } else if (currentAuditState.domain && currentAuditState.scorecard?.primaryFinding) {
           updateActiveToneView(currentAuditState.domain, currentAuditState.scorecard.primaryFinding, currentAuditState.data);
         } else {
           updateActiveChannelView();

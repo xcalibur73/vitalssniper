@@ -2,6 +2,7 @@
 // Zero em-dash compliance: strictly hyphens or colons only
 
 import { isSafeUrl, escapeHtml } from '../utils/security';
+import { detectTechnologies } from '../engine/techDetector';
 
 export interface MetricDelta {
   metric: string;
@@ -344,14 +345,9 @@ export class CompetitorService {
       const hasSchema = doc.querySelectorAll('script[type="application/ld+json"]').length > 0;
       const schemaStatus = hasSchema ? 'Detected' : 'Opportunity';
 
-      // Basic CMS check
-      const hLower = html.toLowerCase();
-      const cmsList: string[] = [];
-      if (hLower.includes('/wp-content/')) cmsList.push('WordPress');
-      if (hLower.includes('elementor')) cmsList.push('Elementor');
-      if (hLower.includes('shopify') || hLower.includes('cdn.shopify.com')) cmsList.push('Shopify');
-      if (hLower.includes('w-mod-js')) cmsList.push('Webflow');
-      if (hLower.includes('__next')) cmsList.push('Next.js');
+      // Hardened CMS and tech check using detectTechnologies
+      const detections = detectTechnologies(doc, {}, html);
+      const cmsList = detections.map(d => d.name);
       const cms = cmsList.length > 0 ? cmsList.join(', ') : 'Custom Stack';
 
       const competitorSummary = {

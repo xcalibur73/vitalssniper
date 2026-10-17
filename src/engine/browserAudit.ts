@@ -808,6 +808,13 @@ export async function inspectPageForensics() {
       }
     });
 
+    // Require minimum 16ms execution threshold and at least 15% processing phase proportion
+    const hasSignificantCulprit = Boolean(
+      worstScript &&
+      maxIntersectingDuration >= 16 &&
+      maxIntersectingDuration >= (inpProcessingDelayMs || 0) * 0.15
+    );
+
     const targetLabel = inpTarget ? ` on ${inpTarget}` : '';
     inpDisplay = `${inpMs} ms (${worstInteraction.name || 'interaction'}${targetLabel})`;
     inpAttribution = {
@@ -816,10 +823,10 @@ export async function inspectPageForensics() {
       processingDelayMs: inpProcessingDelayMs,
       inputDelayMs: inpInputDelayMs,
       presentationDelayMs: inpPresentationDelayMs,
-      culpritScriptUrl: worstScript ? (worstScript.sourceURL || worstScript.sourceUrl || null) : null,
-      culpritFunctionName: worstScript ? (worstScript.sourceFunctionName || null) : null,
-      culpritExecutionMs: worstScript ? Math.round(maxIntersectingDuration) : null,
-      culpritForcedStyleMs: worstScript ? maxIntersectingForcedStyle : null,
+      culpritScriptUrl: hasSignificantCulprit ? (worstScript.sourceURL || worstScript.sourceUrl || null) : null,
+      culpritFunctionName: hasSignificantCulprit ? (worstScript.sourceFunctionName || null) : null,
+      culpritExecutionMs: hasSignificantCulprit ? Math.round(maxIntersectingDuration) : null,
+      culpritForcedStyleMs: hasSignificantCulprit ? maxIntersectingForcedStyle : null,
       groupedEventCount: worstGroup.events.length,
       groupedEvents: Array.from(new Set(worstGroup.events.map((e: any) => e.name || 'interaction')))
     };
@@ -1270,43 +1277,8 @@ export async function inspectPageForensics() {
   } catch (e) {
     techDetections = [];
   }
-  if (!techDetections || techDetections.length === 0) {
-    const hLower = rawHtml.toLowerCase();
-    const wpEvidence: string[] = [];
-    if (hLower.includes('/wp-content/')) wpEvidence.push('Path: /wp-content/');
-    if (hLower.includes('/wp-includes/')) wpEvidence.push('Path: /wp-includes/');
-    if (document.querySelector('meta[name="generator"][content*="WordPress"]')) wpEvidence.push('Meta generator: WordPress');
-    if (wpEvidence.length > 0) {
-      techDetections.push({ name: 'WordPress', category: 'CMS', confidence: wpEvidence.length > 1 ? 'high' : 'medium', evidence: wpEvidence });
-    }
-    if (hLower.includes('elementor') || (window as any).elementorFrontend) {
-      techDetections.push({ name: 'Elementor', category: 'Page Builder', confidence: 'high', evidence: ['Elementor DOM classes / frontend object'] });
-    }
-    if (hLower.includes('et_pb_') || hLower.includes('/themes/divi/')) {
-      techDetections.push({ name: 'Divi', category: 'Page Builder', confidence: 'high', evidence: ['Divi et_pb class signatures'] });
-    }
-    if (hLower.includes('generatepress') || hLower.includes('generateblocks')) {
-      techDetections.push({ name: 'GeneratePress', category: 'Page Builder', confidence: 'high', evidence: ['GeneratePress / GenerateBlocks tokens'] });
-    }
-    if (hLower.includes('sqs-block') || (window as any).Static?.SQUARESPACE_CONTEXT) {
-      techDetections.push({ name: 'Squarespace', category: 'CMS', confidence: 'high', evidence: ['Squarespace context / layout tokens'] });
-    }
-    if (document.documentElement.classList.contains('w-mod-js') || hLower.includes('data-wf-page')) {
-      techDetections.push({ name: 'Webflow', category: 'CMS', confidence: 'high', evidence: ['Webflow data-wf attributes'] });
-    }
-    if (document.getElementById('__next') !== null || (window as any).__NEXT_DATA__ !== undefined) {
-      techDetections.push({ name: 'Next.js', category: 'Framework', confidence: 'high', evidence: ['Next.js __NEXT_DATA__ hydration node'] });
-    }
-    if ((window as any).Shopify !== undefined || hLower.includes('cdn.shopify.com')) {
-      techDetections.push({ name: 'Shopify', category: 'Ecommerce', confidence: 'high', evidence: ['Shopify global object / CDN resources'] });
-    }
-    if (hLower.includes('woocommerce') || hLower.includes('wc-blocks')) {
-      techDetections.push({ name: 'WooCommerce', category: 'Ecommerce', confidence: 'high', evidence: ['WooCommerce class and markup tokens'] });
-    }
-    if ((window as any).wixBiSession !== undefined || hLower.includes('static.parastorage.com')) {
-      techDetections.push({ name: 'Wix', category: 'CMS', confidence: 'high', evidence: ['Wix runtime session / Parastorage CDN'] });
-    }
-  }
+  // techDetections is strictly determined by hardened detectTechnologies engine
+
 
   const scanDurationMs = Math.round(performance.now() - scanStartTime);
 

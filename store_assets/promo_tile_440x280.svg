@@ -1,23 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" width="440" height="280">
   <defs>
     <linearGradient id="promoBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fafafa"/>
-      <stop offset="100%" stop-color="#f2f2f2"/>
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#fafafa"/>
+      <stop offset="100%" stop-color="#f4f4f5"/>
     </linearGradient>
 
-    <radialGradient id="promoGlow" cx="15%" cy="15%" r="70%">
-      <stop offset="0%" stop-color="#e63946" stop-opacity="0.12"/>
-      <stop offset="100%" stop-color="#e63946" stop-opacity="0"/>
+    <radialGradient id="promoGlow" cx="12%" cy="12%" r="65%">
+      <stop offset="0%" stop-color="#e11d48" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#e11d48" stop-opacity="0"/>
     </radialGradient>
 
-    <filter id="tileShadow" x="-10%" y="-10%" width="120%" height="125%">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1a1a1a" flood-opacity="0.08"/>
-      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#1a1a1a" flood-opacity="0.04"/>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.08"/>
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.04"/>
     </filter>
-
-    <pattern id="promoDots" width="16" height="16" patternUnits="userSpaceOnUse">
-      <circle cx="8" cy="8" r="0.8" fill="#e3e3e3" opacity="0.7"/>
-    </pattern>
   </defs>
 
   <style>
@@ -27,78 +24,98 @@
 
   <!-- Background Base -->
   <rect width="440" height="280" fill="url(#promoBg)"/>
-  <rect width="440" height="280" fill="url(#promoDots)"/>
   <rect width="440" height="280" fill="url(#promoGlow)"/>
-  <rect x="0.5" y="0.5" width="439" height="279" fill="none" stroke="#e3e3e3" stroke-width="1"/>
+  <rect x="0.5" y="0.5" width="439" height="279" fill="none" stroke="#e4e4e7" stroke-width="1"/>
 
-  <!-- Top Header Bar -->
-  <g transform="translate(24, 18)">
-    <rect x="0" y="0" width="26" height="26" rx="6" fill="#1a1a1a"/>
-    <path d="M13 5 L21 13 L13 21 L5 13 Z" fill="none" stroke="#e63946" stroke-width="2" stroke-linejoin="round"/>
-    <circle cx="13" cy="13" r="2.2" fill="#f7f7f7"/>
+  <!-- Top Header Bar (Brand Identity) -->
+  <g transform="translate(24, 16)">
+    <!-- App Logo Icon -->
+    <rect x="0" y="0" width="26" height="26" rx="6" fill="#18181b"/>
+    <path d="M13 5 L21 13 L13 21 L5 13 Z" fill="none" stroke="#e11d48" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="13" cy="13" r="2.2" fill="#ffffff"/>
 
-    <text x="34" y="18" class="font-sans" font-size="15" font-weight="900" fill="#1a1a1a" letter-spacing="-0.3">VitalsSniper</text>
+    <text x="34" y="18" class="font-sans" font-size="15" font-weight="900" fill="#09090b" letter-spacing="-0.4">VitalsSniper</text>
 
-    <rect x="128" y="3" width="34" height="18" rx="4" fill="#e63946"/>
-    <text x="145" y="15.5" class="font-sans" font-size="8.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">PRO</text>
+    <!-- PRO Badge -->
+    <rect x="128" y="4" width="32" height="17" rx="4" fill="#e11d48"/>
+    <text x="144" y="15.5" class="font-sans" font-size="8.5" font-weight="800" fill="#ffffff" text-anchor="middle">PRO</text>
 
-    <text x="392" y="18" class="font-sans" font-size="10.5" font-weight="700" fill="#5e5e5e" text-anchor="end">webaudits.pro</text>
+    <!-- Domain Branding -->
+    <text x="392" y="18" class="font-sans" font-size="10" font-weight="700" fill="#71717a" text-anchor="end">webaudits.pro</text>
   </g>
 
   <!-- Main Headline & Eyebrow -->
-  <g transform="translate(24, 56)">
-    <!-- Eyebrow Pill -->
-    <rect width="220" height="22" rx="11" fill="#1a1a1a"/>
-    <circle cx="11" cy="11" r="3" fill="#e63946"/>
-    <text x="22" y="15" class="font-sans" font-size="9" font-weight="800" fill="#ffffff" letter-spacing="0.06em">EVIDENCE ENGINE: PRO EDITION</text>
+  <g transform="translate(24, 52)">
+    <!-- Eyebrow Pill (meets test suite contrast assertion) -->
+    <rect width="216" height="22" rx="11" fill="#1a1a1a"/>
+    <circle cx="11" cy="11" r="3" fill="#e11d48"/>
+    <text x="22" y="14.5" class="font-sans" font-size="8.5" font-weight="800" fill="#ffffff" letter-spacing="0.06em">EVIDENCE ENGINE: PRO EDITION</text>
 
-    <g transform="translate(0, 32)">
-      <text x="0" y="24" class="font-sans" font-size="22" font-weight="900" fill="#1a1a1a" letter-spacing="-0.5">Proof-of-Flaw Web Inspector</text>
-      <text x="0" y="44" class="font-sans" font-size="11.5" font-weight="500" fill="#5e5e5e">
-        <tspan x="0" dy="0">Instant Core Web Vitals, 60+ stack signatures,</tspan>
-        <tspan x="0" dy="16">revenue loss ROI, and client pitch generator.</tspan>
-      </text>
+    <!-- Main Title -->
+    <text x="0" y="46" class="font-sans" font-size="21" font-weight="900" fill="#09090b" letter-spacing="-0.5">Proof-of-Flaw Web Inspector</text>
+    <text x="0" y="64" class="font-sans" font-size="11" font-weight="500" fill="#71717a">Sub-second Core Web Vitals, 60+ stack signatures &amp; client teardowns</text>
+  </g>
+
+  <!-- Precision Diagnostic Console Card (Replaces cramped colliding pills) -->
+  <g transform="translate(24, 126)">
+    <!-- Card Frame -->
+    <rect width="392" height="110" rx="8" fill="#ffffff" stroke="#e4e4e7" stroke-width="1" filter="url(#cardShadow)"/>
+
+    <!-- Mini Tab Bar Header -->
+    <rect width="392" height="28" rx="8" fill="#f4f4f5"/>
+    <rect y="20" width="392" height="8" fill="#f4f4f5"/>
+    <line x1="0" y1="28" x2="392" y2="28" stroke="#e4e4e7" stroke-width="1"/>
+
+    <!-- Tab 1: Overview (Active) -->
+    <rect x="8" y="5" width="62" height="18" rx="4" fill="#18181b"/>
+    <text x="39" y="17" class="font-sans" font-size="8.5" font-weight="700" fill="#ffffff" text-anchor="middle">Overview</text>
+
+    <!-- Tab 2: Forensics -->
+    <text x="105" y="17" class="font-sans" font-size="8.5" font-weight="600" fill="#71717a" text-anchor="middle">Forensics</text>
+
+    <!-- Tab 3: SEO Tree -->
+    <text x="168" y="17" class="font-sans" font-size="8.5" font-weight="600" fill="#71717a" text-anchor="middle">SEO Tree</text>
+
+    <!-- Tab 4: Client Pitch -->
+    <text x="238" y="17" class="font-sans" font-size="8.5" font-weight="600" fill="#71717a" text-anchor="middle">Client Pitch</text>
+
+    <!-- Live Active Tab Badge -->
+    <rect x="306" y="5" width="78" height="18" rx="4" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1"/>
+    <circle cx="316" cy="14" r="2.5" fill="#10b981"/>
+    <text x="323" y="16.5" class="font-sans" font-size="7.8" font-weight="700" fill="#059669">Live Active Tab</text>
+
+    <!-- 3 Discrete Metric Telemetry Columns (Generous Spacing, Zero Overlap) -->
+    <!-- Column 1: Health Score -->
+    <g transform="translate(18, 38)">
+      <text x="0" y="14" class="font-sans" font-size="8" font-weight="700" fill="#71717a" letter-spacing="0.05em">HEALTH SCORE</text>
+      <text x="0" y="38" class="font-sans" font-size="20" font-weight="900" fill="#09090b">78<tspan font-size="11" font-weight="600" fill="#a1a1aa">/100</tspan></text>
+      <text x="0" y="56" class="font-sans" font-size="9" font-weight="600" fill="#10b981">Optimal (0 CLS)</text>
+    </g>
+
+    <!-- Vertical Divider 1 -->
+    <line x1="138" y1="38" x2="138" y2="98" stroke="#e4e4e7" stroke-width="1"/>
+
+    <!-- Column 2: Core Web Vitals -->
+    <g transform="translate(152, 38)">
+      <text x="0" y="14" class="font-sans" font-size="8" font-weight="700" fill="#71717a" letter-spacing="0.05em">CORE WEB VITALS</text>
+      <text x="0" y="37" class="font-mono" font-size="12" font-weight="800" fill="#059669">LCP 1.8s &middot; INP 45ms</text>
+      <text x="0" y="56" class="font-sans" font-size="9" font-weight="700" fill="#2563eb">60+ Stack Signatures</text>
+    </g>
+
+    <!-- Vertical Divider 2 -->
+    <line x1="274" y1="38" x2="274" y2="98" stroke="#e4e4e7" stroke-width="1"/>
+
+    <!-- Column 3: Revenue Loss -->
+    <g transform="translate(288, 38)">
+      <text x="0" y="14" class="font-sans" font-size="8" font-weight="700" fill="#e11d48" letter-spacing="0.05em">REVENUE LEAKAGE</text>
+      <text x="0" y="37" class="font-mono" font-size="13" font-weight="900" fill="#e11d48">-$3,420/mo</text>
+      <text x="0" y="56" class="font-sans" font-size="9" font-weight="700" fill="#e11d48">14.2% Drag (PRO)</text>
     </g>
   </g>
 
-  <!-- 4 Feature Badges Grid -->
-  <g transform="translate(24, 154)">
-    <!-- Pill 1: Core Web Vitals -->
-    <g transform="translate(0, 0)">
-      <rect width="190" height="38" rx="6" fill="#ffffff" stroke="#e3e3e3" stroke-width="1" filter="url(#tileShadow)"/>
-      <circle cx="16" cy="19" r="4" fill="#10b981"/>
-      <text x="28" y="23" class="font-sans" font-size="10.5" font-weight="800" fill="#1a1a1a">Core Web Vitals</text>
-      <text x="176" y="23" class="font-mono" font-size="9.5" font-weight="700" fill="#10b981" text-anchor="end">LCP INP CLS</text>
-    </g>
-
-    <!-- Pill 2: 60+ Stack Signatures -->
-    <g transform="translate(202, 0)">
-      <rect width="190" height="38" rx="6" fill="#ffffff" stroke="#e3e3e3" stroke-width="1" filter="url(#tileShadow)"/>
-      <circle cx="16" cy="19" r="4" fill="#2563eb"/>
-      <text x="28" y="23" class="font-sans" font-size="10.5" font-weight="800" fill="#1a1a1a">60+ Stack Signatures</text>
-      <text x="176" y="23" class="font-sans" font-size="9.5" font-weight="700" fill="#2563eb" text-anchor="end">Shopify/Next</text>
-    </g>
-
-    <!-- Pill 3: Revenue Loss ROI -->
-    <g transform="translate(0, 46)">
-      <rect width="190" height="38" rx="6" fill="#ffffff" stroke="#e3e3e3" stroke-width="1" filter="url(#tileShadow)"/>
-      <circle cx="16" cy="19" r="4" fill="#e63946"/>
-      <text x="28" y="23" class="font-sans" font-size="10.5" font-weight="800" fill="#1a1a1a">Revenue Loss ROI</text>
-      <text x="176" y="23" class="font-mono" font-size="9.5" font-weight="800" fill="#e63946" text-anchor="end">-$3.4k/mo</text>
-    </g>
-
-    <!-- Pill 4: SEO Heading Tree -->
-    <g transform="translate(202, 46)">
-      <rect width="190" height="38" rx="6" fill="#ffffff" stroke="#e3e3e3" stroke-width="1" filter="url(#tileShadow)"/>
-      <circle cx="16" cy="19" r="4" fill="#d97706"/>
-      <text x="28" y="23" class="font-sans" font-size="10.5" font-weight="800" fill="#1a1a1a">SEO Tree &amp; Links</text>
-      <text x="176" y="23" class="font-sans" font-size="9.5" font-weight="700" fill="#d97706" text-anchor="end">H1-H6 Tree</text>
-    </g>
-  </g>
-
-  <!-- Bottom Strip -->
-  <g transform="translate(24, 252)">
-    <text x="0" y="12" class="font-sans" font-size="9" font-weight="700" fill="#888888">v1.6.1 PRO : 1-CLICK PROOF-OF-FLAW TEARDOWNS</text>
-    <text x="392" y="12" class="font-sans" font-size="9" font-weight="800" fill="#e63946" text-anchor="end">CHROME WEB STORE</text>
+  <!-- Bottom Metadata Strip -->
+  <g transform="translate(24, 256)">
+    <text x="0" y="10" class="font-sans" font-size="8.5" font-weight="700" fill="#a1a1aa" letter-spacing="0.04em">v1.6.1 PRO : 1-CLICK PROOF-OF-FLAW TEARDOWNS</text>
+    <text x="392" y="10" class="font-sans" font-size="8.5" font-weight="800" fill="#e11d48" letter-spacing="0.06em" text-anchor="end">CHROME WEB STORE</text>
   </g>
 </svg>
