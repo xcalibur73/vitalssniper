@@ -4,7 +4,7 @@
 
 - Name: VitalsSniper: Proof-of-Flaw Web Inspector
 - Short Description (132 char limit): 1-Click CMS & Builder detector, DOM bloat scanner, Core Web Vitals audit, and client outreach email generator.
-- Version: 1.6.0
+- Version: 1.6.1
 - Category: Developer Tools
 - Primary Language: English
 - Pricing: Free (with optional cloud sync and PRO account via WebAudits.pro)
@@ -26,14 +26,15 @@ VitalsSniper is an in-browser technical website auditor and proof-of-flaw inspec
 
 Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper inspects the live DOM of the active tab directly in your local browser engine without server queue delays.
 
-### What is New in Version 1.6.0
+### What is New in Version 1.6.1
 
+- Wappalyzer & BuiltWith Stack Signature Engine: Real-time runtime detection across 60+ platforms including Shopify, WooCommerce, WordPress, Elementor, Next.js, Meta Pixel, GA4, Klaviyo, and Cloudflare.
+- MyWebAudit Lost Revenue & Financial ROI Calculator: Computes estimated monthly and annual revenue loss based on Google/Deloitte latency decay curve when Core Web Vitals exceed thresholds.
+- Ahrefs HTTP Header & Redirect Chain Forensics: Parses x-robots-tag, canonical match, edge cache status, and redirect hops.
 - Long Animation Frames (LoAF) Script Attribution: Tracks main-thread blocking scripts with exact duration, invoker type, and source URL to diagnose Interaction to Next Paint (INP) issues.
 - Layout Shift Live Tracking: Identifies cumulative layout shifts and flags shifting DOM elements with visual coordinates.
 - On-Page SEO Heading Hierarchy: Complete H1-H6 outline inspection with automated alerts for missing primary H1 tags, duplicates, and skipped-level hierarchy breaks.
 - Link Graph Forensics: Classifies internal vs external links, audits nofollow, sponsored, and UGC tags, and warns on empty anchor elements.
-- Clean Word Counter: Accurately counts body copy words excluding scripts, styles, and navigation boilerplate.
-- Brand Harmonization: Refined color system with warm cream, terracotta accents, and dark high-contrast surfaces.
 
 ### Core Audit Capabilities
 

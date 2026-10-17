@@ -15,14 +15,15 @@ VitalsSniper is an in-browser technical website auditor and proof-of-flaw inspec
 
 Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper inspects the live DOM of the active tab directly in your local browser engine without server queue delays.
 
-WHAT IS NEW IN VERSION 1.6.0
+WHAT IS NEW IN VERSION 1.6.1
 
+- Wappalyzer & BuiltWith Stack Signature Engine: Real-time runtime detection across 60+ platforms including Shopify, WooCommerce, WordPress, Elementor, Next.js, Meta Pixel, GA4, Klaviyo, and Cloudflare.
+- MyWebAudit Lost Revenue & Financial ROI Calculator: Computes estimated monthly and annual revenue loss based on Google/Deloitte latency decay curve when Core Web Vitals exceed thresholds.
+- Ahrefs HTTP Header & Redirect Chain Forensics: Parses x-robots-tag, canonical match, edge cache status, and redirect hops.
 - Long Animation Frames (LoAF) Script Attribution: Tracks main-thread blocking scripts with exact duration, invoker type, and source URL to diagnose Interaction to Next Paint (INP) issues.
 - Layout Shift Live Tracking: Identifies cumulative layout shifts and flags shifting DOM elements with visual coordinates.
 - On-Page SEO Heading Hierarchy: Complete H1-H6 outline inspection with automated alerts for missing primary H1 tags, duplicates, and skipped-level hierarchy breaks.
 - Link Graph Forensics: Classifies internal vs external links, audits nofollow, sponsored, and UGC tags, and warns on empty anchor elements.
-- Clean Word Counter: Accurately counts body copy words excluding scripts, styles, and navigation boilerplate.
-- Brand Harmonization: Refined color system with warm cream, terracotta accents, and dark high-contrast surfaces.
 
 KEY AUDIT CAPABILITIES
 
@@ -161,7 +162,8 @@ https://webaudits.pro/privacy
 
 ## Version History
 
-| 1.6.0 | 2026-10-17 | Long Animation Frames (LoAF) script attribution, Layout Shift DOM tracking, H1-H6 heading hierarchy, and link graph forensics | Pending Submission |
+| 1.6.1 | 2026-10-17 | Wappalyzer stack signatures, MyWebAudit revenue loss calculator, Ahrefs HTTP headers, LoAF attribution, and H1-H6 heading hierarchy | Pending Submission |
+| 1.6.0 | 2026-10-17 | Long Animation Frames (LoAF) script attribution, Layout Shift DOM tracking, H1-H6 heading hierarchy, and link graph forensics | Previous Submission |
 | 1.5.3 | 2026-10-12 | Brand Harmonization palette, demo key access, and competitor benchmark updates | Approved & Published |
 | 1.5.2 | 2026-10-09 | Production hardening: shadow root DOM traversal, testing key removal, and Quiet Paper theme alignment | Approved & Published |
 | 1.5.1 | 2026-10-07 | Store listing metadata compliance: removed third-party platform brand lists to resolve Yellow Argon keyword policy | Resubmission |
@@ -171,7 +173,7 @@ https://webaudits.pro/privacy
 ## Review Notes
 
 ### Notes for the Reviewer
-Version 1.6.0 adds Long Animation Frames (LoAF) PerformanceObserver and on-page DOM heading and link metrics. All audits run locally on activeTab in the user's browser without external servers. Zero remote code execution, zero eval calls, and strict Manifest V3 compliance. Demo key 'r3dxlost88' is pre-configured to test all PRO features.
+Version 1.6.1 adds Wappalyzer & BuiltWith stack signatures, MyWebAudit revenue loss calculator, Ahrefs HTTP headers, Long Animation Frames (LoAF) PerformanceObserver, and on-page DOM heading and link metrics. All audits run locally on activeTab in the user's browser without external servers. Zero remote code execution, zero eval calls, and strict Manifest V3 compliance. Demo key 'r3dxlost88' is pre-configured to test all PRO features.
 
 ### Known Issues / Limitations
 None. All scripts are bundled locally inside the extension package with zero remote code execution, zero inline scripts, and zero eval calls in accordance with Chrome Web Store Manifest V3 guidelines.
