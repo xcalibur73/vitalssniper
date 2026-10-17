@@ -35,6 +35,12 @@ export interface InpSubpartAttribution {
   processingDelayMs: number | null;
   inputDelayMs: number | null;
   presentationDelayMs: number | null;
+  culpritScriptUrl?: string | null;
+  culpritFunctionName?: string | null;
+  culpritExecutionMs?: number | null;
+  culpritForcedStyleMs?: number | null;
+  groupedEventCount?: number;
+  groupedEvents?: string[];
 }
 
 export interface LayoutShiftBoundingBox {
@@ -277,6 +283,7 @@ export interface TechnologyDetection {
   category: 'CMS' | 'Page Builder' | 'Framework' | 'Analytics' | 'Marketing Pixel' | 'Ecommerce' | 'CDN';
   confidence: 'high' | 'medium';
   evidence: string[];
+  version?: string | null;
 }
 
 export interface RevenueLossAnalysis {

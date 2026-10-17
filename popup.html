@@ -182,6 +182,7 @@
             <span class="subpart-val" id="subpartRenderDelay">--</span>
           </div>
         </div>
+        <div id="inpCulpritRow" style="display: none;"></div>
       </section>
 
       <section class="forensics-card" id="cardForensicsLoaf">
@@ -205,6 +206,26 @@
           <div class="header-item"><span class="h-label">Security Header:</span> <span class="h-val" id="hSecurity">HSTS Active</span></div>
         </div>
       </section>
+
+      <div class="metric-card" id="cardBotEmulation" style="margin-top: 10px;">
+        <div class="metric-card-header">
+          <span class="card-title">BOT EMULATION (declarativeNetRequest)</span>
+          <span class="card-badge tag-green" id="badgeBotStatus">Default Browser</span>
+        </div>
+        <div style="font-size: 11px; color: var(--color-muted); margin-bottom: 8px;">
+          Simulate search crawler request headers on the active tab to detect cloaking, paywalls, and bot rendering.
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <select id="selectBotEmulation" style="flex: 1; height: 30px; font-size: 12px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); padding: 0 8px;">
+            <option value="default">Default (Human User Agent)</option>
+            <option value="googlebot-smartphone">Googlebot Smartphone (Mobile)</option>
+            <option value="googlebot-desktop">Googlebot Desktop</option>
+            <option value="bingbot">Bingbot (Bing)</option>
+            <option value="gptbot">GPTBot (OpenAI Training Scraper)</option>
+          </select>
+          <button id="btnApplyBot" class="btn-sm" style="height: 30px; padding: 0 12px; font-size: 11px; font-weight: 600;">Apply & Reload</button>
+        </div>
+      </div>
     </div>
 
     <!-- TAB PANE 3: SEO TREE & LINK GRAPH -->

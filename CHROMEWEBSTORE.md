@@ -99,13 +99,17 @@ English
 | Screenshot 1 [REQUIRED] | 1280x800 PNG | [x] Ready | store_assets/screenshot_1_dom_bloat_1280x800.png |
 | Screenshot 2 [RECOMMENDED] | 1280x800 PNG | [x] Ready | store_assets/screenshot_2_outreach_engine_1280x800.png |
 | Screenshot 3 [RECOMMENDED] | 1280x800 PNG | [x] Ready | store_assets/screenshot_3_competitor_vs_1280x800.png |
+| Screenshot 4 [RECOMMENDED] | 1280x800 PNG | [x] Ready | store_assets/screenshot_4_outreach_1280x800.png |
+| Screenshot 5 [RECOMMENDED] | 1280x800 PNG | [x] Ready | store_assets/screenshot_5_competitor_vs_1280x800.png |
 | Small Promo Tile [RECOMMENDED] | 440x280 PNG | [x] Ready | store_assets/promo_tile_440x280.png |
 | Marquee Promo Tile | 1400x560 PNG | [x] Ready | store_assets/marquee_banner_1400x560.png |
 
 ### Screenshot Notes
-- Screenshot 1 (DOM Bloat Audit): Demonstrates live active-tab DOM depth inspection, node counts, and page builder detection with evidence tags.
-- Screenshot 2 (Outreach Engine): Demonstrates generating cold outreach teardown pitches and lead status management.
-- Screenshot 3 (Competitor Comparison): Demonstrates side-by-side technical metric comparison between prospect and industry benchmark.
+- Screenshot 1 (Overview & Stack Detection): Shows instant Core Web Vitals, 60+ stack signatures (Shopify, Next.js, Klaviyo, Meta Pixel, Cloudflare), health score dial (78/100), and $3,420/mo revenue loss calculation.
+- Screenshot 2 (Deep Forensics & Attribution): Shows 4-part sub-second LCP breakdown, Long Animation Frames (LoAF) main-thread script attribution table, and layout shift DOM tracking.
+- Screenshot 3 (SEO Heading & Link Forensics): Shows on-page H1-H6 semantic heading tree, skipped-level warnings, link graph classifier (142 internal, 28 external), and canonical matching.
+- Screenshot 4 (Outreach Teardown Engine): Shows client pitch generator with 4 tone selectors, 5 channel formats (Cold Email, Merchant, Agency, LinkedIn DM, Loom), cited technical metrics, and 1-page PDF export.
+- Screenshot 5 (Competitor Benchmark Matrix): Shows side-by-side head-to-head comparison modal with industry benchmark baselines, win/loss delta table, and competitive hook generator.
 
 ## Permissions Justification
 

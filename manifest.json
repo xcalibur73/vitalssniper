@@ -13,7 +13,8 @@
     "activeTab",
     "tabs",
     "scripting",
-    "storage"
+    "storage",
+    "declarativeNetRequest"
   ],
   "host_permissions": [
     "<all_urls>",

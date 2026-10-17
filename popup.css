@@ -2453,3 +2453,45 @@ a.footer-link:hover {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Bot Emulation Card & Controls */
+.metric-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.card-badge {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.03em;
+}
+
+.btn-sm {
+  background: var(--color-dark);
+  color: #F7F4EE;
+  border: 1px solid var(--color-dark);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn-sm:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #FFFFFF;
+}
+

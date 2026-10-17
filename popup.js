@@ -1788,6 +1788,9 @@ function detectTechnologies(doc, windowObj, rawHtml) {
     // 1. Ecommerce
     // Shopify
     const shopifyEvidence = [];
+    if (htmlLower.includes('shopify-buy') || htmlLower.includes('buy-button.js') || safeWin.ShopifyBuy !== undefined) {
+        shopifyEvidence.push('Shopify Buy Button integration');
+    }
     if (htmlLower.includes('cdn.shopify.com'))
         shopifyEvidence.push('CDN resource: cdn.shopify.com');
     if (safeWin.Shopify !== undefined)
@@ -1802,16 +1805,30 @@ function detectTechnologies(doc, windowObj, rawHtml) {
     }
     // WooCommerce
     const wooEvidence = [];
+    const wooVersion = extractTechVersion('WooCommerce', safeDoc, safeWin, rawHtml);
     if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('body.woocommerce, .woocommerce, link[href*="woocommerce"], script[src*="woocommerce"]')) {
         wooEvidence.push('Scoped DOM signature: WooCommerce class or script asset');
     }
+    if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('meta[name="generator"][content*="WooCommerce"]')) {
+        wooEvidence.push('Meta generator: WooCommerce');
+    }
+    if (htmlLower.includes('woocommerce') || /<meta[^>]+content=["'][^"']*WooCommerce/i.test(rawHtml) || /WooCommerce\s+[0-9.]+/i.test(rawHtml)) {
+        if (!wooEvidence.length)
+            wooEvidence.push('WooCommerce signature in markup');
+    }
+    if (wooVersion && !wooEvidence.some(e => e.includes('WooCommerce'))) {
+        wooEvidence.push(`Version detected: WooCommerce ${wooVersion}`);
+    }
     if (wooEvidence.length > 0) {
-        detections.push({
+        const wooDet = {
             name: 'WooCommerce',
             category: 'Ecommerce',
             confidence: 'high',
             evidence: wooEvidence
-        });
+        };
+        if (wooVersion)
+            wooDet.version = wooVersion;
+        detections.push(wooDet);
     }
     // Magento
     const magentoEvidence = [];
@@ -1845,34 +1862,48 @@ function detectTechnologies(doc, windowObj, rawHtml) {
     // 2. CMS & Builders
     // WordPress
     const wpEvidence = [];
+    const wpVersion = extractTechVersion('WordPress', safeDoc, safeWin, rawHtml);
     if (htmlLower.includes('/wp-content/'))
         wpEvidence.push('Path: /wp-content/');
     if (htmlLower.includes('/wp-includes/'))
         wpEvidence.push('Path: /wp-includes/');
-    if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('meta[name="generator"][content*="WordPress"]')) {
+    if ((safeDoc && safeDoc.querySelector && safeDoc.querySelector('meta[name="generator"][content*="WordPress"]')) || /<meta[^>]+name=["']generator["'][^>]+content=["'][^"']*WordPress/i.test(rawHtml) || /content=["'][^"']*WordPress/i.test(rawHtml) || /WordPress\s+[0-9.]+/i.test(rawHtml)) {
         wpEvidence.push('Meta generator: WordPress');
     }
+    if (wpVersion && !wpEvidence.length) {
+        wpEvidence.push(`Version asset detected: WordPress ${wpVersion}`);
+    }
     if (wpEvidence.length > 0) {
-        detections.push({
+        const wpDet = {
             name: 'WordPress',
             category: 'CMS',
             confidence: wpEvidence.length > 1 ? 'high' : 'medium',
             evidence: wpEvidence
-        });
+        };
+        if (wpVersion)
+            wpDet.version = wpVersion;
+        detections.push(wpDet);
     }
     // Elementor
     const elementorEvidence = [];
+    const elementorVersion = extractTechVersion('Elementor', safeDoc, safeWin, rawHtml);
     if (htmlLower.includes('elementor-widget'))
         elementorEvidence.push('DOM class: elementor-widget');
     if (safeWin.elementorFrontend !== undefined)
         elementorEvidence.push('Global window.elementorFrontend detected');
+    if (elementorVersion && !elementorEvidence.length) {
+        elementorEvidence.push('Elementor asset signature detected');
+    }
     if (elementorEvidence.length > 0) {
-        detections.push({
+        const elemDet = {
             name: 'Elementor',
             category: 'Page Builder',
             confidence: 'high',
             evidence: elementorEvidence
-        });
+        };
+        if (elementorVersion)
+            elemDet.version = elementorVersion;
+        detections.push(elemDet);
     }
     // Divi
     const diviEvidence = [];
@@ -1890,17 +1921,24 @@ function detectTechnologies(doc, windowObj, rawHtml) {
     }
     // GeneratePress
     const gpEvidence = [];
+    const gpVersion = extractTechVersion('GeneratePress', safeDoc, safeWin, rawHtml);
     if (htmlLower.includes('generatepress'))
         gpEvidence.push('Theme token: generatepress');
     if (htmlLower.includes('generateblocks'))
         gpEvidence.push('Block token: generateblocks');
+    if (gpVersion && !gpEvidence.length) {
+        gpEvidence.push('GeneratePress style asset detected');
+    }
     if (gpEvidence.length > 0) {
-        detections.push({
+        const gpDet = {
             name: 'GeneratePress',
             category: 'Page Builder',
             confidence: 'high',
             evidence: gpEvidence
-        });
+        };
+        if (gpVersion)
+            gpDet.version = gpVersion;
+        detections.push(gpDet);
     }
     // Webflow
     const wfEvidence = [];
@@ -1948,48 +1986,84 @@ function detectTechnologies(doc, windowObj, rawHtml) {
     // 3. Frameworks
     // Next.js
     const nextEvidence = [];
+    const nextVersion = extractTechVersion('Next.js', safeDoc, safeWin, rawHtml);
     if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('#__next, script[src*="/_next/static/"]')) {
         nextEvidence.push('DOM/Script signature: Next.js root node or /_next/static/ bundle');
     }
-    if (safeWin.__NEXT_DATA__ !== undefined) {
+    else if (rawHtml.includes('__next') || rawHtml.includes('/_next/static/')) {
+        nextEvidence.push('DOM/Script signature: Next.js root node or /_next/static/ bundle');
+    }
+    if (safeWin.__NEXT_DATA__ !== undefined || rawHtml.includes('__NEXT_DATA__')) {
         nextEvidence.push('Hydration data: Global window.__NEXT_DATA__ detected');
     }
+    if (nextVersion && !nextEvidence.length) {
+        nextEvidence.push('Next.js runtime detected');
+    }
     if (nextEvidence.length > 0) {
-        detections.push({
+        const nextDet = {
             name: 'Next.js',
             category: 'Framework',
             confidence: 'high',
             evidence: nextEvidence
-        });
+        };
+        if (nextVersion)
+            nextDet.version = nextVersion;
+        detections.push(nextDet);
     }
     // React (False-positive devtools hook removed)
     const reactEvidence = [];
+    const reactVersion = extractTechVersion('React', safeDoc, safeWin, rawHtml);
     if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('[data-reactroot], #root[data-react-checksum], script[src*="react.production"], script[src*="react-dom"], script[src*="react@"]')) {
         reactEvidence.push('DOM/Script signature: React root node or bundle script');
     }
+    else if (rawHtml.includes('data-reactroot') || /react(?:-dom|\.production|@)/.test(rawHtml)) {
+        reactEvidence.push('DOM/Script signature: React root node or bundle script');
+    }
+    if (safeWin.React !== undefined) {
+        reactEvidence.push('Global window.React detected');
+    }
+    if (reactVersion && !reactEvidence.length) {
+        reactEvidence.push('React library detected');
+    }
     if (reactEvidence.length > 0) {
-        detections.push({
+        const reactDet = {
             name: 'React',
             category: 'Framework',
             confidence: 'high',
             evidence: reactEvidence
-        });
+        };
+        if (reactVersion)
+            reactDet.version = reactVersion;
+        detections.push(reactDet);
     }
     // Vue.js
     const vueEvidence = [];
-    if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('[data-v-], [v-cloak], script[src*="vue.runtime"]')) {
+    const vueVersion = extractTechVersion('Vue.js', safeDoc, safeWin, rawHtml);
+    if (safeDoc && safeDoc.querySelector && safeDoc.querySelector('[data-v-], [v-cloak], script[src*="vue.runtime"], script[src*="vue@"]')) {
+        vueEvidence.push('DOM/Script signature: Vue scoped attribute or runtime script');
+    }
+    else if (rawHtml.includes('data-v-') || rawHtml.includes('v-cloak') || /vue(?:\.runtime|@)/.test(rawHtml)) {
         vueEvidence.push('DOM/Script signature: Vue scoped attribute or runtime script');
     }
     if (safeWin.__VUE__ !== undefined) {
         vueEvidence.push('Global window.__VUE__ detected');
     }
+    if (safeWin.Vue !== undefined) {
+        vueEvidence.push('Global window.Vue detected');
+    }
+    if (vueVersion && !vueEvidence.length) {
+        vueEvidence.push('Vue.js runtime detected');
+    }
     if (vueEvidence.length > 0) {
-        detections.push({
+        const vueDet = {
             name: 'Vue.js',
             category: 'Framework',
             confidence: 'high',
             evidence: vueEvidence
-        });
+        };
+        if (vueVersion)
+            vueDet.version = vueVersion;
+        detections.push(vueDet);
     }
     // Nuxt.js
     const nuxtEvidence = [];
@@ -2178,7 +2252,269 @@ function detectTechnologies(doc, windowObj, rawHtml) {
             evidence: cfEvidence
         });
     }
-    return detections;
+    // Pipeline: Raw detections -> resolveExcludes -> resolveImplies -> resolveExcludes
+    const initialExcludes = resolveExcludes(detections);
+    const resolvedImplies = resolveImplies(initialExcludes);
+    return resolveExcludes(resolvedImplies);
+}
+function resolveImplies(detections) {
+    const result = [...detections];
+    const hasTech = (name) => result.some(d => d.name === name);
+    if (hasTech('WooCommerce') && !hasTech('WordPress')) {
+        result.push({
+            name: 'WordPress',
+            category: 'CMS',
+            confidence: 'high',
+            evidence: ['Inferred by dependency: WooCommerce implies WordPress']
+        });
+    }
+    if (hasTech('Elementor') && !hasTech('WordPress')) {
+        result.push({
+            name: 'WordPress',
+            category: 'CMS',
+            confidence: 'high',
+            evidence: ['Inferred by dependency: Elementor implies WordPress']
+        });
+    }
+    if (hasTech('Divi') && !hasTech('WordPress')) {
+        result.push({
+            name: 'WordPress',
+            category: 'CMS',
+            confidence: 'high',
+            evidence: ['Inferred by dependency: Divi implies WordPress']
+        });
+    }
+    if (hasTech('GeneratePress') && !hasTech('WordPress')) {
+        result.push({
+            name: 'WordPress',
+            category: 'CMS',
+            confidence: 'high',
+            evidence: ['Inferred by dependency: GeneratePress implies WordPress']
+        });
+    }
+    if (hasTech('Next.js') && !hasTech('React')) {
+        result.push({
+            name: 'React',
+            category: 'Framework',
+            confidence: 'high',
+            evidence: ['Inferred by dependency: Next.js implies React']
+        });
+    }
+    if (hasTech('Nuxt.js') && !hasTech('Vue.js')) {
+        result.push({
+            name: 'Vue.js',
+            category: 'Framework',
+            confidence: 'high',
+            evidence: ['Inferred by dependency: Nuxt.js implies Vue.js']
+        });
+    }
+    return result;
+}
+function resolveExcludes(detections) {
+    const shopifyDet = detections.find(d => d.name === 'Shopify');
+    const hasShopify = !!shopifyDet;
+    const hasShopifyBuy = shopifyDet && shopifyDet.evidence.some(e => /shopify-buy|buy\s*button/i.test(e));
+    const hasWix = detections.some(d => d.name === 'Wix');
+    const hasSquarespace = detections.some(d => d.name === 'Squarespace');
+    return detections.filter(d => {
+        if (hasShopify && !hasShopifyBuy && (d.name === 'WooCommerce' || d.name === 'Magento')) {
+            return false;
+        }
+        if (hasWix && d.name === 'WordPress') {
+            return false;
+        }
+        if (hasSquarespace && d.name === 'WordPress') {
+            return false;
+        }
+        return true;
+    });
+}
+function extractTechVersion(techName, doc, windowObj, rawHtml) {
+    const safeDoc = doc || (typeof document !== 'undefined' ? document : null);
+    const safeWin = windowObj || (typeof window !== 'undefined' ? window : {});
+    const htmlStr = rawHtml || '';
+    if (techName === 'WordPress') {
+        if (safeDoc && safeDoc.querySelector) {
+            const meta = safeDoc.querySelector('meta[name="generator"][content*="WordPress"]');
+            if (meta) {
+                const content = meta.getAttribute('content') || '';
+                const m = content.match(/WordPress\s+([0-9.]+)/i);
+                if (m && m[1])
+                    return m[1];
+            }
+        }
+        const metaMatch = htmlStr.match(/<meta[^>]+name=["']generator["'][^>]+content=["'][^"']*WordPress\s+([0-9.]+)[^"']*["']/i)
+            || htmlStr.match(/<meta[^>]+content=["'][^"']*WordPress\s+([0-9.]+)[^"']*["'][^>]+name=["']generator["']/i)
+            || htmlStr.match(/WordPress\s+([0-9.]+)/i);
+        if (metaMatch && metaMatch[1])
+            return metaMatch[1];
+        if (safeDoc && safeDoc.querySelectorAll) {
+            const nodes = safeDoc.querySelectorAll('script[src*="wp-includes"], script[src*="wp-embed"], link[href*="wp-includes"], link[href*="wp-embed"]');
+            for (let i = 0; i < nodes.length; i++) {
+                const src = nodes[i].getAttribute('src') || nodes[i].getAttribute('href') || '';
+                const m = src.match(/(?:wp-includes|wp-embed)[^"'>]*?[?&]ver=([0-9.]+)/i);
+                if (m && m[1])
+                    return m[1];
+            }
+        }
+        const scriptMatch = htmlStr.match(/(?:wp-includes|wp-embed)[^"'>]*?[?&]ver=([0-9.]+)/i);
+        if (scriptMatch && scriptMatch[1])
+            return scriptMatch[1];
+        return null;
+    }
+    if (techName === 'WooCommerce') {
+        if (safeDoc && safeDoc.querySelector) {
+            const meta = safeDoc.querySelector('meta[name="generator"][content*="WooCommerce"]');
+            if (meta) {
+                const content = meta.getAttribute('content') || '';
+                const m = content.match(/WooCommerce\s+([0-9.]+)/i);
+                if (m && m[1])
+                    return m[1];
+            }
+        }
+        const metaMatch = htmlStr.match(/<meta[^>]+name=["']generator["'][^>]+content=["'][^"']*WooCommerce\s+([0-9.]+)[^"']*["']/i)
+            || htmlStr.match(/<meta[^>]+content=["'][^"']*WooCommerce\s+([0-9.]+)[^"']*["'][^>]+name=["']generator["']/i)
+            || htmlStr.match(/WooCommerce\s+([0-9.]+)/i);
+        if (metaMatch && metaMatch[1])
+            return metaMatch[1];
+        if (safeDoc && safeDoc.querySelectorAll) {
+            const nodes = safeDoc.querySelectorAll('script[src*="woocommerce"], link[href*="woocommerce"]');
+            for (let i = 0; i < nodes.length; i++) {
+                const src = nodes[i].getAttribute('src') || nodes[i].getAttribute('href') || '';
+                const m = src.match(/woocommerce[^"'>]*?[?&]ver=([0-9.]+)/i);
+                if (m && m[1])
+                    return m[1];
+            }
+        }
+        const scriptMatch = htmlStr.match(/woocommerce[^"'>]*?[?&]ver=([0-9.]+)/i);
+        if (scriptMatch && scriptMatch[1])
+            return scriptMatch[1];
+        return null;
+    }
+    if (techName === 'Elementor') {
+        if (safeWin.elementorFrontendConfig && safeWin.elementorFrontendConfig.version) {
+            return String(safeWin.elementorFrontendConfig.version);
+        }
+        if (safeDoc && safeDoc.querySelector) {
+            const meta = safeDoc.querySelector('meta[name="generator"][content*="Elementor"]');
+            if (meta) {
+                const content = meta.getAttribute('content') || '';
+                const m = content.match(/Elementor\s+([0-9.]+)/i);
+                if (m && m[1])
+                    return m[1];
+            }
+        }
+        const metaMatch = htmlStr.match(/<meta[^>]+name=["']generator["'][^>]+content=["'][^"']*Elementor\s+([0-9.]+)[^"']*["']/i)
+            || htmlStr.match(/<meta[^>]+content=["'][^"']*Elementor\s+([0-9.]+)[^"']*["'][^>]+name=["']generator["']/i)
+            || htmlStr.match(/Elementor\s+([0-9.]+)/i);
+        if (metaMatch && metaMatch[1])
+            return metaMatch[1];
+        if (safeDoc && safeDoc.querySelectorAll) {
+            const nodes = safeDoc.querySelectorAll('script[src*="elementor"], link[href*="elementor"]');
+            for (let i = 0; i < nodes.length; i++) {
+                const src = nodes[i].getAttribute('src') || nodes[i].getAttribute('href') || '';
+                const m = src.match(/elementor\/assets\/js\/[^"'>]*?[?&]ver=([0-9.]+)/i)
+                    || src.match(/elementor[^"'>]*?assets[^"'>]*?[?&]ver=([0-9.]+)/i);
+                if (m && m[1])
+                    return m[1];
+            }
+        }
+        const scriptMatch = htmlStr.match(/elementor\/assets\/js\/[^"'>]*?[?&]ver=([0-9.]+)/i)
+            || htmlStr.match(/elementor[^"'>]*?assets[^"'>]*?[?&]ver=([0-9.]+)/i);
+        if (scriptMatch && scriptMatch[1])
+            return scriptMatch[1];
+        return null;
+    }
+    if (techName === 'Next.js') {
+        if (safeWin.next && safeWin.next.version) {
+            return String(safeWin.next.version);
+        }
+        if (safeWin.__NEXT_DATA__ && safeWin.__NEXT_DATA__.buildId) {
+            return String(safeWin.__NEXT_DATA__.buildId);
+        }
+        if (safeDoc && safeDoc.getElementById) {
+            const el = safeDoc.getElementById('__NEXT_DATA__');
+            if (el && el.textContent) {
+                try {
+                    const parsed = JSON.parse(el.textContent);
+                    if (parsed && parsed.buildId)
+                        return String(parsed.buildId);
+                }
+                catch {
+                    // ignore
+                }
+            }
+        }
+        const m = htmlStr.match(/<script[^>]+id=["']__NEXT_DATA__["'][^>]*>([\s\S]*?)<\/script>/i);
+        if (m && m[1]) {
+            try {
+                const parsed = JSON.parse(m[1]);
+                if (parsed && parsed.buildId)
+                    return String(parsed.buildId);
+            }
+            catch {
+                // ignore
+            }
+        }
+        return null;
+    }
+    if (techName === 'React') {
+        if (safeWin.React && safeWin.React.version) {
+            return String(safeWin.React.version);
+        }
+        if (safeDoc && safeDoc.querySelectorAll) {
+            const nodes = safeDoc.querySelectorAll('script[src*="react@"], script[src*="react."]');
+            for (let i = 0; i < nodes.length; i++) {
+                const src = nodes[i].getAttribute('src') || '';
+                const m = src.match(/react@([0-9.]+)/i);
+                if (m && m[1])
+                    return m[1];
+            }
+        }
+        const m = htmlStr.match(/react@([0-9.]+)/i);
+        if (m && m[1])
+            return m[1];
+        return null;
+    }
+    if (techName === 'Vue.js') {
+        if (safeWin.Vue && safeWin.Vue.version) {
+            return String(safeWin.Vue.version);
+        }
+        if (safeWin.__VUE__ && typeof safeWin.__VUE__ === 'object' && safeWin.__VUE__.version) {
+            return String(safeWin.__VUE__.version);
+        }
+        if (safeDoc && safeDoc.querySelectorAll) {
+            const nodes = safeDoc.querySelectorAll('script[src*="vue@"], script[src*="vue."]');
+            for (let i = 0; i < nodes.length; i++) {
+                const src = nodes[i].getAttribute('src') || '';
+                const m = src.match(/vue@([0-9.]+)/i);
+                if (m && m[1])
+                    return m[1];
+            }
+        }
+        const m = htmlStr.match(/vue@([0-9.]+)/i);
+        if (m && m[1])
+            return m[1];
+        return null;
+    }
+    if (techName === 'GeneratePress') {
+        if (safeDoc && safeDoc.querySelectorAll) {
+            const nodes = safeDoc.querySelectorAll('link[href*="generatepress"], script[src*="generatepress"]');
+            for (let i = 0; i < nodes.length; i++) {
+                const href = nodes[i].getAttribute('href') || nodes[i].getAttribute('src') || '';
+                const m = href.match(/generatepress\/style(?:\.min)?\.css\?ver=([0-9.]+)/i)
+                    || href.match(/generatepress[^"'>]*?[?&]ver=([0-9.]+)/i);
+                if (m && m[1])
+                    return m[1];
+            }
+        }
+        const m = htmlStr.match(/generatepress\/style(?:\.min)?\.css\?ver=([0-9.]+)/i)
+            || htmlStr.match(/generatepress[^"'>]*?[?&]ver=([0-9.]+)/i);
+        if (m && m[1])
+            return m[1];
+        return null;
+    }
+    return null;
 }
 
 // ====================================================================
@@ -3067,16 +3403,56 @@ async function inspectPageForensics() {
         }
     }
     catch (e) { }
-    let worstInteraction = null;
-    let maxInteractionDuration = 0;
+    const interactionGroups = [];
     if (interactionEntries.length > 0) {
         interactionEntries.forEach((entry) => {
             const dur = entry.duration || 0;
-            if (dur > maxInteractionDuration) {
-                maxInteractionDuration = dur;
-                worstInteraction = entry;
+            const renderTime = (entry.renderTime !== undefined && entry.renderTime > 0)
+                ? entry.renderTime
+                : (entry.startTime + dur);
+            let matchedGroup = interactionGroups.find(g => {
+                if (entry.interactionId && g.interactionId && entry.interactionId === g.interactionId) {
+                    return true;
+                }
+                return Math.abs(renderTime - g.renderTime) <= 8;
+            });
+            if (matchedGroup) {
+                matchedGroup.events.push(entry);
+                if (dur > matchedGroup.maxDuration) {
+                    matchedGroup.maxDuration = dur;
+                }
+                if (!matchedGroup.interactionId && entry.interactionId) {
+                    matchedGroup.interactionId = entry.interactionId;
+                }
+            }
+            else {
+                interactionGroups.push({
+                    interactionId: entry.interactionId,
+                    renderTime,
+                    maxDuration: dur,
+                    events: [entry]
+                });
             }
         });
+    }
+    let worstGroup = null;
+    let worstInteraction = null;
+    let maxInteractionDuration = 0;
+    for (const group of interactionGroups) {
+        if (!worstGroup || group.maxDuration > worstGroup.maxDuration) {
+            worstGroup = group;
+        }
+    }
+    if (worstGroup) {
+        for (const ev of worstGroup.events) {
+            const d = ev.duration || 0;
+            if (!worstInteraction || d > (worstInteraction.duration || 0)) {
+                worstInteraction = ev;
+            }
+        }
+        if (worstInteraction) {
+            maxInteractionDuration = worstInteraction.duration || 0;
+        }
     }
     let inpTarget = null;
     let inpProcessingDelayMs = null;
@@ -3084,7 +3460,7 @@ async function inspectPageForensics() {
     let inpPresentationDelayMs = null;
     let inpAttribution = null;
     let inpDisplay = 'INP not recorded (Requires user tap/click)';
-    if (worstInteraction && maxInteractionDuration > 0) {
+    if (worstGroup && worstInteraction && maxInteractionDuration > 0) {
         inpMs = Math.round(maxInteractionDuration);
         inpObserved = true;
         if (worstInteraction.target) {
@@ -3095,6 +3471,33 @@ async function inspectPageForensics() {
         inpInputDelayMs = Math.max(0, Math.round(procStart - worstInteraction.startTime));
         inpProcessingDelayMs = Math.max(0, Math.round(procEnd - procStart));
         inpPresentationDelayMs = Math.max(0, Math.round(worstInteraction.startTime + worstInteraction.duration - procEnd));
+        // Calculate temporal intersection with scripts in rawLoafEntries
+        let worstScript = null;
+        let maxIntersectingDuration = 0;
+        let maxIntersectingForcedStyle = 0;
+        const candidateScripts = [];
+        rawLoafEntries.forEach((frame) => {
+            if (Array.isArray(frame.scripts)) {
+                frame.scripts.forEach((s) => candidateScripts.push(s));
+            }
+            else if (frame && (frame.startTime !== undefined || frame.sourceURL || frame.sourceUrl)) {
+                candidateScripts.push(frame);
+            }
+        });
+        candidateScripts.forEach((script) => {
+            const sStart = script.startTime || 0;
+            const sDuration = script.duration || 0;
+            const scriptEnd = sStart + sDuration;
+            const intersectingDuration = Math.max(0, Math.min(scriptEnd, procEnd) - Math.max(sStart, procStart));
+            if (intersectingDuration > maxIntersectingDuration) {
+                maxIntersectingDuration = intersectingDuration;
+                const forcedStyle = (sDuration && script.forcedStyleAndLayoutDuration)
+                    ? Math.round((intersectingDuration / sDuration) * script.forcedStyleAndLayoutDuration)
+                    : 0;
+                maxIntersectingForcedStyle = forcedStyle;
+                worstScript = script;
+            }
+        });
         const targetLabel = inpTarget ? ` on ${inpTarget}` : '';
         inpDisplay = `${inpMs} ms (${worstInteraction.name || 'interaction'}${targetLabel})`;
         inpAttribution = {
@@ -3102,7 +3505,13 @@ async function inspectPageForensics() {
             interactionType: worstInteraction.name || 'interaction',
             processingDelayMs: inpProcessingDelayMs,
             inputDelayMs: inpInputDelayMs,
-            presentationDelayMs: inpPresentationDelayMs
+            presentationDelayMs: inpPresentationDelayMs,
+            culpritScriptUrl: worstScript ? (worstScript.sourceURL || worstScript.sourceUrl || null) : null,
+            culpritFunctionName: worstScript ? (worstScript.sourceFunctionName || null) : null,
+            culpritExecutionMs: worstScript ? Math.round(maxIntersectingDuration) : null,
+            culpritForcedStyleMs: worstScript ? maxIntersectingForcedStyle : null,
+            groupedEventCount: worstGroup.events.length,
+            groupedEvents: Array.from(new Set(worstGroup.events.map((e) => e.name || 'interaction')))
         };
     }
     // --- 3. DOM RECURSION & SERIALIZED SIZE ---
@@ -4073,6 +4482,7 @@ class FindingsEngine {
         const inpTarget = data.performance ? (data.performance.inpTarget || data.performance.inpAttribution?.interactionTarget) : null;
         const inpProcessingDelay = data.performance?.inpProcessingDelayMs || 0;
         const inpInputDelay = data.performance?.inpInputDelayMs || 0;
+        const inpAttribution = data.performance?.inpAttribution || null;
         const cls = data.performance ? data.performance.cls : null;
         const clsTarget = data.performance?.clsAttribution?.largestShiftTarget || null;
         // --- 1. CORE WEB VITALS: MEASURED LCP WITH SUBPART ATTRIBUTION ---
@@ -4127,21 +4537,39 @@ class FindingsEngine {
         // --- 2. CORE WEB VITALS: MEASURED INP WITH INTERACTION ATTRIBUTION ---
         if (inpObserved && inpMs !== null && inpMs > 200) {
             const isCriticalInp = inpMs > 500;
+            const inpEvidence = [
+                { label: 'Measured INP Latency', value: `${inpMs} ms`, context: 'Budget: < 200 ms' },
+                { label: 'Observed Interaction Target', value: inpTarget || 'Interactive Element' },
+                { label: 'Processing Delay', value: `${inpProcessingDelay} ms`, context: 'Main-thread handler execution' },
+                { label: 'Input Delay', value: `${inpInputDelay} ms`, context: 'Event queue delay' },
+                { label: 'Measurement Source', value: 'Google Web Vitals Event Timing Observer' }
+            ];
+            if (inpAttribution && inpAttribution.culpritScriptUrl) {
+                inpEvidence.push({
+                    label: 'Offending Script Culprit',
+                    value: `${inpAttribution.culpritFunctionName || 'anonymous'} in ${inpAttribution.culpritScriptUrl.split('/').pop()}`,
+                    context: `${inpAttribution.culpritExecutionMs}ms execution (${inpAttribution.culpritForcedStyleMs}ms forced layout thrashing)`
+                });
+            }
+            if (inpAttribution && inpAttribution.groupedEventCount && inpAttribution.groupedEventCount > 1) {
+                inpEvidence.push({
+                    label: 'Grouped Interaction Events',
+                    value: `${(inpAttribution.groupedEvents || []).join(', ')} (${inpAttribution.groupedEventCount} events in 8ms frame window)`
+                });
+            }
+            let inpExplanation = `User interaction on ${inpTarget || 'interactive elements'} took ${inpMs} ms to present the next frame, causing visible UI lag on mobile devices.`;
+            if (inpAttribution && inpAttribution.culpritScriptUrl) {
+                inpExplanation += ` Long Animation Frame telemetry identified ${inpAttribution.culpritFunctionName || 'handler'} in ${inpAttribution.culpritScriptUrl.split('/').pop()} executing for ${inpAttribution.culpritExecutionMs}ms during event processing.`;
+            }
             findings.push({
                 id: isCriticalInp ? 'critical-inp' : 'warning-inp',
                 category: 'performance',
                 severity: isCriticalInp ? 'critical' : 'warning',
                 badge: isCriticalInp ? 'CRITICAL INP' : 'ELEVATED INP',
                 title: `Interaction to Next Paint Exceeds Budget (${inpMs} ms)`,
-                evidence: [
-                    { label: 'Measured INP Latency', value: `${inpMs} ms`, context: 'Budget: < 200 ms' },
-                    { label: 'Observed Interaction Target', value: inpTarget || 'Interactive Element' },
-                    { label: 'Processing Delay', value: `${inpProcessingDelay} ms`, context: 'Main-thread handler execution' },
-                    { label: 'Input Delay', value: `${inpInputDelay} ms`, context: 'Event queue delay' },
-                    { label: 'Measurement Source', value: 'Google Web Vitals Event Timing Observer' }
-                ],
+                evidence: inpEvidence,
                 confidence: 'high',
-                explanation: `User interaction on ${inpTarget || 'interactive elements'} took ${inpMs} ms to present the next frame, causing visible UI lag on mobile devices.`,
+                explanation: inpExplanation,
                 recommendation: 'De-prioritize heavy event listener logic, defer secondary tracking scripts, and yield the main thread during user clicks.',
                 improvements: [
                     `Profile event handlers bound to ${inpTarget || 'interactive buttons'} in Chrome DevTools`,
@@ -5738,6 +6166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initPipelineDrawer();
     initBulkAuditModal();
     initTabs();
+    initBotEmulation();
     const defaultFinding = {
         id: 'baseline',
         category: 'architecture',
@@ -6095,17 +6524,18 @@ function renderAuditData(domain, currentUrl, data) {
                 'Framework': []
             };
             detections.forEach((item) => {
+                const displayName = item.version ? `${item.name} v${item.version}` : item.name;
                 if (item.category === 'Ecommerce') {
-                    groups['Ecommerce'].push(item.name);
+                    groups['Ecommerce'].push(displayName);
                 }
                 else if (item.category === 'Marketing Pixel') {
-                    groups['Marketing Pixel'].push(item.name);
+                    groups['Marketing Pixel'].push(displayName);
                 }
                 else if (item.category === 'CMS' || item.category === 'Page Builder') {
-                    groups['CMS/Builder'].push(item.name);
+                    groups['CMS/Builder'].push(displayName);
                 }
                 else if (item.category === 'Framework') {
-                    groups['Framework'].push(item.name);
+                    groups['Framework'].push(displayName);
                 }
             });
             const categoryStyles = {
@@ -6512,6 +6942,27 @@ function renderAuditData(domain, currentUrl, data) {
             if (subpartRenderDelay)
                 subpartRenderDelay.innerText = `${parts.renderDelayMs || 0}ms`;
         }
+        const inpAttribution = data.performance?.inpAttribution;
+        let inpCulpritRow = document.getElementById('inpCulpritRow');
+        if (inpAttribution?.culpritScriptUrl) {
+            if (!inpCulpritRow) {
+                inpCulpritRow = document.createElement('div');
+                inpCulpritRow.id = 'inpCulpritRow';
+                const cardForensicsLcp = document.getElementById('cardForensicsLcp');
+                if (cardForensicsLcp) {
+                    cardForensicsLcp.appendChild(inpCulpritRow);
+                }
+            }
+            const culpritFile = inpAttribution.culpritScriptUrl.split('/').pop() || inpAttribution.culpritScriptUrl;
+            const culpritFunc = inpAttribution.culpritFunctionName || 'anonymous';
+            const execMs = inpAttribution.culpritExecutionMs || 0;
+            const forcedMs = inpAttribution.culpritForcedStyleMs || 0;
+            inpCulpritRow.style.display = 'block';
+            inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:6px 10px; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:4px; font-size:11px; color:var(--color-text);"><strong style="color:var(--color-red);">INP Culprit:</strong> ${escapeHtml(culpritFunc)} in <code>${escapeHtml(culpritFile)}</code> (${execMs}ms execution, ${forcedMs}ms forced layout thrashing)</div>`;
+        }
+        else if (inpCulpritRow) {
+            inpCulpritRow.style.display = 'none';
+        }
         const loafTableWrapper = document.getElementById('loafTableWrapper');
         const loafSummaryText = document.getElementById('loafSummaryText');
         const loafScripts = data.performance.loafAttribution?.longScripts || [];
@@ -6620,6 +7071,18 @@ function renderAuditData(domain, currentUrl, data) {
     }
     // 6. AI Interpreter Outreach Copy Generation
     currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone, configuredAuditorName);
+    const auditInpMs = data.performance?.inpMs || 0;
+    if (data.performance?.inpAttribution?.culpritScriptUrl && auditInpMs > 200) {
+        const culpritScript = data.performance.inpAttribution.culpritScriptUrl.split('/').pop() || data.performance.inpAttribution.culpritScriptUrl;
+        const forcedDuration = data.performance.inpAttribution.culpritForcedStyleMs || 0;
+        const culpritPitchNote = `\n\nForensic INP Telemetry: Offending script ${culpritScript} introduced ${forcedDuration}ms of forced layout thrashing during user interactions.`;
+        if (currentScripts.merchantPitch && !currentScripts.merchantPitch.includes(culpritScript)) {
+            currentScripts.merchantPitch += culpritPitchNote;
+        }
+        if (currentScripts.agencyPitch && !currentScripts.agencyPitch.includes(culpritScript)) {
+            currentScripts.agencyPitch += culpritPitchNote;
+        }
+    }
     currentAuditState.hook = currentScripts.emailHook;
     updateActiveChannelView();
     // Initialize Action Buttons
@@ -6664,6 +7127,18 @@ function updateActiveToneView(domain, primaryFinding, data) {
         }
     });
     currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone, configuredAuditorName);
+    const activeInpMs = data.performance ? (data.performance.inpMs || 0) : 0;
+    if (data.performance?.inpAttribution?.culpritScriptUrl && activeInpMs > 200) {
+        const culpritScript = data.performance.inpAttribution.culpritScriptUrl.split('/').pop() || data.performance.inpAttribution.culpritScriptUrl;
+        const forcedDuration = data.performance.inpAttribution.culpritForcedStyleMs || 0;
+        const culpritPitchNote = `\n\nForensic INP Telemetry: Offending script ${culpritScript} introduced ${forcedDuration}ms of forced layout thrashing during user interactions.`;
+        if (currentScripts.merchantPitch && !currentScripts.merchantPitch.includes(culpritScript)) {
+            currentScripts.merchantPitch += culpritPitchNote;
+        }
+        if (currentScripts.agencyPitch && !currentScripts.agencyPitch.includes(culpritScript)) {
+            currentScripts.agencyPitch += culpritPitchNote;
+        }
+    }
     currentAuditState.hook = currentScripts.emailHook;
     updateActiveChannelView();
 }
@@ -7048,6 +7523,48 @@ function initTabs() {
             });
         });
     });
+}
+function initBotEmulation() {
+    const selectBot = document.getElementById('selectBotEmulation');
+    const badgeStatus = document.getElementById('badgeBotStatus');
+    const btnApply = document.getElementById('btnApplyBot');
+    if (!selectBot || !btnApply)
+        return;
+    const updateBadge = (ua) => {
+        if (!badgeStatus)
+            return;
+        if (ua && ua !== 'default') {
+            badgeStatus.className = 'card-badge tag-amber';
+            badgeStatus.innerText = ua === 'bingbot' ? 'Bingbot Emulated' : ua === 'gptbot' ? 'GPTBot Emulated' : 'Googlebot Emulated';
+        }
+        else {
+            badgeStatus.className = 'card-badge tag-green';
+            badgeStatus.innerText = 'Default Browser';
+        }
+    };
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+        chrome.runtime.sendMessage({ action: 'getUserAgent' }, (res) => {
+            const activeUa = (res && (res.emulatedUserAgent || res.emulated || res.userAgent)) || 'default';
+            selectBot.value = activeUa;
+            updateBadge(activeUa);
+        });
+    }
+    btnApply.onclick = () => {
+        const targetUa = selectBot.value;
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+            chrome.runtime.sendMessage({ action: 'setUserAgent', userAgent: targetUa }, () => {
+                updateBadge(targetUa);
+                if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
+                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                        const activeTab = tabs && tabs[0];
+                        if (activeTab && typeof activeTab.id === 'number') {
+                            chrome.tabs.reload(activeTab.id);
+                        }
+                    });
+                }
+            });
+        }
+    };
 }
 function initProUpgradeModal() {
     const modal = document.getElementById('proUpgradeModal');

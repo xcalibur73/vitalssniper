@@ -48,6 +48,18 @@ async function renderAssets() {
       output: 'screenshot_3_competitor_vs_1280x800.png',
       width: 1280,
       height: 800
+    },
+    {
+      file: 'screenshot_4_outreach_1280x800.svg',
+      output: 'screenshot_4_outreach_1280x800.png',
+      width: 1280,
+      height: 800
+    },
+    {
+      file: 'screenshot_5_competitor_vs_1280x800.svg',
+      output: 'screenshot_5_competitor_vs_1280x800.png',
+      width: 1280,
+      height: 800
     }
   ];
 

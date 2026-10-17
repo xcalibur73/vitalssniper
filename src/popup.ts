@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initPipelineDrawer();
   initBulkAuditModal();
   initTabs();
+  initBotEmulation();
 
   const defaultFinding: Finding = {
     id: 'baseline',
@@ -443,14 +444,15 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
       };
 
       detections.forEach((item: TechnologyDetection) => {
+        const displayName = item.version ? `${item.name} v${item.version}` : item.name;
         if (item.category === 'Ecommerce') {
-          groups['Ecommerce'].push(item.name);
+          groups['Ecommerce'].push(displayName);
         } else if (item.category === 'Marketing Pixel') {
-          groups['Marketing Pixel'].push(item.name);
+          groups['Marketing Pixel'].push(displayName);
         } else if (item.category === 'CMS' || item.category === 'Page Builder') {
-          groups['CMS/Builder'].push(item.name);
+          groups['CMS/Builder'].push(displayName);
         } else if (item.category === 'Framework') {
-          groups['Framework'].push(item.name);
+          groups['Framework'].push(displayName);
         }
       });
 
@@ -830,6 +832,27 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
       if (subpartRenderDelay) subpartRenderDelay.innerText = `${parts.renderDelayMs || 0}ms`;
     }
 
+    const inpAttribution = data.performance?.inpAttribution;
+    let inpCulpritRow = document.getElementById('inpCulpritRow');
+    if (inpAttribution?.culpritScriptUrl) {
+      if (!inpCulpritRow) {
+        inpCulpritRow = document.createElement('div');
+        inpCulpritRow.id = 'inpCulpritRow';
+        const cardForensicsLcp = document.getElementById('cardForensicsLcp');
+        if (cardForensicsLcp) {
+          cardForensicsLcp.appendChild(inpCulpritRow);
+        }
+      }
+      const culpritFile = inpAttribution.culpritScriptUrl.split('/').pop() || inpAttribution.culpritScriptUrl;
+      const culpritFunc = inpAttribution.culpritFunctionName || 'anonymous';
+      const execMs = inpAttribution.culpritExecutionMs || 0;
+      const forcedMs = inpAttribution.culpritForcedStyleMs || 0;
+      inpCulpritRow.style.display = 'block';
+      inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:6px 10px; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:4px; font-size:11px; color:var(--color-text);"><strong style="color:var(--color-red);">INP Culprit:</strong> ${escapeHtml(culpritFunc)} in <code>${escapeHtml(culpritFile)}</code> (${execMs}ms execution, ${forcedMs}ms forced layout thrashing)</div>`;
+    } else if (inpCulpritRow) {
+      inpCulpritRow.style.display = 'none';
+    }
+
     const loafTableWrapper = document.getElementById('loafTableWrapper');
     const loafSummaryText = document.getElementById('loafSummaryText');
     const loafScripts = data.performance.loafAttribution?.longScripts || [];
@@ -939,6 +962,18 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
 
   // 6. AI Interpreter Outreach Copy Generation
   currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone, configuredAuditorName);
+  const auditInpMs = data.performance?.inpMs || 0;
+  if (data.performance?.inpAttribution?.culpritScriptUrl && auditInpMs > 200) {
+    const culpritScript = data.performance.inpAttribution.culpritScriptUrl.split('/').pop() || data.performance.inpAttribution.culpritScriptUrl;
+    const forcedDuration = data.performance.inpAttribution.culpritForcedStyleMs || 0;
+    const culpritPitchNote = `\n\nForensic INP Telemetry: Offending script ${culpritScript} introduced ${forcedDuration}ms of forced layout thrashing during user interactions.`;
+    if (currentScripts.merchantPitch && !currentScripts.merchantPitch.includes(culpritScript)) {
+      currentScripts.merchantPitch += culpritPitchNote;
+    }
+    if (currentScripts.agencyPitch && !currentScripts.agencyPitch.includes(culpritScript)) {
+      currentScripts.agencyPitch += culpritPitchNote;
+    }
+  }
   currentAuditState.hook = currentScripts.emailHook;
   updateActiveChannelView();
 
@@ -985,6 +1020,18 @@ function updateActiveToneView(domain: string, primaryFinding: Finding, data: any
   });
 
   currentScripts = OutreachGenerator.generateScripts(domain, primaryFinding, data, activeTone, configuredAuditorName);
+  const activeInpMs = data.performance ? (data.performance.inpMs || 0) : 0;
+  if (data.performance?.inpAttribution?.culpritScriptUrl && activeInpMs > 200) {
+    const culpritScript = data.performance.inpAttribution.culpritScriptUrl.split('/').pop() || data.performance.inpAttribution.culpritScriptUrl;
+    const forcedDuration = data.performance.inpAttribution.culpritForcedStyleMs || 0;
+    const culpritPitchNote = `\n\nForensic INP Telemetry: Offending script ${culpritScript} introduced ${forcedDuration}ms of forced layout thrashing during user interactions.`;
+    if (currentScripts.merchantPitch && !currentScripts.merchantPitch.includes(culpritScript)) {
+      currentScripts.merchantPitch += culpritPitchNote;
+    }
+    if (currentScripts.agencyPitch && !currentScripts.agencyPitch.includes(culpritScript)) {
+      currentScripts.agencyPitch += culpritPitchNote;
+    }
+  }
   currentAuditState.hook = currentScripts.emailHook;
   updateActiveChannelView();
 }
@@ -1376,6 +1423,50 @@ function initTabs() {
       });
     });
   });
+}
+
+function initBotEmulation(): void {
+  const selectBot = document.getElementById('selectBotEmulation') as HTMLSelectElement | null;
+  const badgeStatus = document.getElementById('badgeBotStatus') as HTMLElement | null;
+  const btnApply = document.getElementById('btnApplyBot') as HTMLButtonElement | null;
+
+  if (!selectBot || !btnApply) return;
+
+  const updateBadge = (ua: string) => {
+    if (!badgeStatus) return;
+    if (ua && ua !== 'default') {
+      badgeStatus.className = 'card-badge tag-amber';
+      badgeStatus.innerText = ua === 'bingbot' ? 'Bingbot Emulated' : ua === 'gptbot' ? 'GPTBot Emulated' : 'Googlebot Emulated';
+    } else {
+      badgeStatus.className = 'card-badge tag-green';
+      badgeStatus.innerText = 'Default Browser';
+    }
+  };
+
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+    chrome.runtime.sendMessage({ action: 'getUserAgent' }, (res: any) => {
+      const activeUa = (res && (res.emulatedUserAgent || res.emulated || res.userAgent)) || 'default';
+      selectBot.value = activeUa;
+      updateBadge(activeUa);
+    });
+  }
+
+  btnApply.onclick = () => {
+    const targetUa = selectBot.value;
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+      chrome.runtime.sendMessage({ action: 'setUserAgent', userAgent: targetUa }, () => {
+        updateBadge(targetUa);
+        if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
+            const activeTab = tabs && tabs[0];
+            if (activeTab && typeof activeTab.id === 'number') {
+              chrome.tabs.reload(activeTab.id);
+            }
+          });
+        }
+      });
+    }
+  };
 }
 
 function initProUpgradeModal() {

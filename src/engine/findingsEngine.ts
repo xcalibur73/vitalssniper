@@ -42,6 +42,7 @@ export class FindingsEngine {
     const inpTarget = data.performance ? (data.performance.inpTarget || data.performance.inpAttribution?.interactionTarget) : null;
     const inpProcessingDelay = data.performance?.inpProcessingDelayMs || 0;
     const inpInputDelay = data.performance?.inpInputDelayMs || 0;
+    const inpAttribution = data.performance?.inpAttribution || null;
 
     const cls = data.performance ? data.performance.cls : null;
     const clsTarget = data.performance?.clsAttribution?.largestShiftTarget || null;
@@ -98,21 +99,43 @@ export class FindingsEngine {
     // --- 2. CORE WEB VITALS: MEASURED INP WITH INTERACTION ATTRIBUTION ---
     if (inpObserved && inpMs !== null && inpMs > 200) {
       const isCriticalInp = inpMs > 500;
+      const inpEvidence: any[] = [
+        { label: 'Measured INP Latency', value: `${inpMs} ms`, context: 'Budget: < 200 ms' },
+        { label: 'Observed Interaction Target', value: inpTarget || 'Interactive Element' },
+        { label: 'Processing Delay', value: `${inpProcessingDelay} ms`, context: 'Main-thread handler execution' },
+        { label: 'Input Delay', value: `${inpInputDelay} ms`, context: 'Event queue delay' },
+        { label: 'Measurement Source', value: 'Google Web Vitals Event Timing Observer' }
+      ];
+
+      if (inpAttribution && inpAttribution.culpritScriptUrl) {
+        inpEvidence.push({
+          label: 'Offending Script Culprit',
+          value: `${inpAttribution.culpritFunctionName || 'anonymous'} in ${inpAttribution.culpritScriptUrl.split('/').pop()}`,
+          context: `${inpAttribution.culpritExecutionMs}ms execution (${inpAttribution.culpritForcedStyleMs}ms forced layout thrashing)`
+        });
+      }
+
+      if (inpAttribution && inpAttribution.groupedEventCount && inpAttribution.groupedEventCount > 1) {
+        inpEvidence.push({
+          label: 'Grouped Interaction Events',
+          value: `${(inpAttribution.groupedEvents || []).join(', ')} (${inpAttribution.groupedEventCount} events in 8ms frame window)`
+        });
+      }
+
+      let inpExplanation = `User interaction on ${inpTarget || 'interactive elements'} took ${inpMs} ms to present the next frame, causing visible UI lag on mobile devices.`;
+      if (inpAttribution && inpAttribution.culpritScriptUrl) {
+        inpExplanation += ` Long Animation Frame telemetry identified ${inpAttribution.culpritFunctionName || 'handler'} in ${inpAttribution.culpritScriptUrl.split('/').pop()} executing for ${inpAttribution.culpritExecutionMs}ms during event processing.`;
+      }
+
       findings.push({
         id: isCriticalInp ? 'critical-inp' : 'warning-inp',
         category: 'performance',
         severity: isCriticalInp ? 'critical' : 'warning',
         badge: isCriticalInp ? 'CRITICAL INP' : 'ELEVATED INP',
         title: `Interaction to Next Paint Exceeds Budget (${inpMs} ms)`,
-        evidence: [
-          { label: 'Measured INP Latency', value: `${inpMs} ms`, context: 'Budget: < 200 ms' },
-          { label: 'Observed Interaction Target', value: inpTarget || 'Interactive Element' },
-          { label: 'Processing Delay', value: `${inpProcessingDelay} ms`, context: 'Main-thread handler execution' },
-          { label: 'Input Delay', value: `${inpInputDelay} ms`, context: 'Event queue delay' },
-          { label: 'Measurement Source', value: 'Google Web Vitals Event Timing Observer' }
-        ],
+        evidence: inpEvidence,
         confidence: 'high',
-        explanation: `User interaction on ${inpTarget || 'interactive elements'} took ${inpMs} ms to present the next frame, causing visible UI lag on mobile devices.`,
+        explanation: inpExplanation,
         recommendation: 'De-prioritize heavy event listener logic, defer secondary tracking scripts, and yield the main thread during user clicks.',
         improvements: [
           `Profile event handlers bound to ${inpTarget || 'interactive buttons'} in Chrome DevTools`,

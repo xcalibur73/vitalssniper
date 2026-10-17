@@ -695,16 +695,69 @@ export async function inspectPageForensics() {
     }
   } catch (e) {}
 
-  let worstInteraction: any = null;
-  let maxInteractionDuration = 0;
+  // Group interaction events into presentation frame groups using an 8ms tolerance window
+  interface InteractionGroup {
+    interactionId?: number;
+    renderTime: number;
+    maxDuration: number;
+    events: any[];
+  }
+
+  const interactionGroups: InteractionGroup[] = [];
+
   if (interactionEntries.length > 0) {
     interactionEntries.forEach((entry: any) => {
       const dur = entry.duration || 0;
-      if (dur > maxInteractionDuration) {
-        maxInteractionDuration = dur;
-        worstInteraction = entry;
+      const renderTime = (entry.renderTime !== undefined && entry.renderTime > 0)
+        ? entry.renderTime
+        : (entry.startTime + dur);
+
+      let matchedGroup = interactionGroups.find(g => {
+        if (entry.interactionId && g.interactionId && entry.interactionId === g.interactionId) {
+          return true;
+        }
+        return Math.abs(renderTime - g.renderTime) <= 8;
+      });
+
+      if (matchedGroup) {
+        matchedGroup.events.push(entry);
+        if (dur > matchedGroup.maxDuration) {
+          matchedGroup.maxDuration = dur;
+        }
+        if (!matchedGroup.interactionId && entry.interactionId) {
+          matchedGroup.interactionId = entry.interactionId;
+        }
+      } else {
+        interactionGroups.push({
+          interactionId: entry.interactionId,
+          renderTime,
+          maxDuration: dur,
+          events: [entry]
+        });
       }
     });
+  }
+
+  let worstGroup: any = null;
+  let worstInteraction: any = null;
+  let maxInteractionDuration = 0;
+
+  for (const group of interactionGroups) {
+    if (!worstGroup || group.maxDuration > worstGroup.maxDuration) {
+      worstGroup = group;
+    }
+  }
+
+  if (worstGroup) {
+    for (const ev of worstGroup.events) {
+      const d = ev.duration || 0;
+      if (!worstInteraction || d > (worstInteraction.duration || 0)) {
+        worstInteraction = ev;
+      }
+    }
+    if (worstInteraction) {
+      maxInteractionDuration = worstInteraction.duration || 0;
+    }
   }
 
   let inpTarget: string | null = null;
@@ -714,7 +767,7 @@ export async function inspectPageForensics() {
   let inpAttribution: any = null;
   let inpDisplay = 'INP not recorded (Requires user tap/click)';
 
-  if (worstInteraction && maxInteractionDuration > 0) {
+  if (worstGroup && worstInteraction && maxInteractionDuration > 0) {
     inpMs = Math.round(maxInteractionDuration);
     inpObserved = true;
     if (worstInteraction.target) {
@@ -726,6 +779,35 @@ export async function inspectPageForensics() {
     inpProcessingDelayMs = Math.max(0, Math.round(procEnd - procStart));
     inpPresentationDelayMs = Math.max(0, Math.round(worstInteraction.startTime + worstInteraction.duration - procEnd));
 
+    // Calculate temporal intersection with scripts in rawLoafEntries
+    let worstScript: any = null;
+    let maxIntersectingDuration = 0;
+    let maxIntersectingForcedStyle = 0;
+
+    const candidateScripts: any[] = [];
+    rawLoafEntries.forEach((frame: any) => {
+      if (Array.isArray(frame.scripts)) {
+        frame.scripts.forEach((s: any) => candidateScripts.push(s));
+      } else if (frame && (frame.startTime !== undefined || frame.sourceURL || frame.sourceUrl)) {
+        candidateScripts.push(frame);
+      }
+    });
+
+    candidateScripts.forEach((script: any) => {
+      const sStart = script.startTime || 0;
+      const sDuration = script.duration || 0;
+      const scriptEnd = sStart + sDuration;
+      const intersectingDuration = Math.max(0, Math.min(scriptEnd, procEnd) - Math.max(sStart, procStart));
+      if (intersectingDuration > maxIntersectingDuration) {
+        maxIntersectingDuration = intersectingDuration;
+        const forcedStyle = (sDuration && script.forcedStyleAndLayoutDuration)
+          ? Math.round((intersectingDuration / sDuration) * script.forcedStyleAndLayoutDuration)
+          : 0;
+        maxIntersectingForcedStyle = forcedStyle;
+        worstScript = script;
+      }
+    });
+
     const targetLabel = inpTarget ? ` on ${inpTarget}` : '';
     inpDisplay = `${inpMs} ms (${worstInteraction.name || 'interaction'}${targetLabel})`;
     inpAttribution = {
@@ -733,7 +815,13 @@ export async function inspectPageForensics() {
       interactionType: worstInteraction.name || 'interaction',
       processingDelayMs: inpProcessingDelayMs,
       inputDelayMs: inpInputDelayMs,
-      presentationDelayMs: inpPresentationDelayMs
+      presentationDelayMs: inpPresentationDelayMs,
+      culpritScriptUrl: worstScript ? (worstScript.sourceURL || worstScript.sourceUrl || null) : null,
+      culpritFunctionName: worstScript ? (worstScript.sourceFunctionName || null) : null,
+      culpritExecutionMs: worstScript ? Math.round(maxIntersectingDuration) : null,
+      culpritForcedStyleMs: worstScript ? maxIntersectingForcedStyle : null,
+      groupedEventCount: worstGroup.events.length,
+      groupedEvents: Array.from(new Set(worstGroup.events.map((e: any) => e.name || 'interaction')))
     };
   }
 

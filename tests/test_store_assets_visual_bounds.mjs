@@ -152,7 +152,7 @@ async function runVisualBoundsStressTest() {
       width: 1280,
       height: 800,
       checks: [
-        { label: 'Screenshot 1 Eyebrow Pill', selectorText: 'SCREENSHOT 1 : DOM BLOAT AUDIT', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
+        { label: 'Screenshot 1 Eyebrow Pill', selectorText: 'SCREENSHOT 1 : OVERVIEW & STACK DETECTION', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
       ]
     },
     {
@@ -160,7 +160,7 @@ async function runVisualBoundsStressTest() {
       width: 1280,
       height: 800,
       checks: [
-        { label: 'Screenshot 2 Eyebrow Pill', selectorText: 'SCREENSHOT 2 : OUTREACH ENGINE', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
+        { label: 'Screenshot 2 Eyebrow Pill', selectorText: 'SCREENSHOT 2 : DEEP FORENSICS & ATTRIBUTION', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
       ]
     },
     {
@@ -168,7 +168,23 @@ async function runVisualBoundsStressTest() {
       width: 1280,
       height: 800,
       checks: [
-        { label: 'Screenshot 3 Eyebrow Pill', selectorText: 'SCREENSHOT 3 : COMPETITOR VS', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
+        { label: 'Screenshot 3 Eyebrow Pill', selectorText: 'SCREENSHOT 3 : SEO HEADING & LINK FORENSICS', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
+      ]
+    },
+    {
+      file: 'screenshot_4_outreach_1280x800.svg',
+      width: 1280,
+      height: 800,
+      checks: [
+        { label: 'Screenshot 4 Eyebrow Pill', selectorText: 'SCREENSHOT 4 : OUTREACH TEARDOWN ENGINE', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
+      ]
+    },
+    {
+      file: 'screenshot_5_competitor_vs_1280x800.svg',
+      width: 1280,
+      height: 800,
+      checks: [
+        { label: 'Screenshot 5 Eyebrow Pill', selectorText: 'SCREENSHOT 5 : COMPETITOR BENCHMARK MATRIX', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
       ]
     },
     {
@@ -176,7 +192,7 @@ async function runVisualBoundsStressTest() {
       width: 440,
       height: 280,
       checks: [
-        { label: 'Promo Tile Eyebrow Pill', selectorText: 'EVIDENCE ENGINE:', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
+        { label: 'Promo Tile Eyebrow Pill', selectorText: 'EVIDENCE ENGINE: PRO EDITION', bgFill: '#1a1a1a', expectedFg: '#ffffff' }
       ]
     }
   ];
