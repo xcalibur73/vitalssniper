@@ -168,7 +168,7 @@ https://webaudits.pro/privacy
 
 ## Version History
 
-| 1.6.1 | 2026-10-17 | Full-stack technology signatures, revenue loss calculator, HTTP header forensics, LoAF attribution, and H1-H6 heading hierarchy | Pending Submission |
+| 1.6.1 | 2026-10-18 | Full-stack technology signatures, revenue loss calculator, HTTP header forensics, LoAF attribution, and H1-H6 heading hierarchy | Submitted & In Review |
 | 1.6.0 | 2026-10-17 | Long Animation Frames (LoAF) script attribution, Layout Shift DOM tracking, H1-H6 heading hierarchy, and link graph forensics | Previous Submission |
 | 1.5.3 | 2026-10-12 | Brand Harmonization palette, demo key access, and competitor benchmark updates | Approved & Published |
 | 1.5.2 | 2026-10-09 | Production hardening: shadow root DOM traversal, testing key removal, and Quiet Paper theme alignment | Approved & Published |
