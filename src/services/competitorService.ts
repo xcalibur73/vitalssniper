@@ -117,7 +117,7 @@ export class CompetitorService {
       competitors: [{ domain: 'pagespeed.web.dev', name: 'PageSpeed' }, { domain: 'gtmetrix.com', name: 'GTmetrix' }, { domain: 'debugbear.com', name: 'DebugBear' }],
       benchmark: { category: 'Web Audits & Speed Intelligence', avgDom: 750, avgPayloadKB: 850, medianLcpSec: 1.3, note: 'High performance audits aim for under 800 nodes' }
     },
-    'ananna.free.je': {
+    'awwwards.com': {
       category: 'Agency & Portfolio Showcase',
       competitors: [{ domain: 'elementor.com', name: 'Elementor' }, { domain: 'generatepress.com', name: 'GeneratePress' }, { domain: 'astratheme.com', name: 'Astra Theme' }],
       benchmark: { category: 'Agency & Portfolio Showcase', avgDom: 1050, avgPayloadKB: 1400, medianLcpSec: 2.1, note: 'Agency portfolios average 1,050 nodes' }

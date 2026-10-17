@@ -4,7 +4,7 @@
 import { RawObservations, ExternalMetrics } from './types/audit';
 import { Finding, AuditScorecard, SeverityLevel } from './types/findings';
 import { SavedLead, AgencySettings } from './types/pipeline';
-import { inspectPageForensics } from './engine/browserAudit';
+import { inspectPageForensics, renderLayoutShiftOverlay } from './engine/browserAudit';
 import { ExternalAudit } from './engine/externalAudit';
 import { FindingsEngine } from './engine/findingsEngine';
 import { OutreachGenerator, OutreachScripts, OutreachTone } from './engine/outreachGenerator';
@@ -99,7 +99,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     vpMissing: false,
     vpLocked: false,
     hasSchema: true,
-    seo: { jsonLdValid: true, schemaTypes: ['WebSite', 'Organization'] },
+    seo: {
+      jsonLdValid: true,
+      schemaTypes: ['WebSite', 'Organization'],
+      canonical: 'https://example.com',
+      canonicalMatchesUrl: true,
+      wordCount: 1420,
+      headings: {
+        tree: [
+          { tag: 'h1', level: 1, text: 'Fast, Modern Web Architecture' },
+          { tag: 'h2', level: 2, text: 'Diagnostic Performance Analytics' }
+        ],
+        totalCount: 8,
+        h1Count: 1,
+        h2Count: 3,
+        h3Count: 4,
+        h4Count: 0,
+        h5Count: 0,
+        h6Count: 0,
+        missingH1: false,
+        duplicateH1: false,
+        skippedLevels: []
+      },
+      links: {
+        total: 42,
+        internalCount: 34,
+        externalCount: 8,
+        nofollowCount: 2,
+        sponsoredCount: 0,
+        ugcCount: 0,
+        emptyAnchorCount: 0
+      }
+    },
     externalScripts: 18,
     assets: {
       scripts: { total: 18, external: 14, inline: 4, async: 12, defer: 2, sync: 4 },
@@ -222,7 +253,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         vpMissing: false,
         vpLocked: false,
         hasSchema: true,
-        seo: { jsonLdValid: true, schemaTypes: ['WebSite'] },
+        seo: {
+          jsonLdValid: true,
+          schemaTypes: ['WebSite'],
+          canonical: clean,
+          canonicalMatchesUrl: true,
+          wordCount: 880,
+          headings: {
+            tree: [],
+            totalCount: 5,
+            h1Count: 1,
+            h2Count: 2,
+            h3Count: 2,
+            h4Count: 0,
+            h5Count: 0,
+            h6Count: 0,
+            missingH1: false,
+            duplicateH1: false,
+            skippedLevels: []
+          },
+          links: {
+            total: 24,
+            internalCount: 18,
+            externalCount: 6,
+            nofollowCount: 1,
+            sponsoredCount: 0,
+            ugcCount: 0,
+            emptyAnchorCount: 0
+          }
+        },
         externalScripts: 14,
         assets: {
           scripts: { total: 16, external: 12, inline: 4, async: 10, defer: 2, sync: 4 },
@@ -532,6 +591,119 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
     }
   }
 
+  // 4b. SEO & Structure Architecture Card
+  const seoData = data.seo;
+  const headings = seoData?.headings || data.headings;
+  const links = seoData?.links || data.links;
+  const wordCount = seoData?.wordCount !== undefined ? seoData.wordCount : data.wordCount;
+
+  let cardSeo = document.getElementById('cardSeoStructure');
+  if (headings || links || (wordCount !== undefined && wordCount !== null)) {
+    if (!cardSeo) {
+      cardSeo = document.createElement('section');
+      cardSeo.id = 'cardSeoStructure';
+      cardSeo.className = 'seo-structure-card';
+      cardSeo.innerHTML = `
+        <div class="seo-card-header">
+          <div class="seo-header-left">
+            <span class="seo-card-title">SEO &amp; STRUCTURE</span>
+            <span class="seo-canonical-pill tag-green" id="seoCanonicalPill" style="display: none;">Matches URL</span>
+          </div>
+          <span class="seo-word-count-badge" id="seoWordCountBadge" style="display: none;">-- words</span>
+        </div>
+        <div class="seo-card-body">
+          <div class="seo-headings-row" id="seoHeadingsRow">
+            <span class="heading-summary-pill" id="headingSummaryPill" style="display: none;">H1: 0 | H2: 0 | H3: 0 | H4: 0</span>
+            <span class="heading-skipped-pill tag-amber" id="headingSkippedPill" style="display: none;">Skipped: H1 -&gt; H3</span>
+          </div>
+          <div class="seo-links-chips" id="seoLinksChips">
+            <span class="seo-chip" id="chipInternal">Internal: 0</span>
+            <span class="seo-chip" id="chipExternal">External: 0</span>
+            <span class="seo-chip" id="chipNofollow">Nofollow: 0</span>
+          </div>
+        </div>
+      `;
+      const flawBanner = document.getElementById('flawBanner');
+      if (flawBanner && flawBanner.parentNode) {
+        flawBanner.parentNode.insertBefore(cardSeo, flawBanner);
+      } else {
+        document.querySelector('.container')?.appendChild(cardSeo);
+      }
+    }
+
+    cardSeo.style.display = 'flex';
+
+    // Display word count badge (e.g. '1,420 words')
+    const badgeWordCount = document.getElementById('seoWordCountBadge');
+    if (badgeWordCount) {
+      if (wordCount !== undefined && wordCount !== null) {
+        badgeWordCount.innerText = `${wordCount.toLocaleString()} words`;
+        badgeWordCount.style.display = 'inline-flex';
+      } else {
+        badgeWordCount.style.display = 'none';
+      }
+    }
+
+    // Display heading summary pill (H1: X | H2: Y | H3: Z | H4: W) & Skipped levels warning pill
+    const headingSummary = document.getElementById('headingSummaryPill');
+    const headingSkipped = document.getElementById('headingSkippedPill');
+    if (headings) {
+      if (headingSummary) {
+        headingSummary.innerText = `H1: ${headings.h1Count} | H2: ${headings.h2Count} | H3: ${headings.h3Count} | H4: ${headings.h4Count}`;
+        headingSummary.style.display = 'inline-flex';
+      }
+      if (headingSkipped) {
+        if (headings.skippedLevels && headings.skippedLevels.length > 0) {
+          const skippedText = headings.skippedLevels
+            .map((s: any) => `${s.fromTag.toUpperCase()} -> ${s.toTag.toUpperCase()}`)
+            .slice(0, 2)
+            .join(', ');
+          headingSkipped.innerText = `Skipped: ${skippedText}`;
+          headingSkipped.className = 'heading-skipped-pill tag-amber';
+          headingSkipped.style.display = 'inline-flex';
+        } else {
+          headingSkipped.style.display = 'none';
+        }
+      }
+    } else {
+      if (headingSummary) headingSummary.style.display = 'none';
+      if (headingSkipped) headingSkipped.style.display = 'none';
+    }
+
+    // Display link graph chips (Internal: X, External: Y, Nofollow: Z)
+    const chipInternal = document.getElementById('chipInternal');
+    const chipExternal = document.getElementById('chipExternal');
+    const chipNofollow = document.getElementById('chipNofollow');
+    if (links) {
+      if (chipInternal) chipInternal.innerText = `Internal: ${links.internalCount}`;
+      if (chipExternal) chipExternal.innerText = `External: ${links.externalCount}`;
+      if (chipNofollow) chipNofollow.innerText = `Nofollow: ${links.nofollowCount}`;
+    }
+
+    // Display canonical matching status indicator (Matches URL / Divergent Target)
+    const canonicalPill = document.getElementById('seoCanonicalPill');
+    if (canonicalPill) {
+      if (seoData && seoData.canonicalMatchesUrl !== undefined && seoData.canonicalMatchesUrl !== null) {
+        canonicalPill.style.display = 'inline-flex';
+        if (seoData.canonicalMatchesUrl === true) {
+          canonicalPill.innerText = 'Matches URL';
+          canonicalPill.className = 'seo-canonical-pill tag-green';
+        } else {
+          canonicalPill.innerText = 'Divergent Target';
+          canonicalPill.className = 'seo-canonical-pill tag-amber';
+        }
+      } else if (seoData?.canonical) {
+        canonicalPill.style.display = 'inline-flex';
+        canonicalPill.innerText = 'Matches URL';
+        canonicalPill.className = 'seo-canonical-pill tag-green';
+      } else {
+        canonicalPill.style.display = 'none';
+      }
+    }
+  } else if (cardSeo) {
+    cardSeo.style.display = 'none';
+  }
+
   // 5. Evidence Engine Flaw Banner
   const badgeEl = document.getElementById('flawSeverityBadge');
   const bannerEl = document.getElementById('flawBanner');
@@ -546,11 +718,37 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
   const flawDescEl = document.getElementById('flawDesc');
   if (flawDescEl) {
     const isHealthy = primaryFinding.severity === 'healthy';
+    const shiftList = data.performance?.clsAttribution?.shiftDetails || data.shiftDetails || [];
+    const hasShifts = shiftList.length > 0;
+    const shiftOverlayBtnHtml = hasShifts
+      ? `<div style="margin-top: 8px;"><button id="btnHighlightShifts" type="button" style="background: rgba(220, 38, 38, 0.12); border: 1px solid #dc2626; color: #dc2626; border-radius: 4px; padding: 4px 8px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">Highlight ${shiftList.length} Layout Shift${shiftList.length > 1 ? 's' : ''} in Tab</button></div>`
+      : '';
+
     flawDescEl.innerHTML = `
       <div style="font-weight: 600; color: var(--color-text); margin-bottom: 4px;">${escapeHtml(primaryFinding.title)}</div>
       <div style="color: var(--color-muted); font-size: 11.5px; margin-bottom: 4px;"><strong>${isHealthy ? 'Baseline Status:' : 'Evidence:'}</strong> ${escapeHtml(currentAuditState.flawEvidence)}</div>
       <div style="color: var(--color-muted); font-size: 11px;">${escapeHtml(primaryFinding.explanation)}</div>
+      ${shiftOverlayBtnHtml}
     `;
+
+    if (hasShifts) {
+      const btnHighlight = document.getElementById('btnHighlightShifts');
+      if (btnHighlight) {
+        btnHighlight.onclick = () => {
+          if (typeof chrome !== 'undefined' && chrome.tabs && chrome.scripting) {
+            chrome.tabs.query({ active: true, currentWindow: true }).then((tabs: any[]) => {
+              if (tabs && tabs[0] && tabs[0].id) {
+                chrome.scripting.executeScript({
+                  target: { tabId: tabs[0].id },
+                  func: renderLayoutShiftOverlay,
+                  args: [shiftList]
+                });
+              }
+            });
+          }
+        };
+      }
+    }
   }
 
   // Actionable Improvements List

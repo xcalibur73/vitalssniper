@@ -4,7 +4,7 @@
 
 - Name: VitalsSniper: Proof-of-Flaw Web Inspector
 - Short Description (132 char limit): 1-Click CMS & Builder detector, DOM bloat scanner, Core Web Vitals audit, and client outreach email generator.
-- Version: 1.5.2
+- Version: 1.6.0
 - Category: Developer Tools
 - Primary Language: English
 - Pricing: Free (with optional cloud sync and PRO account via WebAudits.pro)
@@ -26,6 +26,15 @@ VitalsSniper is an in-browser technical website auditor and proof-of-flaw inspec
 
 Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper inspects the live DOM of the active tab directly in your local browser engine without server queue delays.
 
+### What is New in Version 1.6.0
+
+- Long Animation Frames (LoAF) Script Attribution: Tracks main-thread blocking scripts with exact duration, invoker type, and source URL to diagnose Interaction to Next Paint (INP) issues.
+- Layout Shift Live Tracking: Identifies cumulative layout shifts and flags shifting DOM elements with visual coordinates.
+- On-Page SEO Heading Hierarchy: Complete H1-H6 outline inspection with automated alerts for missing primary H1 tags, duplicates, and skipped-level hierarchy breaks.
+- Link Graph Forensics: Classifies internal vs external links, audits nofollow, sponsored, and UGC tags, and warns on empty anchor elements.
+- Clean Word Counter: Accurately counts body copy words excluding scripts, styles, and navigation boilerplate.
+- Brand Harmonization: Refined color system with warm cream, terracotta accents, and dark high-contrast surfaces.
+
 ### Core Audit Capabilities
 
 1. CMS and Page Builder Detection
@@ -37,19 +46,31 @@ Measures total DOM node count, maximum nesting depth, and flags deep branches ex
 3. Document Payload and Transfer Weights
 Measures in-memory HTML size, wire transfer weight, and asset distribution to pinpoint oversized payloads that slow mobile first contentful paint.
 
-4. Viewport and Accessibility Checks
+4. Long Animation Frames (LoAF) and Script Attribution
+Attributes main-thread interaction delays to specific script URLs, execution durations, and invokers to isolate Interaction to Next Paint (INP) bottlenecks.
+
+5. Layout Shift and Visual Stability Diagnostics
+Monitors cumulative layout shifts with live element coordinates to detect shifting layout elements and reflow triggers.
+
+6. Heading Hierarchy and On-Page SEO Structure
+Maps complete H1-H6 heading outlines in DOM sequence, identifying missing primary H1 tags, duplicate H1s, and skipped-level hierarchy breaks.
+
+7. Link Graph and Anchor Quality Audit
+Inventories internal versus external link ratios, inspects nofollow, sponsored, and UGC attributes, and flags empty anchor tags without accessible text.
+
+8. Viewport and Accessibility Checks
 Evaluates viewport meta configuration to identify user-scalable restrictions that impair pinch-to-zoom accessibility under WCAG 2.2 Criterion 1.4.4.
 
-5. Schema.org JSON-LD Verification
+9. Schema.org JSON-LD Verification
 Parses and checks structured data blocks for syntax validity, entity graph connections, and missing required properties.
 
-6. Third-Party Script Contention
+10. Third-Party Script Contention
 Inventories external, inline, and asynchronous scripts competing for main-thread execution time.
 
-7. Evidence-Grounded Outreach Teardowns
+11. Evidence-Grounded Outreach Teardowns
 Generates structured diagnostic teardowns (email copy, LinkedIn DM, and video teardown outlines) directly from observed technical flaws, citing measured values instead of vague generalizations.
 
-8. Teardown Briefs and CRM Exports
+12. Teardown Briefs and CRM Exports
 Saves reviewed prospect sites locally and exports client-ready 1-page PDF teardown briefs or RFC 4180 CSV logs.
 
 ### Technical Architecture and Privacy

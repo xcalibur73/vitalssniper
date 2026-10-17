@@ -1,8 +1,10 @@
 $ErrorActionPreference = 'Stop'
 $extDir = Resolve-Path $PSScriptRoot
 $workspaceRoot = Split-Path $extDir -Parent
+$manifestContent = Get-Content (Join-Path $extDir 'manifest.json') -Raw | ConvertFrom-Json
+$version = $manifestContent.version
 $zipPath = Join-Path $workspaceRoot 'vitalssniper_pro.zip'
-$cwsZipPath = Join-Path $workspaceRoot 'vitalssniper_cws_v1.5.2.zip'
+$cwsZipPath = Join-Path $workspaceRoot "vitalssniper_cws_v$version.zip"
 $webZipPath = Join-Path $workspaceRoot 'vitalssniper_web\private_releases\vitalssniper_pro.zip'
 
 $stagingDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
@@ -58,9 +60,9 @@ $targetDirs = @(
 foreach ($dir in $targetDirs) {
     if (Test-Path $dir) {
         Copy-Item $zipPath (Join-Path $dir 'vitalssniper_pro.zip') -Force
-        Copy-Item $zipPath (Join-Path $dir 'vitalssniper_v1.5.2_pro.zip') -Force
-        Copy-Item $cwsZipPath (Join-Path $dir 'vitalssniper_cws_v1.5.2.zip') -Force
-        Write-Host "Synced vitalssniper_pro.zip and vitalssniper_cws_v1.5.2.zip to $dir"
+        Copy-Item $zipPath (Join-Path $dir "vitalssniper_v${version}_pro.zip") -Force
+        Copy-Item $cwsZipPath (Join-Path $dir "vitalssniper_cws_v${version}.zip") -Force
+        Write-Host "Synced vitalssniper_pro.zip and vitalssniper_cws_v${version}.zip to $dir"
     }
 }
 
@@ -70,7 +72,7 @@ New-Item -ItemType Directory -Path $bundleStaging -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $bundleStaging 'store_assets') -Force | Out-Null
 
 Copy-Item $zipPath (Join-Path $bundleStaging 'vitalssniper_pro.zip') -Force
-Copy-Item $cwsZipPath (Join-Path $bundleStaging 'vitalssniper_cws_v1.5.2.zip') -Force
+Copy-Item $cwsZipPath (Join-Path $bundleStaging "vitalssniper_cws_v${version}.zip") -Force
 Copy-Item (Join-Path $extDir 'STORE_LISTING.md') $bundleStaging -Force
 Copy-Item (Join-Path $extDir 'CHROMEWEBSTORE.md') $bundleStaging -Force
 Copy-Item (Join-Path $extDir 'README.md') $bundleStaging -Force

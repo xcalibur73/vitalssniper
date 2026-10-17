@@ -37,10 +37,39 @@ export interface InpSubpartAttribution {
   presentationDelayMs: number | null;
 }
 
+export interface LayoutShiftBoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+export interface LayoutShiftDetail {
+  score: number;
+  startTimeMs: number;
+  hadRecentInput: boolean;
+  elementSelector: string | null;
+  elementTag: string | null;
+  previousRect: LayoutShiftBoundingBox | null;
+  currentRect: LayoutShiftBoundingBox | null;
+  deltaX: number;
+  deltaY: number;
+  distancePx: number;
+  direction: 'down' | 'up' | 'left' | 'right' | 'diagonal' | 'none';
+  impactAreaPx: number;
+}
+
 export interface ClsSubpartAttribution {
   sessionWindowScore: number;
   largestShiftTarget: string | null;
   largestShiftValue: number;
+  shiftDetails?: LayoutShiftDetail[];
+  totalShiftsCount?: number;
+  largestShiftBoundingBox?: LayoutShiftBoundingBox | null;
 }
 
 export interface PerformanceMetrics {
@@ -73,10 +102,39 @@ export interface PerformanceMetrics {
   domLoadMs: number | null;
 }
 
+export interface LoafScriptCulprit {
+  invoker: string | null;
+  invokerType: string | null;
+  sourceUrl: string | null;
+  sourceFunctionName: string | null;
+  sourceCharPosition?: number | null;
+  executionDurationMs: number;
+  forcedStyleAndLayoutMs: number;
+  pauseDurationMs: number;
+  compileDurationMs: number;
+  totalDurationMs: number;
+}
+
+export interface LoafFrameForensics {
+  startTimeMs: number;
+  durationMs: number;
+  blockingDurationMs: number;
+  preRenderDurationMs: number;
+  styleAndLayoutDurationMs: number;
+  renderDelayMs: number;
+  scripts: LoafScriptCulprit[];
+  primaryCulprit: LoafScriptCulprit | null;
+}
+
 export interface MainThreadMetrics {
   longTaskCount: number;
   longestTaskMs: number | null;
   totalBlockingTimeMs: number;
+  loafCount?: number;
+  longestLoafMs?: number | null;
+  totalLoafBlockingMs?: number;
+  primaryLoafCulprit?: LoafScriptCulprit | null;
+  loafFrames?: LoafFrameForensics[];
 }
 
 export interface DomMetrics {
@@ -111,6 +169,58 @@ export interface ImageAuditItem {
   decoding: 'async' | 'sync' | 'auto';
 }
 
+export interface HeadingNode {
+  tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  level: number;
+  text: string;
+}
+
+export interface HeadingSkippedLevel {
+  fromTag: string;
+  toTag: string;
+  headingText: string;
+}
+
+export interface HeadingHierarchy {
+  tree: HeadingNode[];
+  totalCount: number;
+  h1Count: number;
+  h2Count: number;
+  h3Count: number;
+  h4Count: number;
+  h5Count: number;
+  h6Count: number;
+  missingH1: boolean;
+  duplicateH1: boolean;
+  skippedLevels: HeadingSkippedLevel[];
+}
+
+export interface LinkItem {
+  url: string;
+  anchorText: string;
+  isInternal: boolean;
+  isExternal: boolean;
+  rel?: string;
+  isNofollow: boolean;
+  isSponsored: boolean;
+  isUgc: boolean;
+}
+
+export interface LinkGraphSummary {
+  total: number;
+  internalCount: number;
+  externalCount: number;
+  nofollowCount: number;
+  sponsoredCount: number;
+  ugcCount: number;
+  emptyAnchorCount: number;
+}
+
+export interface HreflangTag {
+  hreflang: string;
+  href: string;
+}
+
 export interface SeoStructuredDataAudit {
   jsonLdDetected: boolean;
   jsonLdValid: boolean;
@@ -128,6 +238,13 @@ export interface SeoStructuredDataAudit {
   twitter: Record<string, string>;
   lang: string | null;
   hreflangCount: number;
+  headings?: HeadingHierarchy;
+  links?: LinkGraphSummary;
+  wordCount?: number;
+  hreflangs?: HreflangTag[];
+  canonicalMatchesUrl?: boolean | null;
+  isNoindex?: boolean;
+  isNofollow?: boolean;
 }
 
 export interface AccessibilityMetrics {

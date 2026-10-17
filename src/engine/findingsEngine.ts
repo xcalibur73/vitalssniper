@@ -18,6 +18,8 @@ export class FindingsEngine {
     const vpMissing = Boolean(data.vpMissing);
     const vpLocked = Boolean(data.vpLocked);
     const hasSchema = Boolean(data.hasSchema);
+    const seoData = data.seo || {};
+    const headingsData = seoData.headings || data.headings || null;
     const jsonLdValid = data.seo ? data.seo.jsonLdValid : true;
     const oversizedCount = (data.images || []).filter((i: any) => i.isOversized).length;
     const missingDimsCount = data.missingDimensionImages || 0;
@@ -123,17 +125,28 @@ export class FindingsEngine {
     // --- 3. CORE WEB VITALS: MEASURED CLS ---
     if (cls !== null && cls > 0.1) {
       const isCriticalCls = cls > 0.25;
+      const shiftDetails = data.performance?.clsAttribution?.shiftDetails || data.shiftDetails || [];
+      const topShift = shiftDetails.length > 0 ? shiftDetails[0] : null;
+      const clsEvidence: any[] = [
+        { label: 'Observed CLS Score', value: cls.toFixed(3), context: 'Budget: < 0.10' },
+        { label: 'Measurement Window', value: 'Canonical Session Window (Max 5s / 1s gap)' },
+        ...(clsTarget ? [{ label: 'Largest Shift Target', value: clsTarget }] : [])
+      ];
+
+      if (topShift && topShift.distancePx > 0) {
+        clsEvidence.push({
+          label: 'Shift Displacement',
+          value: `${topShift.direction} by ${topShift.distancePx}px (Impact: ${topShift.impactAreaPx.toLocaleString()} px²)`
+        });
+      }
+
       findings.push({
         id: isCriticalCls ? 'critical-cls' : 'warning-cls',
         category: 'performance',
         severity: isCriticalCls ? 'critical' : 'warning',
         badge: isCriticalCls ? 'CRITICAL LAYOUT SHIFT' : 'ELEVATED LAYOUT SHIFT',
         title: `Cumulative Layout Shift Detected (${cls.toFixed(3)})`,
-        evidence: [
-          { label: 'Observed CLS Score', value: cls.toFixed(3), context: 'Budget: < 0.10' },
-          { label: 'Measurement Window', value: 'Canonical Session Window (Max 5s / 1s gap)' },
-          ...(clsTarget ? [{ label: 'Largest Shift Target', value: clsTarget }] : [])
-        ],
+        evidence: clsEvidence,
         confidence: 'high',
         explanation: 'Unsized elements or late-injected content caused layout instability during page rendering, shifting clickable buttons or content.',
         recommendation: 'Reserve explicit aspect-ratio and width/height dimensions for all images, banners, and dynamic embeds.',
@@ -262,25 +275,72 @@ export class FindingsEngine {
     }
 
     // --- 7. Main Thread Long Tasks & Contention ---
-    if (longTaskCount > 3 || (longestTaskMs !== null && longestTaskMs > 250)) {
+    const loafCount = data.mainThread?.loafCount || data.loafCount || 0;
+    const loafCulprit = data.mainThread?.primaryLoafCulprit || data.primaryLoafCulprit || null;
+    const totalLoafBlockingMs = data.mainThread?.totalLoafBlockingMs || data.totalLoafBlockingMs || 0;
+
+    if (longTaskCount > 3 || (longestTaskMs !== null && longestTaskMs > 250) || loafCount > 0) {
+      const mainThreadEvidence: any[] = [
+        { label: 'Observed Long Tasks (>50ms)', value: String(longTaskCount) },
+        { label: 'Longest Task Duration', value: longestTaskMs ? `${longestTaskMs} ms` : 'N/A' },
+        { label: 'Total Blocking Time', value: `${totalBlockingTimeMs} ms` }
+      ];
+
+      if (loafCount > 0) {
+        mainThreadEvidence.push({
+          label: 'Long Animation Frames (LoAF)',
+          value: `${loafCount} frames (${totalLoafBlockingMs} ms blocking)`
+        });
+      }
+
+      if (loafCulprit) {
+        const culpritDescriptor = loafCulprit.sourceUrl || loafCulprit.invoker || loafCulprit.sourceFunctionName || 'Inline Script Execution';
+        mainThreadEvidence.push({
+          label: 'LoAF Script Culprit',
+          value: culpritDescriptor
+        });
+        if (loafCulprit.invoker && loafCulprit.sourceUrl) {
+          mainThreadEvidence.push({
+            label: 'LoAF Invoker Callback',
+            value: `${loafCulprit.invokerType || 'callback'}: ${loafCulprit.invoker}`
+          });
+        }
+        mainThreadEvidence.push({
+          label: 'Culprit Execution Time',
+          value: `${loafCulprit.executionDurationMs} ms (Forced Reflow: ${loafCulprit.forcedStyleAndLayoutMs} ms)`
+        });
+      }
+
+      const hasCulprit = Boolean(loafCulprit && (loafCulprit.sourceUrl || loafCulprit.invoker || loafCulprit.sourceFunctionName));
+      const culpritSummary = loafCulprit
+        ? (loafCulprit.sourceUrl
+          ? `${loafCulprit.sourceUrl}${loafCulprit.invoker ? ' via ' + loafCulprit.invoker : ''}`
+          : (loafCulprit.invoker || loafCulprit.sourceFunctionName || 'inline script'))
+        : '';
+
       findings.push({
         id: 'main-thread-long-tasks',
         category: 'performance',
         severity: 'warning',
         badge: 'MAIN THREAD CONTENTION',
-        title: 'Long JavaScript Tasks Blocking Main Thread',
-        evidence: [
-          { label: 'Observed Long Tasks (>50ms)', value: String(longTaskCount) },
-          { label: 'Longest Task Duration', value: longestTaskMs ? `${longestTaskMs} ms` : 'N/A' },
-          { label: 'Total Blocking Time', value: `${totalBlockingTimeMs} ms` }
-        ],
+        title: hasCulprit
+          ? 'Script Culprit Blocking Main Thread (LoAF Telemetry)'
+          : 'Long JavaScript Tasks Blocking Main Thread',
+        evidence: mainThreadEvidence,
         confidence: 'high',
-        explanation: 'Long JavaScript tasks monopolize the browser main thread, delaying response to user taps and clicks.',
-        recommendation: 'Break up long-running script execution using requestIdleCallback or scheduler.yield().',
+        explanation: hasCulprit
+          ? `Main thread execution blocked by script culprit ${culpritSummary}, delaying user interaction and frame rendering.`
+          : 'Long JavaScript tasks monopolize the browser main thread, delaying response to user taps and clicks.',
+        recommendation: (loafCulprit && loafCulprit.forcedStyleAndLayoutMs > 0)
+          ? 'Eliminate synchronous layout thrashing (forced reflow) and break up long-running script execution using requestIdleCallback or scheduler.yield().'
+          : 'Break up long-running script execution using requestIdleCallback or scheduler.yield().',
         improvements: [
           'Profile JavaScript execution in Chrome DevTools Performance panel',
           'Audit third-party scripts running during initial page load',
-          'Break up compute-heavy tasks into smaller chunks using requestIdleCallback'
+          'Break up compute-heavy tasks into smaller chunks using requestIdleCallback',
+          ...(loafCulprit && loafCulprit.forcedStyleAndLayoutMs > 0
+            ? ['Eliminate forced synchronous reflows by avoiding DOM style reads immediately following DOM writes']
+            : [])
         ]
       });
     }
@@ -377,7 +437,119 @@ export class FindingsEngine {
       });
     }
 
-    // --- 11. Touch Targets (Differentiate Potential WCAG 2.5.8 Concern <24px vs Usability Heuristic <44px) ---
+    // --- 10b. On-Page SEO Architecture & Heading Structure ---
+    if (headingsData?.missingH1) {
+      findings.push({
+        id: 'missing-h1',
+        category: 'seo',
+        severity: 'warning',
+        badge: 'MISSING H1 HEADING',
+        title: 'No Primary Heading (H1) Detected',
+        evidence: [
+          { label: 'Observed H1 Tags', value: '0 detected' },
+          { label: 'Total Headings in Document', value: `${headingsData.totalCount} headings` }
+        ],
+        confidence: 'high',
+        explanation: 'Search engines and screen readers rely on a primary <h1> heading to discern page topic and document structure.',
+        recommendation: 'Add a single descriptive <h1> heading communicating the primary subject of the page.',
+        improvements: [
+          'Add a descriptive <h1> tag near the top of the main content area',
+          'Ensure the <h1> clearly reflects the primary keyword intent of this page',
+          'Avoid skipping directly to <h2> or styling non-heading elements to look like titles'
+        ]
+      });
+    }
+
+    if (headingsData?.duplicateH1) {
+      findings.push({
+        id: 'duplicate-h1',
+        category: 'seo',
+        severity: 'warning',
+        badge: 'MULTIPLE H1 HEADINGS',
+        title: `Multiple Primary Headings (${headingsData.h1Count} H1 Tags Detected)`,
+        evidence: [
+          { label: 'Observed H1 Tags', value: `${headingsData.h1Count} elements` },
+          { label: 'SEO Standard', value: '1 primary H1 per document recommended' }
+        ],
+        confidence: 'high',
+        explanation: `Multiple <h1> headings (${headingsData.h1Count}) dilute topical clarity for search engine crawlers and confuse assistive screen readers.`,
+        recommendation: 'Reserve <h1> for the main page title and demote secondary section titles to <h2> or <h3>.',
+        improvements: [
+          'Consolidate the primary page title into a single <h1> heading tag',
+          'Demote sub-section headings from <h1> to <h2> or <h3>',
+          'Ensure a clear single-topic document outline for search crawlers'
+        ]
+      });
+    }
+
+    if (headingsData?.skippedLevels && headingsData.skippedLevels.length > 0) {
+      const skippedSummary = headingsData.skippedLevels
+        .map((s: any) => `${s.fromTag.toUpperCase()} -> ${s.toTag.toUpperCase()}`)
+        .join(', ');
+      findings.push({
+        id: 'skipped-heading-hierarchy',
+        category: 'seo',
+        severity: 'opportunity',
+        badge: 'HEADING HIERARCHY GAP',
+        title: 'Skipped Heading Hierarchy Level Detected',
+        evidence: [
+          { label: 'Skipped Sequences', value: skippedSummary },
+          { label: 'Total Skipped Instances', value: `${headingsData.skippedLevels.length} skipped level(s)` }
+        ],
+        confidence: 'high',
+        explanation: `Heading tags jump across hierarchy levels (${skippedSummary}), breaking semantic outline structure for screen readers and search engines.`,
+        recommendation: 'Restructure headings so levels step sequentially without skipping tiers (e.g. H1 to H2 to H3).',
+        improvements: [
+          'Step heading levels sequentially (H1 followed by H2, then H3)',
+          'Use CSS classes rather than skipping heading tags to achieve desired typography scale',
+          'Audit automated page builder heading presets for semantic tag accuracy'
+        ]
+      });
+    }
+
+    if (seoData?.canonical && seoData.canonicalMatchesUrl === false) {
+      findings.push({
+        id: 'canonical-mismatch',
+        category: 'seo',
+        severity: 'opportunity',
+        badge: 'CANONICAL DIVERGENCE',
+        title: 'Declared Canonical URL Diverges from Page Address',
+        evidence: [
+          { label: 'Declared Canonical Tag', value: seoData.canonical },
+          { label: 'Current Address Match', value: 'Divergent Target' }
+        ],
+        confidence: 'high',
+        explanation: 'The declared <link rel="canonical"> target does not match the active page address. Search crawlers will consolidate index signals toward the alternate canonical destination.',
+        recommendation: 'Verify whether this page is intended to be self-canonicalized or intentionally pointing to an alternate address.',
+        improvements: [
+          'Ensure the canonical URL matches the preferred indexing destination for this page',
+          'Standardize trailing slash formatting, http/https protocol, and domain host variations',
+          'Prevent query parameter variations from creating unexpected canonical divergence'
+        ]
+      });
+    }
+
+    if (seoData?.isNoindex) {
+      findings.push({
+        id: 'noindex-directive',
+        category: 'seo',
+        severity: 'warning',
+        badge: 'NOINDEX DIRECTIVE',
+        title: 'Robots Noindex Directive Blocking Search Indexing',
+        evidence: [
+          { label: 'Robots Directive', value: seoData.robots || 'noindex' },
+          { label: 'Discoverability Status', value: 'Excluded from search engine index' }
+        ],
+        confidence: 'high',
+        explanation: 'A robots meta directive contains "noindex", preventing search engines from indexing this page or displaying it in search results.',
+        recommendation: 'Remove the "noindex" directive from the robots meta tag if this page should receive organic search traffic.',
+        improvements: [
+          'Remove "noindex" from meta name="robots" if organic search indexing is intended',
+          'Verify staging environment configuration tags were not deployed to production',
+          'Inspect server HTTP X-Robots-Tag headers for duplicate noindex instructions'
+        ]
+      });
+    }
     if (undersizedCount24px > 0) {
       findings.push({
         id: 'wcag-target-size-concern',

@@ -15,6 +15,15 @@ VitalsSniper is an in-browser technical website auditor and proof-of-flaw inspec
 
 Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper inspects the live DOM of the active tab directly in your local browser engine without server queue delays.
 
+WHAT IS NEW IN VERSION 1.6.0
+
+- Long Animation Frames (LoAF) Script Attribution: Tracks main-thread blocking scripts with exact duration, invoker type, and source URL to diagnose Interaction to Next Paint (INP) issues.
+- Layout Shift Live Tracking: Identifies cumulative layout shifts and flags shifting DOM elements with visual coordinates.
+- On-Page SEO Heading Hierarchy: Complete H1-H6 outline inspection with automated alerts for missing primary H1 tags, duplicates, and skipped-level hierarchy breaks.
+- Link Graph Forensics: Classifies internal vs external links, audits nofollow, sponsored, and UGC tags, and warns on empty anchor elements.
+- Clean Word Counter: Accurately counts body copy words excluding scripts, styles, and navigation boilerplate.
+- Brand Harmonization: Refined color system with warm cream, terracotta accents, and dark high-contrast surfaces.
+
 KEY AUDIT CAPABILITIES
 
 1. CMS and Page Builder Detection
@@ -26,19 +35,31 @@ Measures total DOM node count, maximum nesting depth, and flags deep branches ex
 3. Document Payload and Transfer Weights
 Measures in-memory HTML size, wire transfer weight, and asset distribution to pinpoint oversized payloads that slow mobile first contentful paint.
 
-4. Viewport and Accessibility Checks
+4. Long Animation Frames (LoAF) and Script Attribution
+Attributes main-thread interaction delays to specific script URLs, execution durations, and invokers to isolate Interaction to Next Paint (INP) bottlenecks.
+
+5. Layout Shift and Visual Stability Diagnostics
+Monitors cumulative layout shifts with live element coordinates to detect shifting layout elements and reflow triggers.
+
+6. Heading Hierarchy and On-Page SEO Structure
+Maps complete H1-H6 heading outlines in DOM sequence, identifying missing primary H1 tags, duplicate H1s, and skipped-level hierarchy breaks.
+
+7. Link Graph and Anchor Quality Audit
+Inventories internal versus external link ratios, inspects nofollow, sponsored, and UGC attributes, and flags empty anchor tags without accessible text.
+
+8. Viewport and Accessibility Checks
 Evaluates viewport meta configuration to identify user-scalable restrictions that impair pinch-to-zoom accessibility under WCAG 2.2 Criterion 1.4.4.
 
-5. Schema.org JSON-LD Verification
+9. Schema.org JSON-LD Verification
 Parses and checks structured data blocks for syntax validity, entity graph connections, and missing required properties.
 
-6. Third-Party Script Contention
+10. Third-Party Script Contention
 Inventories external, inline, and asynchronous scripts competing for main-thread execution time.
 
-7. Evidence-Grounded Outreach Teardowns
+11. Evidence-Grounded Outreach Teardowns
 Generates structured diagnostic teardowns (cold email, LinkedIn DM, and video teardown outlines) directly from observed technical flaws, citing measured values instead of vague generalizations.
 
-8. Teardown Briefs and CRM Exports
+12. Teardown Briefs and CRM Exports
 Saves reviewed prospect sites locally and exports client-ready 1-page PDF teardown briefs or RFC 4180 CSV logs.
 
 HOW TO USE IT
@@ -140,12 +161,17 @@ https://webaudits.pro/privacy
 
 ## Version History
 
+| 1.6.0 | 2026-10-17 | Long Animation Frames (LoAF) script attribution, Layout Shift DOM tracking, H1-H6 heading hierarchy, and link graph forensics | Pending Submission |
+| 1.5.3 | 2026-10-12 | Brand Harmonization palette, demo key access, and competitor benchmark updates | Approved & Published |
 | 1.5.2 | 2026-10-09 | Production hardening: shadow root DOM traversal, testing key removal, and Quiet Paper theme alignment | Approved & Published |
 | 1.5.1 | 2026-10-07 | Store listing metadata compliance: removed third-party platform brand lists to resolve Yellow Argon keyword policy | Resubmission |
 | 1.5.1 | 2026-10-06 | Merchant and Agency pitch channels, CWV subpart attribution, WCAG 2.2 contrast compliance, and clean MV3 architecture | Initial Submission |
 | 1.5.0 | 2026-09-24 | Initial production Manifest V3 release with evidence-first outreach generator | Published |
 
 ## Review Notes
+
+### Notes for the Reviewer
+Version 1.6.0 adds Long Animation Frames (LoAF) PerformanceObserver and on-page DOM heading and link metrics. All audits run locally on activeTab in the user's browser without external servers. Zero remote code execution, zero eval calls, and strict Manifest V3 compliance. Demo key 'r3dxlost88' is pre-configured to test all PRO features.
 
 ### Known Issues / Limitations
 None. All scripts are bundled locally inside the extension package with zero remote code execution, zero inline scripts, and zero eval calls in accordance with Chrome Web Store Manifest V3 guidelines.

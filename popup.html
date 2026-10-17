@@ -58,7 +58,7 @@
       </div>
       <!-- Quick Manual Target Bar for Standalone / Demo or Instant Lookup -->
       <div class="manual-target-bar" id="manualTargetBar" style="display:none;">
-        <input type="text" id="manualTargetInput" placeholder="Audit custom URL (e.g. ananna.free.je)..." class="manual-target-input" aria-label="Target URL to audit">
+        <input type="text" id="manualTargetInput" placeholder="Audit custom URL (e.g. webaudits.pro)..." class="manual-target-input" aria-label="Target URL to audit">
         <button type="button" id="btnRunManualTarget" class="manual-target-btn">Inspect</button>
       </div>
     </section>
@@ -126,6 +126,28 @@
       </div>
     </section>
 
+    <!-- SEO & Structure Architecture Card -->
+    <section class="seo-structure-card" id="cardSeoStructure" style="display: none;">
+      <div class="seo-card-header">
+        <div class="seo-header-left">
+          <span class="seo-card-title">SEO &amp; STRUCTURE</span>
+          <span class="seo-canonical-pill tag-green" id="seoCanonicalPill" style="display: none;">Matches URL</span>
+        </div>
+        <span class="seo-word-count-badge" id="seoWordCountBadge" style="display: none;">-- words</span>
+      </div>
+      <div class="seo-card-body">
+        <div class="seo-headings-row" id="seoHeadingsRow">
+          <span class="heading-summary-pill" id="headingSummaryPill" style="display: none;">H1: 0 | H2: 0 | H3: 0 | H4: 0</span>
+          <span class="heading-skipped-pill tag-amber" id="headingSkippedPill" style="display: none;">Skipped: H1 -&gt; H3</span>
+        </div>
+        <div class="seo-links-chips" id="seoLinksChips">
+          <span class="seo-chip" id="chipInternal">Internal: 0</span>
+          <span class="seo-chip" id="chipExternal">External: 0</span>
+          <span class="seo-chip" id="chipNofollow">Nofollow: 0</span>
+        </div>
+      </div>
+    </section>
+
     <!-- Primary Vulnerability Callout -->
     <section class="flaw-banner" id="flawBanner">
       <div class="flaw-banner-header">
@@ -138,7 +160,7 @@
       <div class="flaw-desc" id="flawDesc">Analyzing DOM structure and mobile bottlenecks...</div>
       <div class="improvements-box" id="improvementsBox" style="display: none;">
         <div class="improvements-title">
-          <svg class="imp-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--color-accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 14h4M6.5 15.5h3M8 1a5 5 0 0 0-3.5 8.5c.8.8 1.5 2 1.5 3h4c0-1 .7-2.2 1.5-3A5 5 0 0 0 8 1z"/></svg>
+          <svg class="imp-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#B76345" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 14h4M6.5 15.5h3M8 1a5 5 0 0 0-3.5 8.5c.8.8 1.5 2 1.5 3h4c0-1 .7-2.2 1.5-3A5 5 0 0 0 8 1z"/></svg>
           <span>RECOMMENDED FIXES (0 DESIGN CHANGES):</span>
         </div>
         <ul class="improvements-list" id="improvementsList"></ul>
@@ -363,7 +385,7 @@
           <input type="text" id="licenseKeyInput" class="activation-input" placeholder="VS-PRO-XXXX-XXXX or wba_live_..." maxlength="48" autocomplete="off" spellcheck="false">
           <div id="activationError" class="activation-error" style="display:none;"></div>
           <button id="btnActivateLicense" class="btn-activate">
-            <span>Activate PRO Features</span>
+            <span>Unlock PRO Features</span>
           </button>
         </div>
 
@@ -446,33 +468,33 @@
         <div class="pro-upgrade-body">
           <ul class="pro-feature-list">
             <li>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--green-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
               <span><strong>Bulk Batch Auditor:</strong> Audit up to 50 URLs simultaneously</span>
             </li>
             <li>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--green-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
               <span><strong>Lead CRM CSV Export:</strong> 1-click export for Lemlist / Instantly</span>
             </li>
             <li>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--green-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
               <span><strong>White-Label Agency Branding:</strong> Custom logo &amp; booking links</span>
             </li>
             <li>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--green-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
               <span><strong>Unlimited Client Dossiers:</strong> 1-page printable teardown PDFs</span>
             </li>
             <li>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--green-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
               <span><strong>Advanced Pitch Tones &amp; Loom:</strong> Urgency, Soft-Sell, Direct scripts</span>
             </li>
             <li>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--green-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 8 7 12 13 4"/></svg>
               <span><strong>WebAudits.pro Dashboard:</strong> Auto-sync live and bulk audits</span>
             </li>
           </ul>
           <div class="pro-upgrade-actions">
             <button id="btnProUpgradeCheckout" class="btn-activate">
-              <span>Upgrade to PRO : Instant Access</span>
+              <span>Upgrade to PRO : Unlock Instant Access</span>
             </button>
             <button id="btnProUpgradeEnterKey" class="btn-pro-license-link">Already have a license key? Enter key &rarr;</button>
           </div>
@@ -483,7 +505,7 @@
     <!-- Footer -->
     <footer class="footer">
       <span>Engineered by <a href="https://webaudits.pro" target="_blank" class="footer-link">WebAudits.pro</a></span>
-      <span class="footer-ver">v1.5.0 PRO</span>
+      <span class="footer-ver">v1.6.0 PRO</span>
     </footer>
   </div>
 
