@@ -41,6 +41,36 @@ export interface InpSubpartAttribution {
   culpritForcedStyleMs?: number | null;
   groupedEventCount?: number;
   groupedEvents?: string[];
+  inputDelayCulpritScriptUrl?: string | null;
+  inputDelayCulpritExecutionMs?: number | null;
+  inputDelayInvoker?: string | null;
+  presentationDelayStyleAndLayoutMs?: number | null;
+  presentationDelayRenderMs?: number | null;
+  loafFrameDurationMs?: number | null;
+  loafBlockingDurationMs?: number | null;
+  invoker?: string | null;
+  invokerType?: string | null;
+  sourceCharPosition?: number | null;
+}
+
+export interface LoafScriptAttributionItem {
+  scriptUrl: string | null;
+  functionName: string | null;
+  invoker: string | null;
+  invokerType: string | null;
+  sourceCharPosition?: number | null;
+  blockingDurationMs: number;
+  executionDurationMs: number;
+  forcedStyleAndLayoutMs: number;
+  pauseDurationMs: number;
+}
+
+export interface LoafAttribution {
+  totalFrames: number;
+  longestFrameMs: number;
+  totalBlockingMs: number;
+  longScripts: LoafScriptAttributionItem[];
+  violates8msBudget: boolean;
 }
 
 export interface LayoutShiftBoundingBox {
@@ -106,6 +136,7 @@ export interface PerformanceMetrics {
   ttfbMs: number | null;
   ttfbDisplay: string;
   domLoadMs: number | null;
+  loafAttribution?: LoafAttribution | null;
 }
 
 export interface LoafScriptCulprit {

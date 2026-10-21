@@ -99,13 +99,35 @@ export class FindingsEngine {
     // --- 2. CORE WEB VITALS: MEASURED INP WITH INTERACTION ATTRIBUTION ---
     if (inpObserved && inpMs !== null && inpMs > 200) {
       const isCriticalInp = inpMs > 500;
+      const inpPresentationDelay = data.performance?.inpPresentationDelayMs ?? (inpAttribution?.presentationDelayMs || 0);
       const inpEvidence: any[] = [
         { label: 'Measured INP Latency', value: `${inpMs} ms`, context: 'Budget: < 200 ms' },
         { label: 'Observed Interaction Target', value: inpTarget || 'Interactive Element' },
-        { label: 'Processing Delay', value: `${inpProcessingDelay} ms`, context: 'Main-thread handler execution' },
-        { label: 'Input Delay', value: `${inpInputDelay} ms`, context: 'Event queue delay' },
+        { label: 'Input Delay (Phase 1)', value: `${inpInputDelay} ms`, context: 'Event queue delay waiting for main thread' },
+        { label: 'Processing Delay (Phase 2)', value: `${inpProcessingDelay} ms`, context: 'Main-thread handler execution' },
+        { label: 'Presentation Delay (Phase 3)', value: `${inpPresentationDelay} ms`, context: 'Style recalculation and compositing' },
         { label: 'Measurement Source', value: 'Google Web Vitals Event Timing Observer' }
       ];
+
+      // Input Delay Blocker attribution (Phase 1)
+      if (inpAttribution?.inputDelayCulpritScriptUrl) {
+        const blockerFile = inpAttribution.inputDelayCulpritScriptUrl.split('/').pop() || inpAttribution.inputDelayCulpritScriptUrl;
+        const blockerInvoker = inpAttribution.inputDelayInvoker ? ` (${inpAttribution.inputDelayInvoker})` : '';
+        inpEvidence.push({
+          label: 'Input Delay Blocker',
+          value: `${blockerFile}${blockerInvoker}`,
+          context: `${inpAttribution.inputDelayCulpritExecutionMs || 0}ms execution blocking event handling`
+        });
+      }
+
+      // Presentation delay layout vs render (Phase 3)
+      if (inpAttribution?.presentationDelayStyleAndLayoutMs !== undefined && inpAttribution?.presentationDelayStyleAndLayoutMs !== null) {
+        inpEvidence.push({
+          label: 'Presentation Reflow vs Render',
+          value: `Layout/Style: ${inpAttribution.presentationDelayStyleAndLayoutMs}ms | Render: ${inpAttribution.presentationDelayRenderMs || 0}ms`,
+          context: inpAttribution.loafFrameDurationMs ? `LoAF Frame: ${inpAttribution.loafFrameDurationMs}ms (${inpAttribution.loafBlockingDurationMs || 0}ms blocking)` : 'Measured via overlapping Long Animation Frame'
+        });
+      }
 
       const hasSignificantCulprit = Boolean(
         inpAttribution &&
@@ -115,11 +137,13 @@ export class FindingsEngine {
       );
 
       if (hasSignificantCulprit) {
+        const invokerDesc = inpAttribution.invoker ? ` via ${inpAttribution.invoker}` : '';
+        const culpritFile = (inpAttribution.culpritScriptUrl || 'inline').split('/').pop() || 'inline';
         if (isPaidUser) {
           inpEvidence.push({
             label: 'Offending Script Culprit',
-            value: `${inpAttribution.culpritFunctionName || 'anonymous'} in ${inpAttribution.culpritScriptUrl.split('/').pop()}`,
-            context: `${inpAttribution.culpritExecutionMs}ms execution (${inpAttribution.culpritForcedStyleMs}ms forced layout thrashing)`
+            value: `${inpAttribution.culpritFunctionName || 'anonymous'} in ${culpritFile}${invokerDesc}`,
+            context: `${inpAttribution.culpritExecutionMs}ms execution (${inpAttribution.culpritForcedStyleMs || 0}ms forced layout thrashing)`
           });
         } else {
           inpEvidence.push({
@@ -128,9 +152,14 @@ export class FindingsEngine {
             context: `${inpAttribution.culpritExecutionMs}ms execution during event processing`
           });
         }
+        if (inpAttribution.invoker) {
+          inpEvidence.push({
+            label: 'Invoker Callback',
+            value: `${inpAttribution.invokerType || 'event-listener'}: ${inpAttribution.invoker}`
+          });
+        }
       } else {
-        const presentationDelay = data.performance?.inpPresentationDelayMs || inpAttribution?.presentationDelayMs || 0;
-        const latencyType = (inpInputDelay >= presentationDelay)
+        const latencyType = (inpInputDelay >= inpPresentationDelay)
           ? 'queue latency (input delay)'
           : 'rendering latency (presentation delay)';
         inpEvidence.push({
@@ -149,8 +178,9 @@ export class FindingsEngine {
 
       let inpExplanation = `User interaction on ${inpTarget || 'interactive elements'} took ${inpMs} ms to present the next frame, causing visible UI lag on mobile devices.`;
       if (hasSignificantCulprit) {
+        const culpritFile = (inpAttribution.culpritScriptUrl || 'inline').split('/').pop() || 'inline';
         if (isPaidUser) {
-          inpExplanation += ` Long Animation Frame telemetry identified ${inpAttribution.culpritFunctionName || 'handler'} in ${inpAttribution.culpritScriptUrl.split('/').pop()} executing for ${inpAttribution.culpritExecutionMs}ms during event processing.`;
+          inpExplanation += ` Long Animation Frame telemetry identified ${inpAttribution.culpritFunctionName || 'handler'} in ${culpritFile} executing for ${inpAttribution.culpritExecutionMs}ms during event processing.`;
         } else {
           inpExplanation += ` Long Animation Frame telemetry identified heavy main-thread script contention executing for ${inpAttribution.culpritExecutionMs}ms during event processing.`;
         }
@@ -351,13 +381,27 @@ export class FindingsEngine {
         });
       }
 
+      const loafAttribution = data.performance?.loafAttribution || data.loafAttribution;
+      if (loafAttribution?.violates8msBudget) {
+        mainThreadEvidence.push({
+          label: '8ms VSYNC Budget Violation',
+          value: 'Frame duration exceeded 8.3ms threshold (120Hz/60Hz display jank risk)'
+        });
+      }
+      if (loafAttribution?.longScripts && loafAttribution.longScripts.length > 0) {
+        mainThreadEvidence.push({
+          label: 'Attributed Script Culprits',
+          value: `${loafAttribution.longScripts.length} script${loafAttribution.longScripts.length > 1 ? 's' : ''} identified in long animation frames`
+        });
+      }
+
       if (loafCulprit) {
         const culpritDescriptor = loafCulprit.sourceUrl || loafCulprit.invoker || loafCulprit.sourceFunctionName || 'Inline Script Execution';
         mainThreadEvidence.push({
           label: 'LoAF Script Culprit',
           value: culpritDescriptor
         });
-        if (loafCulprit.invoker && loafCulprit.sourceUrl) {
+        if (loafCulprit.invoker) {
           mainThreadEvidence.push({
             label: 'LoAF Invoker Callback',
             value: `${loafCulprit.invokerType || 'callback'}: ${loafCulprit.invoker}`

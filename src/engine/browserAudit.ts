@@ -3,7 +3,7 @@
 // Zero em-dash compliance: strictly hyphens or colons
 
 import { detectTechnologies } from './techDetector';
-import { TechnologyDetection } from '../types/audit';
+import { TechnologyDetection, LoafAttribution, LoafScriptAttributionItem } from '../types/audit';
 
 export async function inspectPageForensics() {
   const scanStartTime = performance.now();
@@ -438,6 +438,7 @@ export async function inspectPageForensics() {
   let totalLoafBlockingMs = 0;
   let primaryLoafCulprit: any = null;
   const loafFrames: any[] = [];
+  const longScripts: LoafScriptAttributionItem[] = [];
 
   if (rawLoafEntries.length > 0) {
     loafCount = rawLoafEntries.length;
@@ -477,6 +478,7 @@ export async function inspectPageForensics() {
           const sCompile = Math.max(0, Math.round((sExecutionStart || script.startTime) - script.startTime));
           const sForcedLayout = Math.round(script.forcedStyleAndLayoutDuration || 0);
           const sPause = Math.round(script.pauseDuration || 0);
+          const sBlocking = Math.max(0, sDuration - 50);
 
           const culpritObj = {
             invoker: script.invoker || null,
@@ -492,6 +494,18 @@ export async function inspectPageForensics() {
           };
 
           frameScripts.push(culpritObj);
+
+          longScripts.push({
+            scriptUrl: script.sourceURL || null,
+            functionName: script.sourceFunctionName || null,
+            invoker: script.invoker || null,
+            invokerType: script.invokerType || null,
+            sourceCharPosition: script.sourceCharPosition !== undefined ? script.sourceCharPosition : null,
+            blockingDurationMs: sBlocking,
+            executionDurationMs: sDuration,
+            forcedStyleAndLayoutMs: sForcedLayout,
+            pauseDurationMs: sPause
+          });
 
           if (!frameWorstScript || sDuration > frameWorstScript.totalDurationMs) {
             frameWorstScript = culpritObj;
@@ -523,6 +537,8 @@ export async function inspectPageForensics() {
       });
     });
 
+    longScripts.sort((a, b) => b.executionDurationMs - a.executionDurationMs);
+
     let maxAggDuration = 0;
     scriptAggregates.forEach(agg => {
       if (agg.totalDurationMs > maxAggDuration) {
@@ -531,6 +547,16 @@ export async function inspectPageForensics() {
       }
     });
   }
+
+  const violates8msBudget = rawLoafEntries.some((f: any) => (f.duration || 0) > 8.3) || longScripts.some(s => s.executionDurationMs > 8.3);
+
+  const loafAttribution: LoafAttribution = {
+    totalFrames: loafCount,
+    longestFrameMs: longestLoafMs || 0,
+    totalBlockingMs: totalLoafBlockingMs,
+    longScripts,
+    violates8msBudget
+  };
 
   // Fallback: If no buffered LCP entry exists, locate the largest visual element in viewport
   if (lcpMs === null) {
@@ -774,15 +800,25 @@ export async function inspectPageForensics() {
       inpTarget = getSelector(worstInteraction.target);
     }
     const procStart = worstInteraction.processingStart || worstInteraction.startTime;
-    const procEnd = worstInteraction.processingEnd || worstInteraction.startTime;
+    const procEnd = worstInteraction.processingEnd || worstInteraction.processingStart || worstInteraction.startTime;
     inpInputDelayMs = Math.max(0, Math.round(procStart - worstInteraction.startTime));
     inpProcessingDelayMs = Math.max(0, Math.round(procEnd - procStart));
     inpPresentationDelayMs = Math.max(0, Math.round(worstInteraction.startTime + worstInteraction.duration - procEnd));
 
-    // Calculate temporal intersection with scripts in rawLoafEntries
-    let worstScript: any = null;
-    let maxIntersectingDuration = 0;
-    let maxIntersectingForcedStyle = 0;
+    // 3-Phase temporal correlation against overlapping LoAF entries
+    let overlappingLoafFrame: any = null;
+    let maxLoafOverlap = 0;
+    const presentationEnd = worstInteraction.startTime + worstInteraction.duration;
+
+    rawLoafEntries.forEach((frame: any) => {
+      const fStart = frame.startTime || 0;
+      const fEnd = fStart + (frame.duration || 0);
+      const overlap = Math.max(0, Math.min(fEnd, presentationEnd) - Math.max(fStart, worstInteraction.startTime));
+      if (overlap > maxLoafOverlap) {
+        maxLoafOverlap = overlap;
+        overlappingLoafFrame = frame;
+      }
+    });
 
     const candidateScripts: any[] = [];
     rawLoafEntries.forEach((frame: any) => {
@@ -793,8 +829,29 @@ export async function inspectPageForensics() {
       }
     });
 
+    // Phase 1: Input Delay Blocker Script Attribution
+    let worstInputScript: any = null;
+    let maxInputIntersectingDuration = 0;
+    if (inpInputDelayMs > 0) {
+      candidateScripts.forEach((script: any) => {
+        const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
+        const sDuration = script.duration || 0;
+        const scriptEnd = sStart + sDuration;
+        const inputIntersecting = Math.max(0, Math.min(scriptEnd, procStart) - Math.max(sStart, worstInteraction.startTime));
+        if (inputIntersecting > maxInputIntersectingDuration) {
+          maxInputIntersectingDuration = inputIntersecting;
+          worstInputScript = script;
+        }
+      });
+    }
+
+    // Phase 2: Processing Delay Handler Script Attribution
+    let worstScript: any = null;
+    let maxIntersectingDuration = 0;
+    let maxIntersectingForcedStyle = 0;
+
     candidateScripts.forEach((script: any) => {
-      const sStart = script.startTime || 0;
+      const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
       const sDuration = script.duration || 0;
       const scriptEnd = sStart + sDuration;
       const intersectingDuration = Math.max(0, Math.min(scriptEnd, procEnd) - Math.max(sStart, procStart));
@@ -807,6 +864,39 @@ export async function inspectPageForensics() {
         worstScript = script;
       }
     });
+
+    // Phase 3: Presentation Delay Breakdown (Style & Layout vs Render)
+    let presentationDelayStyleAndLayoutMs: number | null = null;
+    let presentationDelayRenderMs: number | null = null;
+    let loafFrameDurationMs: number | null = null;
+    let loafBlockingDurationMs: number | null = null;
+
+    // For presentation delay, find the LoAF frame specifically overlapping the presentation phase [procEnd, presentationEnd]
+    let presentationLoafFrame: any = null;
+    let maxPresentationOverlap = 0;
+    rawLoafEntries.forEach((frame: any) => {
+      const fStart = frame.startTime || 0;
+      const fEnd = fStart + (frame.duration || 0);
+      const presOverlap = Math.max(0, Math.min(fEnd, presentationEnd) - Math.max(fStart, procEnd));
+      if (presOverlap > maxPresentationOverlap) {
+        maxPresentationOverlap = presOverlap;
+        presentationLoafFrame = frame;
+      }
+    });
+
+    const targetPresentationFrame = presentationLoafFrame || (overlappingLoafFrame && ((overlappingLoafFrame.startTime || 0) + (overlappingLoafFrame.duration || 0) >= procEnd) ? overlappingLoafFrame : null);
+
+    if (targetPresentationFrame) {
+      loafFrameDurationMs = Math.round(targetPresentationFrame.duration || 0);
+      loafBlockingDurationMs = Math.round(targetPresentationFrame.blockingDuration || Math.max(0, (targetPresentationFrame.duration || 0) - 50));
+      const fEnd = (targetPresentationFrame.startTime || 0) + (targetPresentationFrame.duration || 0);
+      if (targetPresentationFrame.styleAndLayoutStart) {
+        presentationDelayStyleAndLayoutMs = Math.max(0, Math.round(fEnd - targetPresentationFrame.styleAndLayoutStart));
+      }
+      if (targetPresentationFrame.renderStart) {
+        presentationDelayRenderMs = Math.max(0, Math.round(fEnd - targetPresentationFrame.renderStart));
+      }
+    }
 
     // Require minimum 16ms execution threshold and at least 15% processing phase proportion
     const hasSignificantCulprit = Boolean(
@@ -823,12 +913,22 @@ export async function inspectPageForensics() {
       processingDelayMs: inpProcessingDelayMs,
       inputDelayMs: inpInputDelayMs,
       presentationDelayMs: inpPresentationDelayMs,
-      culpritScriptUrl: hasSignificantCulprit ? (worstScript.sourceURL || worstScript.sourceUrl || null) : null,
+      culpritScriptUrl: hasSignificantCulprit ? (worstScript.sourceURL || worstScript.sourceUrl || 'inline') : null,
       culpritFunctionName: hasSignificantCulprit ? (worstScript.sourceFunctionName || null) : null,
       culpritExecutionMs: hasSignificantCulprit ? Math.round(maxIntersectingDuration) : null,
       culpritForcedStyleMs: hasSignificantCulprit ? maxIntersectingForcedStyle : null,
       groupedEventCount: worstGroup.events.length,
-      groupedEvents: Array.from(new Set(worstGroup.events.map((e: any) => e.name || 'interaction')))
+      groupedEvents: Array.from(new Set(worstGroup.events.map((e: any) => e.name || 'interaction'))),
+      inputDelayCulpritScriptUrl: (worstInputScript && maxInputIntersectingDuration > 0) ? (worstInputScript.sourceURL || worstInputScript.sourceUrl || 'inline') : null,
+      inputDelayCulpritExecutionMs: (worstInputScript && maxInputIntersectingDuration > 0) ? Math.round(maxInputIntersectingDuration) : null,
+      inputDelayInvoker: (worstInputScript && maxInputIntersectingDuration > 0) ? (worstInputScript.invoker || worstInputScript.invokerType || null) : null,
+      presentationDelayStyleAndLayoutMs,
+      presentationDelayRenderMs,
+      loafFrameDurationMs,
+      loafBlockingDurationMs,
+      invoker: worstScript ? (worstScript.invoker || null) : null,
+      invokerType: worstScript ? (worstScript.invokerType || null) : null,
+      sourceCharPosition: (worstScript && worstScript.sourceCharPosition !== undefined) ? worstScript.sourceCharPosition : null
     };
   }
 
@@ -1334,7 +1434,8 @@ export async function inspectPageForensics() {
       clsAttribution,
       ttfbMs: canonicalTtfbMs,
       ttfbDisplay: canonicalTtfbMs !== null ? `${canonicalTtfbMs} ms` : 'Not observed',
-      domLoadMs
+      domLoadMs,
+      loafAttribution
     },
     mainThread: {
       longTaskCount,
@@ -1441,6 +1542,7 @@ export async function inspectPageForensics() {
     totalLoafBlockingMs,
     primaryLoafCulprit,
     loafFrames,
+    loafAttribution,
     shiftDetails
   };
 }

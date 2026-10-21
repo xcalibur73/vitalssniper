@@ -39,6 +39,92 @@ export class ReportService {
     const clsDisplay = data.performance?.clsDisplay || (data.performance?.cls !== null && data.performance?.cls !== undefined ? String(data.performance.cls) : 'Not measured');
     const cacheState = data.metadata?.cacheState || data.cacheState || 'network';
 
+    const inpAttr = data.performance?.inpAttribution;
+    const loafAttr = data.performance?.loafAttribution || data.loafAttribution;
+    const hasInpOrLoaf = Boolean(data.performance?.inpObserved || (loafAttr && loafAttr.longScripts && loafAttr.longScripts.length > 0));
+
+    let telemetryCardHtml = '';
+    if (hasInpOrLoaf) {
+      let inpBreakdownHtml = '';
+      if (data.performance?.inpObserved && inpAttr) {
+        const inputBlocker = inpAttr.inputDelayCulpritScriptUrl
+          ? `Blocker: <code>${escapeHtml(inpAttr.inputDelayCulpritScriptUrl.split('/').pop() || '')}</code> (${inpAttr.inputDelayCulpritExecutionMs || 0}ms${inpAttr.inputDelayInvoker ? ', ' + escapeHtml(inpAttr.inputDelayInvoker) : ''})`
+          : ((inpAttr.inputDelayMs || 0) > 0 ? 'Queue latency (unattributed main-thread contention)' : 'Queue clear');
+        const handlerScript = inpAttr.culpritScriptUrl
+          ? `Handler: ${escapeHtml(inpAttr.culpritFunctionName || 'anonymous')} in <code>${escapeHtml(inpAttr.culpritScriptUrl.split('/').pop() || '')}</code> (${inpAttr.culpritExecutionMs || 0}ms exec, ${inpAttr.culpritForcedStyleMs || 0}ms forced reflow${inpAttr.invoker ? ', ' + escapeHtml(inpAttr.invoker) : ''})`
+          : 'Event processing';
+        const presentationInfo = inpAttr.presentationDelayStyleAndLayoutMs !== null && inpAttr.presentationDelayStyleAndLayoutMs !== undefined
+          ? `Reflow: ${inpAttr.presentationDelayStyleAndLayoutMs}ms | Render: ${inpAttr.presentationDelayRenderMs || 0}ms`
+          : 'Presentation rendering';
+        const loafInfo = inpAttr.loafFrameDurationMs
+          ? ` &bull; LoAF: ${inpAttr.loafFrameDurationMs}ms frame (${inpAttr.loafBlockingDurationMs || 0}ms blocking)`
+          : '';
+
+        inpBreakdownHtml = `
+          <div style="margin-bottom: 12px; padding: 10px; background: #fafafa; border: 1px solid var(--border); border-radius: 8px;">
+            <div style="font-weight: 700; font-size: 12px; color: var(--dark); margin-bottom: 6px;">
+              INP 3-Phase Interaction Breakdown (${data.performance.inpMs || 0} ms on ${escapeHtml(inpAttr.interactionTarget || 'Interactive Element')})
+            </div>
+            <div style="font-size: 11.5px; line-height: 1.6; color: var(--text);">
+              <div><strong>Phase 1 (Input Delay):</strong> ${inpAttr.inputDelayMs ?? 0}ms &bull; ${inputBlocker}</div>
+              <div><strong>Phase 2 (Processing):</strong> ${inpAttr.processingDelayMs ?? 0}ms &bull; ${handlerScript}</div>
+              <div><strong>Phase 3 (Presentation):</strong> ${inpAttr.presentationDelayMs ?? 0}ms &bull; ${presentationInfo}${loafInfo}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      let loafTableHtml = '';
+      if (loafAttr && loafAttr.longScripts && loafAttr.longScripts.length > 0) {
+        const budgetText = loafAttr.violates8msBudget ? ' <span style="color:var(--amber); font-weight:600;">(8ms VSYNC Budget Exceeded)</span>' : '';
+        let scriptRows = '';
+        loafAttr.longScripts.slice(0, 5).forEach((s: any) => {
+          const file = s.scriptUrl ? (s.scriptUrl.split('/').pop() || s.scriptUrl) : 'inline';
+          const fn = s.functionName ? `fn: ${escapeHtml(s.functionName)}` : (s.invoker ? `invoker: ${escapeHtml(s.invoker)}` : '');
+          const reflow = s.forcedStyleAndLayoutMs > 0 ? `<span style="color:var(--amber); font-weight:600;">[Reflow: ${s.forcedStyleAndLayoutMs}ms]</span>` : '';
+          const block = s.blockingDurationMs > 0 ? ` (${s.blockingDurationMs}ms block)` : '';
+          scriptRows += `
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 6px 8px; font-size: 11px;">
+                <div style="font-weight: 600;">${escapeHtml(file)}</div>
+                ${fn ? `<div style="font-size: 10px; color: var(--muted);">${fn}</div>` : ''}
+              </td>
+              <td style="padding: 6px 8px; font-size: 11px; text-align: right; font-weight: 700; color: var(--red); white-space: nowrap;">
+                ${s.executionDurationMs}ms${block} ${reflow}
+              </td>
+            </tr>
+          `;
+        });
+
+        loafTableHtml = `
+          <div style="margin-top: 10px;">
+            <div style="font-weight: 700; font-size: 12px; color: var(--dark); margin-bottom: 6px;">
+              Long Animation Frames (LoAF) Script Attribution${budgetText}
+            </div>
+            <table style="width: 100%; border-collapse: collapse; background: #fafafa; border: 1px solid var(--border); border-radius: 6px;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border); background: #f0f0f0; font-size: 10px; text-transform: uppercase; color: var(--muted);">
+                  <th style="padding: 6px 8px; text-align: left;">Script / Invoker</th>
+                  <th style="padding: 6px 8px; text-align: right;">Execution / Layout Thrashing</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${scriptRows}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      telemetryCardHtml = `
+        <div class="card">
+          <div class="card-heading">Interaction to Next Paint (INP) &amp; LoAF Telemetry</div>
+          ${inpBreakdownHtml}
+          ${loafTableHtml}
+        </div>
+      `;
+    }
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -266,7 +352,7 @@ export class ReportService {
       <p class="flaw-impact">${escapeHtml(finding.explanation)}</p>
     </div>
   </div>
-
+  ${telemetryCardHtml}
   <div class="card">
     <div class="card-heading">Recommended Investigation Points</div>
     <ul class="remediation-list">

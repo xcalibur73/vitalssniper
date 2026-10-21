@@ -1488,6 +1488,86 @@ class ReportService {
         const lcpDisplay = data.performance?.lcpDisplay || (data.performance?.lcpMs ? `${data.performance.lcpMs} ms` : 'Not measured');
         const clsDisplay = data.performance?.clsDisplay || (data.performance?.cls !== null && data.performance?.cls !== undefined ? String(data.performance.cls) : 'Not measured');
         const cacheState = data.metadata?.cacheState || data.cacheState || 'network';
+        const inpAttr = data.performance?.inpAttribution;
+        const loafAttr = data.performance?.loafAttribution || data.loafAttribution;
+        const hasInpOrLoaf = Boolean(data.performance?.inpObserved || (loafAttr && loafAttr.longScripts && loafAttr.longScripts.length > 0));
+        let telemetryCardHtml = '';
+        if (hasInpOrLoaf) {
+            let inpBreakdownHtml = '';
+            if (data.performance?.inpObserved && inpAttr) {
+                const inputBlocker = inpAttr.inputDelayCulpritScriptUrl
+                    ? `Blocker: <code>${escapeHtml(inpAttr.inputDelayCulpritScriptUrl.split('/').pop() || '')}</code> (${inpAttr.inputDelayCulpritExecutionMs || 0}ms${inpAttr.inputDelayInvoker ? ', ' + escapeHtml(inpAttr.inputDelayInvoker) : ''})`
+                    : ((inpAttr.inputDelayMs || 0) > 0 ? 'Queue latency (unattributed main-thread contention)' : 'Queue clear');
+                const handlerScript = inpAttr.culpritScriptUrl
+                    ? `Handler: ${escapeHtml(inpAttr.culpritFunctionName || 'anonymous')} in <code>${escapeHtml(inpAttr.culpritScriptUrl.split('/').pop() || '')}</code> (${inpAttr.culpritExecutionMs || 0}ms exec, ${inpAttr.culpritForcedStyleMs || 0}ms forced reflow${inpAttr.invoker ? ', ' + escapeHtml(inpAttr.invoker) : ''})`
+                    : 'Event processing';
+                const presentationInfo = inpAttr.presentationDelayStyleAndLayoutMs !== null && inpAttr.presentationDelayStyleAndLayoutMs !== undefined
+                    ? `Reflow: ${inpAttr.presentationDelayStyleAndLayoutMs}ms | Render: ${inpAttr.presentationDelayRenderMs || 0}ms`
+                    : 'Presentation rendering';
+                const loafInfo = inpAttr.loafFrameDurationMs
+                    ? ` &bull; LoAF: ${inpAttr.loafFrameDurationMs}ms frame (${inpAttr.loafBlockingDurationMs || 0}ms blocking)`
+                    : '';
+                inpBreakdownHtml = `
+          <div style="margin-bottom: 12px; padding: 10px; background: #fafafa; border: 1px solid var(--border); border-radius: 8px;">
+            <div style="font-weight: 700; font-size: 12px; color: var(--dark); margin-bottom: 6px;">
+              INP 3-Phase Interaction Breakdown (${data.performance.inpMs || 0} ms on ${escapeHtml(inpAttr.interactionTarget || 'Interactive Element')})
+            </div>
+            <div style="font-size: 11.5px; line-height: 1.6; color: var(--text);">
+              <div><strong>Phase 1 (Input Delay):</strong> ${inpAttr.inputDelayMs ?? 0}ms &bull; ${inputBlocker}</div>
+              <div><strong>Phase 2 (Processing):</strong> ${inpAttr.processingDelayMs ?? 0}ms &bull; ${handlerScript}</div>
+              <div><strong>Phase 3 (Presentation):</strong> ${inpAttr.presentationDelayMs ?? 0}ms &bull; ${presentationInfo}${loafInfo}</div>
+            </div>
+          </div>
+        `;
+            }
+            let loafTableHtml = '';
+            if (loafAttr && loafAttr.longScripts && loafAttr.longScripts.length > 0) {
+                const budgetText = loafAttr.violates8msBudget ? ' <span style="color:var(--amber); font-weight:600;">(8ms VSYNC Budget Exceeded)</span>' : '';
+                let scriptRows = '';
+                loafAttr.longScripts.slice(0, 5).forEach((s) => {
+                    const file = s.scriptUrl ? (s.scriptUrl.split('/').pop() || s.scriptUrl) : 'inline';
+                    const fn = s.functionName ? `fn: ${escapeHtml(s.functionName)}` : (s.invoker ? `invoker: ${escapeHtml(s.invoker)}` : '');
+                    const reflow = s.forcedStyleAndLayoutMs > 0 ? `<span style="color:var(--amber); font-weight:600;">[Reflow: ${s.forcedStyleAndLayoutMs}ms]</span>` : '';
+                    const block = s.blockingDurationMs > 0 ? ` (${s.blockingDurationMs}ms block)` : '';
+                    scriptRows += `
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 6px 8px; font-size: 11px;">
+                <div style="font-weight: 600;">${escapeHtml(file)}</div>
+                ${fn ? `<div style="font-size: 10px; color: var(--muted);">${fn}</div>` : ''}
+              </td>
+              <td style="padding: 6px 8px; font-size: 11px; text-align: right; font-weight: 700; color: var(--red); white-space: nowrap;">
+                ${s.executionDurationMs}ms${block} ${reflow}
+              </td>
+            </tr>
+          `;
+                });
+                loafTableHtml = `
+          <div style="margin-top: 10px;">
+            <div style="font-weight: 700; font-size: 12px; color: var(--dark); margin-bottom: 6px;">
+              Long Animation Frames (LoAF) Script Attribution${budgetText}
+            </div>
+            <table style="width: 100%; border-collapse: collapse; background: #fafafa; border: 1px solid var(--border); border-radius: 6px;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border); background: #f0f0f0; font-size: 10px; text-transform: uppercase; color: var(--muted);">
+                  <th style="padding: 6px 8px; text-align: left;">Script / Invoker</th>
+                  <th style="padding: 6px 8px; text-align: right;">Execution / Layout Thrashing</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${scriptRows}
+              </tbody>
+            </table>
+          </div>
+        `;
+            }
+            telemetryCardHtml = `
+        <div class="card">
+          <div class="card-heading">Interaction to Next Paint (INP) &amp; LoAF Telemetry</div>
+          ${inpBreakdownHtml}
+          ${loafTableHtml}
+        </div>
+      `;
+        }
         return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1715,7 +1795,7 @@ class ReportService {
       <p class="flaw-impact">${escapeHtml(finding.explanation)}</p>
     </div>
   </div>
-
+  ${telemetryCardHtml}
   <div class="card">
     <div class="card-heading">Recommended Investigation Points</div>
     <ul class="remediation-list">
@@ -3250,6 +3330,7 @@ async function inspectPageForensics() {
     let totalLoafBlockingMs = 0;
     let primaryLoafCulprit = null;
     const loafFrames = [];
+    const longScripts = [];
     if (rawLoafEntries.length > 0) {
         loafCount = rawLoafEntries.length;
         const scriptAggregates = new Map();
@@ -3273,6 +3354,7 @@ async function inspectPageForensics() {
                     const sCompile = Math.max(0, Math.round((sExecutionStart || script.startTime) - script.startTime));
                     const sForcedLayout = Math.round(script.forcedStyleAndLayoutDuration || 0);
                     const sPause = Math.round(script.pauseDuration || 0);
+                    const sBlocking = Math.max(0, sDuration - 50);
                     const culpritObj = {
                         invoker: script.invoker || null,
                         invokerType: script.invokerType || null,
@@ -3286,6 +3368,17 @@ async function inspectPageForensics() {
                         totalDurationMs: sDuration
                     };
                     frameScripts.push(culpritObj);
+                    longScripts.push({
+                        scriptUrl: script.sourceURL || null,
+                        functionName: script.sourceFunctionName || null,
+                        invoker: script.invoker || null,
+                        invokerType: script.invokerType || null,
+                        sourceCharPosition: script.sourceCharPosition !== undefined ? script.sourceCharPosition : null,
+                        blockingDurationMs: sBlocking,
+                        executionDurationMs: sDuration,
+                        forcedStyleAndLayoutMs: sForcedLayout,
+                        pauseDurationMs: sPause
+                    });
                     if (!frameWorstScript || sDuration > frameWorstScript.totalDurationMs) {
                         frameWorstScript = culpritObj;
                     }
@@ -3314,6 +3407,7 @@ async function inspectPageForensics() {
                 primaryCulprit: frameWorstScript
             });
         });
+        longScripts.sort((a, b) => b.executionDurationMs - a.executionDurationMs);
         let maxAggDuration = 0;
         scriptAggregates.forEach(agg => {
             if (agg.totalDurationMs > maxAggDuration) {
@@ -3322,6 +3416,14 @@ async function inspectPageForensics() {
             }
         });
     }
+    const violates8msBudget = rawLoafEntries.some((f) => (f.duration || 0) > 8.3) || longScripts.some(s => s.executionDurationMs > 8.3);
+    const loafAttribution = {
+        totalFrames: loafCount,
+        longestFrameMs: longestLoafMs || 0,
+        totalBlockingMs: totalLoafBlockingMs,
+        longScripts,
+        violates8msBudget
+    };
     // Fallback: If no buffered LCP entry exists, locate the largest visual element in viewport
     if (lcpMs === null) {
         try {
@@ -3547,14 +3649,23 @@ async function inspectPageForensics() {
             inpTarget = getSelector(worstInteraction.target);
         }
         const procStart = worstInteraction.processingStart || worstInteraction.startTime;
-        const procEnd = worstInteraction.processingEnd || worstInteraction.startTime;
+        const procEnd = worstInteraction.processingEnd || worstInteraction.processingStart || worstInteraction.startTime;
         inpInputDelayMs = Math.max(0, Math.round(procStart - worstInteraction.startTime));
         inpProcessingDelayMs = Math.max(0, Math.round(procEnd - procStart));
         inpPresentationDelayMs = Math.max(0, Math.round(worstInteraction.startTime + worstInteraction.duration - procEnd));
-        // Calculate temporal intersection with scripts in rawLoafEntries
-        let worstScript = null;
-        let maxIntersectingDuration = 0;
-        let maxIntersectingForcedStyle = 0;
+        // 3-Phase temporal correlation against overlapping LoAF entries
+        let overlappingLoafFrame = null;
+        let maxLoafOverlap = 0;
+        const presentationEnd = worstInteraction.startTime + worstInteraction.duration;
+        rawLoafEntries.forEach((frame) => {
+            const fStart = frame.startTime || 0;
+            const fEnd = fStart + (frame.duration || 0);
+            const overlap = Math.max(0, Math.min(fEnd, presentationEnd) - Math.max(fStart, worstInteraction.startTime));
+            if (overlap > maxLoafOverlap) {
+                maxLoafOverlap = overlap;
+                overlappingLoafFrame = frame;
+            }
+        });
         const candidateScripts = [];
         rawLoafEntries.forEach((frame) => {
             if (Array.isArray(frame.scripts)) {
@@ -3564,8 +3675,27 @@ async function inspectPageForensics() {
                 candidateScripts.push(frame);
             }
         });
+        // Phase 1: Input Delay Blocker Script Attribution
+        let worstInputScript = null;
+        let maxInputIntersectingDuration = 0;
+        if (inpInputDelayMs > 0) {
+            candidateScripts.forEach((script) => {
+                const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
+                const sDuration = script.duration || 0;
+                const scriptEnd = sStart + sDuration;
+                const inputIntersecting = Math.max(0, Math.min(scriptEnd, procStart) - Math.max(sStart, worstInteraction.startTime));
+                if (inputIntersecting > maxInputIntersectingDuration) {
+                    maxInputIntersectingDuration = inputIntersecting;
+                    worstInputScript = script;
+                }
+            });
+        }
+        // Phase 2: Processing Delay Handler Script Attribution
+        let worstScript = null;
+        let maxIntersectingDuration = 0;
+        let maxIntersectingForcedStyle = 0;
         candidateScripts.forEach((script) => {
-            const sStart = script.startTime || 0;
+            const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
             const sDuration = script.duration || 0;
             const scriptEnd = sStart + sDuration;
             const intersectingDuration = Math.max(0, Math.min(scriptEnd, procEnd) - Math.max(sStart, procStart));
@@ -3578,6 +3708,35 @@ async function inspectPageForensics() {
                 worstScript = script;
             }
         });
+        // Phase 3: Presentation Delay Breakdown (Style & Layout vs Render)
+        let presentationDelayStyleAndLayoutMs = null;
+        let presentationDelayRenderMs = null;
+        let loafFrameDurationMs = null;
+        let loafBlockingDurationMs = null;
+        // For presentation delay, find the LoAF frame specifically overlapping the presentation phase [procEnd, presentationEnd]
+        let presentationLoafFrame = null;
+        let maxPresentationOverlap = 0;
+        rawLoafEntries.forEach((frame) => {
+            const fStart = frame.startTime || 0;
+            const fEnd = fStart + (frame.duration || 0);
+            const presOverlap = Math.max(0, Math.min(fEnd, presentationEnd) - Math.max(fStart, procEnd));
+            if (presOverlap > maxPresentationOverlap) {
+                maxPresentationOverlap = presOverlap;
+                presentationLoafFrame = frame;
+            }
+        });
+        const targetPresentationFrame = presentationLoafFrame || (overlappingLoafFrame && ((overlappingLoafFrame.startTime || 0) + (overlappingLoafFrame.duration || 0) >= procEnd) ? overlappingLoafFrame : null);
+        if (targetPresentationFrame) {
+            loafFrameDurationMs = Math.round(targetPresentationFrame.duration || 0);
+            loafBlockingDurationMs = Math.round(targetPresentationFrame.blockingDuration || Math.max(0, (targetPresentationFrame.duration || 0) - 50));
+            const fEnd = (targetPresentationFrame.startTime || 0) + (targetPresentationFrame.duration || 0);
+            if (targetPresentationFrame.styleAndLayoutStart) {
+                presentationDelayStyleAndLayoutMs = Math.max(0, Math.round(fEnd - targetPresentationFrame.styleAndLayoutStart));
+            }
+            if (targetPresentationFrame.renderStart) {
+                presentationDelayRenderMs = Math.max(0, Math.round(fEnd - targetPresentationFrame.renderStart));
+            }
+        }
         // Require minimum 16ms execution threshold and at least 15% processing phase proportion
         const hasSignificantCulprit = Boolean(worstScript &&
             maxIntersectingDuration >= 16 &&
@@ -3590,12 +3749,22 @@ async function inspectPageForensics() {
             processingDelayMs: inpProcessingDelayMs,
             inputDelayMs: inpInputDelayMs,
             presentationDelayMs: inpPresentationDelayMs,
-            culpritScriptUrl: hasSignificantCulprit ? (worstScript.sourceURL || worstScript.sourceUrl || null) : null,
+            culpritScriptUrl: hasSignificantCulprit ? (worstScript.sourceURL || worstScript.sourceUrl || 'inline') : null,
             culpritFunctionName: hasSignificantCulprit ? (worstScript.sourceFunctionName || null) : null,
             culpritExecutionMs: hasSignificantCulprit ? Math.round(maxIntersectingDuration) : null,
             culpritForcedStyleMs: hasSignificantCulprit ? maxIntersectingForcedStyle : null,
             groupedEventCount: worstGroup.events.length,
-            groupedEvents: Array.from(new Set(worstGroup.events.map((e) => e.name || 'interaction')))
+            groupedEvents: Array.from(new Set(worstGroup.events.map((e) => e.name || 'interaction'))),
+            inputDelayCulpritScriptUrl: (worstInputScript && maxInputIntersectingDuration > 0) ? (worstInputScript.sourceURL || worstInputScript.sourceUrl || 'inline') : null,
+            inputDelayCulpritExecutionMs: (worstInputScript && maxInputIntersectingDuration > 0) ? Math.round(maxInputIntersectingDuration) : null,
+            inputDelayInvoker: (worstInputScript && maxInputIntersectingDuration > 0) ? (worstInputScript.invoker || worstInputScript.invokerType || null) : null,
+            presentationDelayStyleAndLayoutMs,
+            presentationDelayRenderMs,
+            loafFrameDurationMs,
+            loafBlockingDurationMs,
+            invoker: worstScript ? (worstScript.invoker || null) : null,
+            invokerType: worstScript ? (worstScript.invokerType || null) : null,
+            sourceCharPosition: (worstScript && worstScript.sourceCharPosition !== undefined) ? worstScript.sourceCharPosition : null
         };
     }
     // --- 3. DOM RECURSION & SERIALIZED SIZE ---
@@ -4108,7 +4277,8 @@ async function inspectPageForensics() {
             clsAttribution,
             ttfbMs: canonicalTtfbMs,
             ttfbDisplay: canonicalTtfbMs !== null ? `${canonicalTtfbMs} ms` : 'Not observed',
-            domLoadMs
+            domLoadMs,
+            loafAttribution
         },
         mainThread: {
             longTaskCount,
@@ -4215,6 +4385,7 @@ async function inspectPageForensics() {
         totalLoafBlockingMs,
         primaryLoafCulprit,
         loafFrames,
+        loafAttribution,
         shiftDetails
     };
 }
@@ -4582,23 +4753,45 @@ class FindingsEngine {
         // --- 2. CORE WEB VITALS: MEASURED INP WITH INTERACTION ATTRIBUTION ---
         if (inpObserved && inpMs !== null && inpMs > 200) {
             const isCriticalInp = inpMs > 500;
+            const inpPresentationDelay = data.performance?.inpPresentationDelayMs ?? (inpAttribution?.presentationDelayMs || 0);
             const inpEvidence = [
                 { label: 'Measured INP Latency', value: `${inpMs} ms`, context: 'Budget: < 200 ms' },
                 { label: 'Observed Interaction Target', value: inpTarget || 'Interactive Element' },
-                { label: 'Processing Delay', value: `${inpProcessingDelay} ms`, context: 'Main-thread handler execution' },
-                { label: 'Input Delay', value: `${inpInputDelay} ms`, context: 'Event queue delay' },
+                { label: 'Input Delay (Phase 1)', value: `${inpInputDelay} ms`, context: 'Event queue delay waiting for main thread' },
+                { label: 'Processing Delay (Phase 2)', value: `${inpProcessingDelay} ms`, context: 'Main-thread handler execution' },
+                { label: 'Presentation Delay (Phase 3)', value: `${inpPresentationDelay} ms`, context: 'Style recalculation and compositing' },
                 { label: 'Measurement Source', value: 'Google Web Vitals Event Timing Observer' }
             ];
+            // Input Delay Blocker attribution (Phase 1)
+            if (inpAttribution?.inputDelayCulpritScriptUrl) {
+                const blockerFile = inpAttribution.inputDelayCulpritScriptUrl.split('/').pop() || inpAttribution.inputDelayCulpritScriptUrl;
+                const blockerInvoker = inpAttribution.inputDelayInvoker ? ` (${inpAttribution.inputDelayInvoker})` : '';
+                inpEvidence.push({
+                    label: 'Input Delay Blocker',
+                    value: `${blockerFile}${blockerInvoker}`,
+                    context: `${inpAttribution.inputDelayCulpritExecutionMs || 0}ms execution blocking event handling`
+                });
+            }
+            // Presentation delay layout vs render (Phase 3)
+            if (inpAttribution?.presentationDelayStyleAndLayoutMs !== undefined && inpAttribution?.presentationDelayStyleAndLayoutMs !== null) {
+                inpEvidence.push({
+                    label: 'Presentation Reflow vs Render',
+                    value: `Layout/Style: ${inpAttribution.presentationDelayStyleAndLayoutMs}ms | Render: ${inpAttribution.presentationDelayRenderMs || 0}ms`,
+                    context: inpAttribution.loafFrameDurationMs ? `LoAF Frame: ${inpAttribution.loafFrameDurationMs}ms (${inpAttribution.loafBlockingDurationMs || 0}ms blocking)` : 'Measured via overlapping Long Animation Frame'
+                });
+            }
             const hasSignificantCulprit = Boolean(inpAttribution &&
                 inpAttribution.culpritScriptUrl &&
                 (inpAttribution.culpritExecutionMs || 0) >= 16 &&
                 (inpAttribution.culpritExecutionMs || 0) >= inpProcessingDelay * 0.15);
             if (hasSignificantCulprit) {
+                const invokerDesc = inpAttribution.invoker ? ` via ${inpAttribution.invoker}` : '';
+                const culpritFile = (inpAttribution.culpritScriptUrl || 'inline').split('/').pop() || 'inline';
                 if (isPaidUser) {
                     inpEvidence.push({
                         label: 'Offending Script Culprit',
-                        value: `${inpAttribution.culpritFunctionName || 'anonymous'} in ${inpAttribution.culpritScriptUrl.split('/').pop()}`,
-                        context: `${inpAttribution.culpritExecutionMs}ms execution (${inpAttribution.culpritForcedStyleMs}ms forced layout thrashing)`
+                        value: `${inpAttribution.culpritFunctionName || 'anonymous'} in ${culpritFile}${invokerDesc}`,
+                        context: `${inpAttribution.culpritExecutionMs}ms execution (${inpAttribution.culpritForcedStyleMs || 0}ms forced layout thrashing)`
                     });
                 }
                 else {
@@ -4608,10 +4801,15 @@ class FindingsEngine {
                         context: `${inpAttribution.culpritExecutionMs}ms execution during event processing`
                     });
                 }
+                if (inpAttribution.invoker) {
+                    inpEvidence.push({
+                        label: 'Invoker Callback',
+                        value: `${inpAttribution.invokerType || 'event-listener'}: ${inpAttribution.invoker}`
+                    });
+                }
             }
             else {
-                const presentationDelay = data.performance?.inpPresentationDelayMs || inpAttribution?.presentationDelayMs || 0;
-                const latencyType = (inpInputDelay >= presentationDelay)
+                const latencyType = (inpInputDelay >= inpPresentationDelay)
                     ? 'queue latency (input delay)'
                     : 'rendering latency (presentation delay)';
                 inpEvidence.push({
@@ -4628,8 +4826,9 @@ class FindingsEngine {
             }
             let inpExplanation = `User interaction on ${inpTarget || 'interactive elements'} took ${inpMs} ms to present the next frame, causing visible UI lag on mobile devices.`;
             if (hasSignificantCulprit) {
+                const culpritFile = (inpAttribution.culpritScriptUrl || 'inline').split('/').pop() || 'inline';
                 if (isPaidUser) {
-                    inpExplanation += ` Long Animation Frame telemetry identified ${inpAttribution.culpritFunctionName || 'handler'} in ${inpAttribution.culpritScriptUrl.split('/').pop()} executing for ${inpAttribution.culpritExecutionMs}ms during event processing.`;
+                    inpExplanation += ` Long Animation Frame telemetry identified ${inpAttribution.culpritFunctionName || 'handler'} in ${culpritFile} executing for ${inpAttribution.culpritExecutionMs}ms during event processing.`;
                 }
                 else {
                     inpExplanation += ` Long Animation Frame telemetry identified heavy main-thread script contention executing for ${inpAttribution.culpritExecutionMs}ms during event processing.`;
@@ -4821,13 +5020,26 @@ class FindingsEngine {
                     value: `${loafCount} frames (${totalLoafBlockingMs} ms blocking)`
                 });
             }
+            const loafAttribution = data.performance?.loafAttribution || data.loafAttribution;
+            if (loafAttribution?.violates8msBudget) {
+                mainThreadEvidence.push({
+                    label: '8ms VSYNC Budget Violation',
+                    value: 'Frame duration exceeded 8.3ms threshold (120Hz/60Hz display jank risk)'
+                });
+            }
+            if (loafAttribution?.longScripts && loafAttribution.longScripts.length > 0) {
+                mainThreadEvidence.push({
+                    label: 'Attributed Script Culprits',
+                    value: `${loafAttribution.longScripts.length} script${loafAttribution.longScripts.length > 1 ? 's' : ''} identified in long animation frames`
+                });
+            }
             if (loafCulprit) {
                 const culpritDescriptor = loafCulprit.sourceUrl || loafCulprit.invoker || loafCulprit.sourceFunctionName || 'Inline Script Execution';
                 mainThreadEvidence.push({
                     label: 'LoAF Script Culprit',
                     value: culpritDescriptor
                 });
-                if (loafCulprit.invoker && loafCulprit.sourceUrl) {
+                if (loafCulprit.invoker) {
                     mainThreadEvidence.push({
                         label: 'LoAF Invoker Callback',
                         value: `${loafCulprit.invokerType || 'callback'}: ${loafCulprit.invoker}`
@@ -7063,10 +7275,11 @@ function renderAuditData(domain, currentUrl, data) {
         }
         const inpAttribution = data.performance?.inpAttribution;
         let inpCulpritRow = document.getElementById('inpCulpritRow');
-        const isSignificantCulprit = Boolean(inpAttribution?.culpritScriptUrl &&
+        const isSignificantCulprit = Boolean((inpAttribution?.culpritScriptUrl &&
             (inpAttribution.culpritExecutionMs || 0) >= 16 &&
-            (inpAttribution.culpritExecutionMs || 0) >= (data.performance?.inpProcessingDelayMs ?? inpAttribution?.processingDelayMs ?? 0) * 0.15);
-        if (isSignificantCulprit && inpAttribution?.culpritScriptUrl) {
+            (inpAttribution.culpritExecutionMs || 0) >= (data.performance?.inpProcessingDelayMs ?? inpAttribution?.processingDelayMs ?? 0) * 0.15) ||
+            (inpAttribution && (inpAttribution.inputDelayCulpritScriptUrl || inpAttribution.presentationDelayStyleAndLayoutMs)));
+        if ((isSignificantCulprit || (inpAttribution && data.performance?.inpObserved)) && inpAttribution) {
             if (!inpCulpritRow) {
                 inpCulpritRow = document.createElement('div');
                 inpCulpritRow.id = 'inpCulpritRow';
@@ -7078,7 +7291,7 @@ function renderAuditData(domain, currentUrl, data) {
             inpCulpritRow.style.display = 'block';
             if (!isPaidUser) {
                 const auditInpMs = data.performance?.inpMs || 0;
-                inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:6px 10px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:4px; font-size:11px; color:var(--color-text); display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--color-red);">INP Interaction Delay:</strong> ${auditInpMs}ms detected during event processing. Main-thread script contention identified.</div><button id="btnUnlockInpPro" class="btn-sm" style="font-size:10px; padding:2px 8px; background:#e11d48; color:#fff; border-radius:4px; border:none; font-weight:700; cursor:pointer;">Unlock Script Culprit</button></div>`;
+                inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:6px 10px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:4px; font-size:11px; color:var(--color-text); display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--color-red);">INP 3-Phase Latency:</strong> ${auditInpMs}ms (Input: ${inpAttribution.inputDelayMs ?? 0}ms, Processing: ${inpAttribution.processingDelayMs ?? 0}ms, Presentation: ${inpAttribution.presentationDelayMs ?? 0}ms). Main-thread script contention identified.</div><button id="btnUnlockInpPro" class="btn-sm" style="font-size:10px; padding:2px 8px; background:#e11d48; color:#fff; border-radius:4px; border:none; font-weight:700; cursor:pointer;">Unlock Script Culprit</button></div>`;
                 const btnUnlockInp = document.getElementById('btnUnlockInpPro');
                 if (btnUnlockInp) {
                     btnUnlockInp.onclick = () => {
@@ -7087,28 +7300,64 @@ function renderAuditData(domain, currentUrl, data) {
                 }
             }
             else {
-                const culpritFile = inpAttribution.culpritScriptUrl.split('/').pop() || inpAttribution.culpritScriptUrl;
+                const culpritFile = inpAttribution.culpritScriptUrl ? (inpAttribution.culpritScriptUrl.split('/').pop() || inpAttribution.culpritScriptUrl) : null;
                 const culpritFunc = inpAttribution.culpritFunctionName || 'anonymous';
                 const execMs = inpAttribution.culpritExecutionMs || 0;
                 const forcedMs = inpAttribution.culpritForcedStyleMs || 0;
-                inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:6px 10px; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:4px; font-size:11px; color:var(--color-text);"><strong style="color:var(--color-red);">INP Culprit:</strong> ${escapeHtml(culpritFunc)} in <code>${escapeHtml(culpritFile)}</code> (${execMs}ms execution, ${forcedMs}ms forced layout thrashing)</div>`;
+                const inputBlockerFile = inpAttribution.inputDelayCulpritScriptUrl ? (inpAttribution.inputDelayCulpritScriptUrl.split('/').pop() || inpAttribution.inputDelayCulpritScriptUrl) : null;
+                const inputBlockerMs = inpAttribution.inputDelayCulpritExecutionMs || 0;
+                const inputInvoker = inpAttribution.inputDelayInvoker || 'task';
+                let phase1Html = `<strong>Phase 1 (Input Delay):</strong> ${inpAttribution.inputDelayMs ?? 0}ms`;
+                if (inputBlockerFile) {
+                    phase1Html += ` : Blocker <code>${escapeHtml(inputBlockerFile)}</code> (${inputBlockerMs}ms, ${escapeHtml(inputInvoker)})`;
+                }
+                else if ((inpAttribution.inputDelayMs || 0) > 0) {
+                    phase1Html += ' : Queue latency (unattributed main-thread contention)';
+                }
+                else {
+                    phase1Html += ' (Queue clear)';
+                }
+                let phase2Html = `<strong>Phase 2 (Processing):</strong> ${inpAttribution.processingDelayMs ?? 0}ms`;
+                if (culpritFile) {
+                    phase2Html += ` : Handler ${escapeHtml(culpritFunc)} in <code>${escapeHtml(culpritFile)}</code> (${execMs}ms exec, ${forcedMs}ms forced layout thrashing${inpAttribution.invoker ? ', ' + escapeHtml(inpAttribution.invoker) : ''})`;
+                }
+                let phase3Html = `<strong>Phase 3 (Presentation):</strong> ${inpAttribution.presentationDelayMs ?? 0}ms`;
+                if (inpAttribution.presentationDelayStyleAndLayoutMs !== null && inpAttribution.presentationDelayStyleAndLayoutMs !== undefined) {
+                    phase3Html += ` : Reflow ${inpAttribution.presentationDelayStyleAndLayoutMs}ms | Render ${inpAttribution.presentationDelayRenderMs || 0}ms`;
+                }
+                if (inpAttribution.loafFrameDurationMs) {
+                    phase3Html += ` (LoAF: ${inpAttribution.loafFrameDurationMs}ms frame, ${inpAttribution.loafBlockingDurationMs || 0}ms blocking)`;
+                }
+                inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:8px 10px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:4px; font-size:11px; color:var(--color-text);"><div style="font-weight:700; color:var(--color-red); margin-bottom:4px;">INP 3-Phase Attribution:</div><div style="margin-bottom:2px;">${phase1Html}</div><div style="margin-bottom:2px;">${phase2Html}</div><div>${phase3Html}</div></div>`;
             }
         }
         else if (inpCulpritRow) {
             inpCulpritRow.style.display = 'none';
         }
+        const cardForensicsLoaf = document.getElementById('cardForensicsLoaf');
+        if (cardForensicsLoaf) {
+            cardForensicsLoaf.style.display = 'block';
+        }
         const loafTableWrapper = document.getElementById('loafTableWrapper');
         const loafSummaryText = document.getElementById('loafSummaryText');
-        const loafScripts = data.performance.loafAttribution?.longScripts || [];
+        const loafAttr = data.performance?.loafAttribution || data.loafAttribution;
+        const loafScripts = loafAttr?.longScripts || [];
         if (loafTableWrapper) {
             if (loafScripts.length > 0) {
-                if (loafSummaryText)
-                    loafSummaryText.innerText = `Attributed ${loafScripts.length} heavy script culprits:`;
+                if (loafSummaryText) {
+                    const budgetNote = loafAttr?.violates8msBudget ? ' (8ms VSYNC budget exceeded)' : '';
+                    loafSummaryText.innerText = `Attributed ${loafScripts.length} heavy script culprit${loafScripts.length > 1 ? 's' : ''}${budgetNote}:`;
+                }
                 let rows = '<table style="width:100%; font-size:10px; border-collapse:collapse;">';
-                loafScripts.slice(0, 4).forEach((s) => {
-                    rows += `<tr><td style="padding:2px 0; color:var(--color-text);">${escapeHtml(s.scriptUrl || 'inline')}</td><td style="text-align:right; font-weight:700; color:var(--color-red);">${s.blockingDurationMs}ms</td></tr>`;
+                rows += '<thead><tr style="border-bottom:1px solid var(--color-border); color:var(--color-muted);"><th style="text-align:left; padding:4px 0;">Script / Invoker</th><th style="text-align:right; padding:4px 0;">Execution / Thrashing</th></tr></thead><tbody>';
+                loafScripts.slice(0, 6).forEach((s) => {
+                    const fileName = s.scriptUrl ? (s.scriptUrl.split('/').pop() || s.scriptUrl) : 'inline';
+                    const fnInfo = s.functionName ? `fn: ${escapeHtml(s.functionName)}` : (s.invoker ? `invoker: ${escapeHtml(s.invoker)}` : '');
+                    const reflowTag = s.forcedStyleAndLayoutMs > 0 ? ` <span style="color:#f59e0b; font-weight:600;">[Reflow: ${s.forcedStyleAndLayoutMs}ms]</span>` : '';
+                    const blockTag = s.blockingDurationMs > 0 ? ` (${s.blockingDurationMs}ms block)` : '';
+                    rows += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 0; color:var(--color-text);"><div style="font-weight:600;">${escapeHtml(fileName)}</div>${fnInfo ? `<div style="color:var(--color-muted); font-size:9px;">${fnInfo}</div>` : ''}</td><td style="text-align:right; font-weight:700; color:var(--color-red); white-space:nowrap; vertical-align:top; padding-top:4px;">${s.executionDurationMs}ms${blockTag}${reflowTag}</td></tr>`;
                 });
-                rows += '</table>';
+                rows += '</tbody></table>';
                 loafTableWrapper.innerHTML = rows;
             }
             else {

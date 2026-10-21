@@ -871,11 +871,12 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
     const inpAttribution = data.performance?.inpAttribution;
     let inpCulpritRow = document.getElementById('inpCulpritRow');
     const isSignificantCulprit = Boolean(
-      inpAttribution?.culpritScriptUrl &&
+      (inpAttribution?.culpritScriptUrl &&
       (inpAttribution.culpritExecutionMs || 0) >= 16 &&
-      (inpAttribution.culpritExecutionMs || 0) >= (data.performance?.inpProcessingDelayMs ?? inpAttribution?.processingDelayMs ?? 0) * 0.15
+      (inpAttribution.culpritExecutionMs || 0) >= (data.performance?.inpProcessingDelayMs ?? inpAttribution?.processingDelayMs ?? 0) * 0.15) ||
+      (inpAttribution && (inpAttribution.inputDelayCulpritScriptUrl || inpAttribution.presentationDelayStyleAndLayoutMs))
     );
-    if (isSignificantCulprit && inpAttribution?.culpritScriptUrl) {
+    if ((isSignificantCulprit || (inpAttribution && data.performance?.inpObserved)) && inpAttribution) {
       if (!inpCulpritRow) {
         inpCulpritRow = document.createElement('div');
         inpCulpritRow.id = 'inpCulpritRow';
@@ -887,7 +888,7 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
       inpCulpritRow.style.display = 'block';
       if (!isPaidUser) {
         const auditInpMs = data.performance?.inpMs || 0;
-        inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:6px 10px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:4px; font-size:11px; color:var(--color-text); display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--color-red);">INP Interaction Delay:</strong> ${auditInpMs}ms detected during event processing. Main-thread script contention identified.</div><button id="btnUnlockInpPro" class="btn-sm" style="font-size:10px; padding:2px 8px; background:#e11d48; color:#fff; border-radius:4px; border:none; font-weight:700; cursor:pointer;">Unlock Script Culprit</button></div>`;
+        inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:6px 10px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:4px; font-size:11px; color:var(--color-text); display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--color-red);">INP 3-Phase Latency:</strong> ${auditInpMs}ms (Input: ${inpAttribution.inputDelayMs ?? 0}ms, Processing: ${inpAttribution.processingDelayMs ?? 0}ms, Presentation: ${inpAttribution.presentationDelayMs ?? 0}ms). Main-thread script contention identified.</div><button id="btnUnlockInpPro" class="btn-sm" style="font-size:10px; padding:2px 8px; background:#e11d48; color:#fff; border-radius:4px; border:none; font-weight:700; cursor:pointer;">Unlock Script Culprit</button></div>`;
         const btnUnlockInp = document.getElementById('btnUnlockInpPro');
         if (btnUnlockInp) {
           btnUnlockInp.onclick = () => {
@@ -895,27 +896,66 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
           };
         }
       } else {
-        const culpritFile = inpAttribution.culpritScriptUrl.split('/').pop() || inpAttribution.culpritScriptUrl;
+        const culpritFile = inpAttribution.culpritScriptUrl ? (inpAttribution.culpritScriptUrl.split('/').pop() || inpAttribution.culpritScriptUrl) : null;
         const culpritFunc = inpAttribution.culpritFunctionName || 'anonymous';
         const execMs = inpAttribution.culpritExecutionMs || 0;
         const forcedMs = inpAttribution.culpritForcedStyleMs || 0;
-        inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:6px 10px; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:4px; font-size:11px; color:var(--color-text);"><strong style="color:var(--color-red);">INP Culprit:</strong> ${escapeHtml(culpritFunc)} in <code>${escapeHtml(culpritFile)}</code> (${execMs}ms execution, ${forcedMs}ms forced layout thrashing)</div>`;
+        const inputBlockerFile = inpAttribution.inputDelayCulpritScriptUrl ? (inpAttribution.inputDelayCulpritScriptUrl.split('/').pop() || inpAttribution.inputDelayCulpritScriptUrl) : null;
+        const inputBlockerMs = inpAttribution.inputDelayCulpritExecutionMs || 0;
+        const inputInvoker = inpAttribution.inputDelayInvoker || 'task';
+
+        let phase1Html = `<strong>Phase 1 (Input Delay):</strong> ${inpAttribution.inputDelayMs ?? 0}ms`;
+        if (inputBlockerFile) {
+          phase1Html += ` : Blocker <code>${escapeHtml(inputBlockerFile)}</code> (${inputBlockerMs}ms, ${escapeHtml(inputInvoker)})`;
+        } else if ((inpAttribution.inputDelayMs || 0) > 0) {
+          phase1Html += ' : Queue latency (unattributed main-thread contention)';
+        } else {
+          phase1Html += ' (Queue clear)';
+        }
+
+        let phase2Html = `<strong>Phase 2 (Processing):</strong> ${inpAttribution.processingDelayMs ?? 0}ms`;
+        if (culpritFile) {
+          phase2Html += ` : Handler ${escapeHtml(culpritFunc)} in <code>${escapeHtml(culpritFile)}</code> (${execMs}ms exec, ${forcedMs}ms forced layout thrashing${inpAttribution.invoker ? ', ' + escapeHtml(inpAttribution.invoker) : ''})`;
+        }
+
+        let phase3Html = `<strong>Phase 3 (Presentation):</strong> ${inpAttribution.presentationDelayMs ?? 0}ms`;
+        if (inpAttribution.presentationDelayStyleAndLayoutMs !== null && inpAttribution.presentationDelayStyleAndLayoutMs !== undefined) {
+          phase3Html += ` : Reflow ${inpAttribution.presentationDelayStyleAndLayoutMs}ms | Render ${inpAttribution.presentationDelayRenderMs || 0}ms`;
+        }
+        if (inpAttribution.loafFrameDurationMs) {
+          phase3Html += ` (LoAF: ${inpAttribution.loafFrameDurationMs}ms frame, ${inpAttribution.loafBlockingDurationMs || 0}ms blocking)`;
+        }
+
+        inpCulpritRow.innerHTML = `<div style="margin-top:8px; padding:8px 10px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:4px; font-size:11px; color:var(--color-text);"><div style="font-weight:700; color:var(--color-red); margin-bottom:4px;">INP 3-Phase Attribution:</div><div style="margin-bottom:2px;">${phase1Html}</div><div style="margin-bottom:2px;">${phase2Html}</div><div>${phase3Html}</div></div>`;
       }
     } else if (inpCulpritRow) {
       inpCulpritRow.style.display = 'none';
     }
 
+    const cardForensicsLoaf = document.getElementById('cardForensicsLoaf');
+    if (cardForensicsLoaf) {
+      cardForensicsLoaf.style.display = 'block';
+    }
     const loafTableWrapper = document.getElementById('loafTableWrapper');
     const loafSummaryText = document.getElementById('loafSummaryText');
-    const loafScripts = data.performance.loafAttribution?.longScripts || [];
+    const loafAttr = data.performance?.loafAttribution || data.loafAttribution;
+    const loafScripts = loafAttr?.longScripts || [];
     if (loafTableWrapper) {
       if (loafScripts.length > 0) {
-        if (loafSummaryText) loafSummaryText.innerText = `Attributed ${loafScripts.length} heavy script culprits:`;
+        if (loafSummaryText) {
+          const budgetNote = loafAttr?.violates8msBudget ? ' (8ms VSYNC budget exceeded)' : '';
+          loafSummaryText.innerText = `Attributed ${loafScripts.length} heavy script culprit${loafScripts.length > 1 ? 's' : ''}${budgetNote}:`;
+        }
         let rows = '<table style="width:100%; font-size:10px; border-collapse:collapse;">';
-        loafScripts.slice(0, 4).forEach((s: any) => {
-          rows += `<tr><td style="padding:2px 0; color:var(--color-text);">${escapeHtml(s.scriptUrl || 'inline')}</td><td style="text-align:right; font-weight:700; color:var(--color-red);">${s.blockingDurationMs}ms</td></tr>`;
+        rows += '<thead><tr style="border-bottom:1px solid var(--color-border); color:var(--color-muted);"><th style="text-align:left; padding:4px 0;">Script / Invoker</th><th style="text-align:right; padding:4px 0;">Execution / Thrashing</th></tr></thead><tbody>';
+        loafScripts.slice(0, 6).forEach((s: any) => {
+          const fileName = s.scriptUrl ? (s.scriptUrl.split('/').pop() || s.scriptUrl) : 'inline';
+          const fnInfo = s.functionName ? `fn: ${escapeHtml(s.functionName)}` : (s.invoker ? `invoker: ${escapeHtml(s.invoker)}` : '');
+          const reflowTag = s.forcedStyleAndLayoutMs > 0 ? ` <span style="color:#f59e0b; font-weight:600;">[Reflow: ${s.forcedStyleAndLayoutMs}ms]</span>` : '';
+          const blockTag = s.blockingDurationMs > 0 ? ` (${s.blockingDurationMs}ms block)` : '';
+          rows += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 0; color:var(--color-text);"><div style="font-weight:600;">${escapeHtml(fileName)}</div>${fnInfo ? `<div style="color:var(--color-muted); font-size:9px;">${fnInfo}</div>` : ''}</td><td style="text-align:right; font-weight:700; color:var(--color-red); white-space:nowrap; vertical-align:top; padding-top:4px;">${s.executionDurationMs}ms${blockTag}${reflowTag}</td></tr>`;
         });
-        rows += '</table>';
+        rows += '</tbody></table>';
         loafTableWrapper.innerHTML = rows;
       } else {
         if (loafSummaryText) loafSummaryText.innerText = 'Main-thread execution telemetry:';
