@@ -4,6 +4,8 @@
 
 import { detectTechnologies } from './techDetector';
 import { TechnologyDetection, LoafAttribution, LoafScriptAttributionItem } from '../types/audit';
+import { withSharedArray } from '../utils/arrayPool';
+import { AsyncLock } from '../utils/asyncLock';
 
 export async function inspectPageForensics() {
   const scanStartTime = performance.now();
@@ -820,48 +822,67 @@ export async function inspectPageForensics() {
       }
     });
 
-    const candidateScripts: any[] = [];
-    rawLoafEntries.forEach((frame: any) => {
-      if (Array.isArray(frame.scripts)) {
-        frame.scripts.forEach((s: any) => candidateScripts.push(s));
+    let totalCandidateScripts = 0;
+    for (let i = 0; i < rawLoafEntries.length; i++) {
+      const frame = rawLoafEntries[i];
+      if (Array.isArray(frame?.scripts)) {
+        totalCandidateScripts += frame.scripts.length;
       } else if (frame && (frame.startTime !== undefined || frame.sourceURL || frame.sourceUrl)) {
-        candidateScripts.push(frame);
+        totalCandidateScripts += 1;
       }
-    });
-
-    // Phase 1: Input Delay Blocker Script Attribution
-    let worstInputScript: any = null;
-    let maxInputIntersectingDuration = 0;
-    if (inpInputDelayMs > 0) {
-      candidateScripts.forEach((script: any) => {
-        const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
-        const sDuration = script.duration || 0;
-        const scriptEnd = sStart + sDuration;
-        const inputIntersecting = Math.max(0, Math.min(scriptEnd, procStart) - Math.max(sStart, worstInteraction.startTime));
-        if (inputIntersecting > maxInputIntersectingDuration) {
-          maxInputIntersectingDuration = inputIntersecting;
-          worstInputScript = script;
-        }
-      });
     }
 
-    // Phase 2: Processing Delay Handler Script Attribution
+    let worstInputScript: any = null;
+    let maxInputIntersectingDuration = 0;
     let worstScript: any = null;
     let maxIntersectingDuration = 0;
     let maxIntersectingForcedStyle = 0;
 
-    candidateScripts.forEach((script: any) => {
-      const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
-      const sDuration = script.duration || 0;
-      const scriptEnd = sStart + sDuration;
-      const intersectingDuration = Math.max(0, Math.min(scriptEnd, procEnd) - Math.max(sStart, procStart));
-      if (intersectingDuration > maxIntersectingDuration) {
-        maxIntersectingDuration = intersectingDuration;
-        const forcedStyle = (sDuration && script.forcedStyleAndLayoutDuration)
-          ? Math.round((intersectingDuration / sDuration) * script.forcedStyleAndLayoutDuration)
-          : 0;
-        maxIntersectingForcedStyle = forcedStyle;
-        worstScript = script;
+    // Use Linear ArrayPool for transient LoAF script parsing and interaction attribution
+    // to eliminate telemetry-induced garbage collection overhead during 60 FPS LoAF interaction profiling
+    withSharedArray(totalCandidateScripts, (candidateScripts) => {
+      let scriptCount = 0;
+      for (let i = 0; i < rawLoafEntries.length; i++) {
+        const frame = rawLoafEntries[i];
+        if (Array.isArray(frame?.scripts)) {
+          for (let s = 0; s < frame.scripts.length; s++) {
+            candidateScripts[scriptCount++] = frame.scripts[s];
+          }
+        } else if (frame && (frame.startTime !== undefined || frame.sourceURL || frame.sourceUrl)) {
+          candidateScripts[scriptCount++] = frame;
+        }
+      }
+
+      // Phase 1: Input Delay Blocker Script Attribution
+      if (inpInputDelayMs !== null && inpInputDelayMs > 0) {
+        for (let i = 0; i < scriptCount; i++) {
+          const script = candidateScripts[i];
+          const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
+          const sDuration = script.duration || 0;
+          const scriptEnd = sStart + sDuration;
+          const inputIntersecting = Math.max(0, Math.min(scriptEnd, procStart) - Math.max(sStart, worstInteraction.startTime));
+          if (inputIntersecting > maxInputIntersectingDuration) {
+            maxInputIntersectingDuration = inputIntersecting;
+            worstInputScript = script;
+          }
+        }
+      }
+
+      // Phase 2: Processing Delay Handler Script Attribution
+      for (let i = 0; i < scriptCount; i++) {
+        const script = candidateScripts[i];
+        const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
+        const sDuration = script.duration || 0;
+        const scriptEnd = sStart + sDuration;
+        const intersectingDuration = Math.max(0, Math.min(scriptEnd, procEnd) - Math.max(sStart, procStart));
+        if (intersectingDuration > maxIntersectingDuration) {
+          maxIntersectingDuration = intersectingDuration;
+          const forcedStyle = (sDuration && script.forcedStyleAndLayoutDuration)
+            ? Math.round((intersectingDuration / sDuration) * script.forcedStyleAndLayoutDuration)
+            : 0;
+          maxIntersectingForcedStyle = forcedStyle;
+          worstScript = script;
+        }
       }
     });
 

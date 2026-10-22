@@ -77,6 +77,8 @@ function stripEsm(code) {
 
 const distOrder = [
   'dist/utils/security.js',
+  'dist/utils/arrayPool.js',
+  'dist/utils/asyncLock.js',
   'dist/services/storageService.js',
   'dist/services/licenseService.js',
   'dist/services/cloudSyncService.js',

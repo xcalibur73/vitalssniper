@@ -94,6 +94,290 @@ function escapeCsvField(val) {
 }
 
 // ====================================================================
+// MODULE: dist/utils/arrayPool.js
+// ====================================================================
+
+// Linear ArrayPool port for VitalsSniper LoAF profiling
+// Prevents GC churn during 60 FPS animation frame measurements
+// Strictly zero em-dashes and zero en-dashes
+class ArrayPool {
+    pool = null;
+    inUse = false;
+    releaseTimer = null;
+    lastUsedAt = 0;
+    releaseDelayMs;
+    constructor(releaseDelayMs = 30000) {
+        this.releaseDelayMs = releaseDelayMs;
+    }
+    growToSize(size) {
+        if (!this.pool) {
+            this.pool = [];
+        }
+        const arr = this.pool;
+        while (arr.length < size) {
+            arr.push(undefined);
+        }
+        arr.length = size;
+        return arr;
+    }
+    cleanup(arr, origPush, origPop, origShift, origUnshift, origSplice) {
+        // Restore poisoned methods
+        arr.push = origPush;
+        arr.pop = origPop;
+        arr.shift = origShift;
+        arr.unshift = origUnshift;
+        arr.splice = origSplice;
+        // Clear all elements to undefined to prevent object retention
+        for (let i = 0; i < arr.length; i++) {
+            arr[i] = undefined;
+        }
+        this.inUse = false;
+        this.lastUsedAt = Date.now();
+        this.scheduleRelease();
+    }
+    scheduleRelease() {
+        if (this.releaseTimer !== null) {
+            return;
+        }
+        this.releaseTimer = setTimeout(() => {
+            this.releaseTimer = null;
+            if (this.pool && !this.inUse && Date.now() - this.lastUsedAt >= this.releaseDelayMs) {
+                this.pool = null;
+            }
+            else if (this.pool && !this.inUse) {
+                const remaining = this.releaseDelayMs - (Date.now() - this.lastUsedAt);
+                this.releaseTimer = setTimeout(() => {
+                    this.releaseTimer = null;
+                    if (this.pool && !this.inUse && Date.now() - this.lastUsedAt >= this.releaseDelayMs) {
+                        this.pool = null;
+                    }
+                }, Math.max(remaining, 10));
+                if (this.releaseTimer && typeof this.releaseTimer.unref === 'function') {
+                    this.releaseTimer.unref();
+                }
+            }
+        }, this.releaseDelayMs);
+        if (this.releaseTimer && typeof this.releaseTimer.unref === 'function') {
+            this.releaseTimer.unref();
+        }
+    }
+    withSharedArray(size, callback) {
+        // Fallback to fresh array when pool is currently in use
+        if (this.inUse) {
+            const fallback = new Array(size);
+            return callback(fallback);
+        }
+        if (size < 0 || !Number.isInteger(size)) {
+            throw new RangeError(`ArrayPool: Invalid array size ${size}`);
+        }
+        if (this.releaseTimer !== null) {
+            clearTimeout(this.releaseTimer);
+            this.releaseTimer = null;
+        }
+        this.inUse = true;
+        let arr;
+        try {
+            arr = this.growToSize(size);
+        }
+        catch (err) {
+            this.inUse = false;
+            this.scheduleRelease();
+            throw err;
+        }
+        // Poison length-mutating methods during callback execution
+        const poison = (methodName) => () => {
+            throw new Error(`ArrayPool: length-mutating method '${methodName}' is prohibited on pooled array`);
+        };
+        const origPush = arr.push;
+        const origPop = arr.pop;
+        const origShift = arr.shift;
+        const origUnshift = arr.unshift;
+        const origSplice = arr.splice;
+        arr.push = poison('push');
+        arr.pop = poison('pop');
+        arr.shift = poison('shift');
+        arr.unshift = poison('unshift');
+        arr.splice = poison('splice');
+        try {
+            const result = callback(arr);
+            if (result && typeof result.then === 'function') {
+                return result.finally(() => {
+                    this.cleanup(arr, origPush, origPop, origShift, origUnshift, origSplice);
+                });
+            }
+            this.cleanup(arr, origPush, origPop, origShift, origUnshift, origSplice);
+            return result;
+        }
+        catch (err) {
+            this.cleanup(arr, origPush, origPop, origShift, origUnshift, origSplice);
+            throw err;
+        }
+    }
+    isPoolInUse() {
+        return this.inUse;
+    }
+    getPoolCapacity() {
+        return this.pool ? this.pool.length : 0;
+    }
+    hasReleaseTimer() {
+        return this.releaseTimer !== null;
+    }
+    releaseNow() {
+        if (this.releaseTimer !== null) {
+            clearTimeout(this.releaseTimer);
+            this.releaseTimer = null;
+        }
+        this.pool = null;
+        this.inUse = false;
+    }
+}
+const defaultArrayPool = new ArrayPool(30000);
+function withSharedArray(size, callback) {
+    return defaultArrayPool.withSharedArray(size, callback);
+}
+
+// ====================================================================
+// MODULE: dist/utils/asyncLock.js
+// ====================================================================
+
+// Linear AsyncLock (Reader-Writer Lock with Backpressure Shedding) for VitalsSniper
+// Coordinates concurrent telemetry capture and prevents interaction contention
+// Strictly zero em-dashes and zero en-dashes
+class AsyncLock {
+    activeReaders = 0;
+    exclusiveRunning = false;
+    maxExclusiveQueueLength;
+    exclusiveQueue = [];
+    sharedQueue = [];
+    constructor(options = {}) {
+        this.maxExclusiveQueueLength = options.maxExclusiveQueueLength ?? 100;
+    }
+    isRunningExclusive() {
+        return this.exclusiveRunning;
+    }
+    getActiveReaderCount() {
+        return this.activeReaders;
+    }
+    getExclusiveQueueLength() {
+        return this.exclusiveQueue.length;
+    }
+    getSharedQueueLength() {
+        return this.sharedQueue.length;
+    }
+    clearQueuedCallbacks() {
+        while (this.exclusiveQueue.length > 0) {
+            const entry = this.exclusiveQueue.shift();
+            if (entry) {
+                entry.resolve(undefined);
+            }
+        }
+        while (this.sharedQueue.length > 0) {
+            const entry = this.sharedQueue.shift();
+            if (entry) {
+                entry.resolve(undefined);
+            }
+        }
+    }
+    async runShared(callback) {
+        // If an exclusive write is running or waiting, queue reader to prevent writer starvation
+        if (this.exclusiveRunning || this.exclusiveQueue.length > 0) {
+            return new Promise((resolve, reject) => {
+                this.sharedQueue.push({
+                    callback,
+                    resolve: resolve,
+                    reject
+                });
+            });
+        }
+        this.activeReaders++;
+        try {
+            return await callback();
+        }
+        finally {
+            this.activeReaders--;
+            if (this.activeReaders === 0) {
+                this.pumpQueue();
+            }
+        }
+    }
+    async runExclusive(callback) {
+        // Backpressure queue shedding: drops or resolves with undefined when exclusive queue overflows
+        if (this.maxExclusiveQueueLength >= 1 && this.exclusiveQueue.length >= this.maxExclusiveQueueLength) {
+            return Promise.resolve(undefined);
+        }
+        // If readers are active or another exclusive write is running, queue
+        if (this.exclusiveRunning || this.activeReaders > 0) {
+            return new Promise((resolve, reject) => {
+                this.exclusiveQueue.push({
+                    callback,
+                    resolve,
+                    reject
+                });
+            });
+        }
+        this.exclusiveRunning = true;
+        try {
+            return await callback();
+        }
+        finally {
+            this.exclusiveRunning = false;
+            this.pumpQueue();
+        }
+    }
+    pumpQueue() {
+        if (this.exclusiveRunning) {
+            return;
+        }
+        // Prioritize waiting exclusive writer once active readers reach zero
+        if (this.exclusiveQueue.length > 0) {
+            if (this.activeReaders === 0) {
+                const nextWriter = this.exclusiveQueue.shift();
+                if (nextWriter) {
+                    this.exclusiveRunning = true;
+                    (async () => {
+                        try {
+                            const res = await nextWriter.callback();
+                            nextWriter.resolve(res);
+                        }
+                        catch (err) {
+                            nextWriter.reject(err);
+                        }
+                        finally {
+                            this.exclusiveRunning = false;
+                            this.pumpQueue();
+                        }
+                    })();
+                }
+            }
+            return;
+        }
+        // If no exclusive writers are queued, release all queued shared readers concurrently
+        if (this.sharedQueue.length > 0) {
+            const toDrain = this.sharedQueue.splice(0, this.sharedQueue.length);
+            for (const nextReader of toDrain) {
+                this.activeReaders++;
+                (async () => {
+                    try {
+                        const res = await nextReader.callback();
+                        nextReader.resolve(res);
+                    }
+                    catch (err) {
+                        nextReader.reject(err);
+                    }
+                    finally {
+                        this.activeReaders--;
+                        if (this.activeReaders === 0) {
+                            this.pumpQueue();
+                        }
+                    }
+                })();
+            }
+        }
+    }
+}
+const defaultAsyncLock = new AsyncLock();
+
+// ====================================================================
 // MODULE: dist/services/storageService.js
 // ====================================================================
 
@@ -3666,46 +3950,65 @@ async function inspectPageForensics() {
                 overlappingLoafFrame = frame;
             }
         });
-        const candidateScripts = [];
-        rawLoafEntries.forEach((frame) => {
-            if (Array.isArray(frame.scripts)) {
-                frame.scripts.forEach((s) => candidateScripts.push(s));
+        let totalCandidateScripts = 0;
+        for (let i = 0; i < rawLoafEntries.length; i++) {
+            const frame = rawLoafEntries[i];
+            if (Array.isArray(frame?.scripts)) {
+                totalCandidateScripts += frame.scripts.length;
             }
             else if (frame && (frame.startTime !== undefined || frame.sourceURL || frame.sourceUrl)) {
-                candidateScripts.push(frame);
+                totalCandidateScripts += 1;
             }
-        });
-        // Phase 1: Input Delay Blocker Script Attribution
+        }
         let worstInputScript = null;
         let maxInputIntersectingDuration = 0;
-        if (inpInputDelayMs > 0) {
-            candidateScripts.forEach((script) => {
-                const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
-                const sDuration = script.duration || 0;
-                const scriptEnd = sStart + sDuration;
-                const inputIntersecting = Math.max(0, Math.min(scriptEnd, procStart) - Math.max(sStart, worstInteraction.startTime));
-                if (inputIntersecting > maxInputIntersectingDuration) {
-                    maxInputIntersectingDuration = inputIntersecting;
-                    worstInputScript = script;
-                }
-            });
-        }
-        // Phase 2: Processing Delay Handler Script Attribution
         let worstScript = null;
         let maxIntersectingDuration = 0;
         let maxIntersectingForcedStyle = 0;
-        candidateScripts.forEach((script) => {
-            const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
-            const sDuration = script.duration || 0;
-            const scriptEnd = sStart + sDuration;
-            const intersectingDuration = Math.max(0, Math.min(scriptEnd, procEnd) - Math.max(sStart, procStart));
-            if (intersectingDuration > maxIntersectingDuration) {
-                maxIntersectingDuration = intersectingDuration;
-                const forcedStyle = (sDuration && script.forcedStyleAndLayoutDuration)
-                    ? Math.round((intersectingDuration / sDuration) * script.forcedStyleAndLayoutDuration)
-                    : 0;
-                maxIntersectingForcedStyle = forcedStyle;
-                worstScript = script;
+        // Use Linear ArrayPool for transient LoAF script parsing and interaction attribution
+        // to eliminate telemetry-induced garbage collection overhead during 60 FPS LoAF interaction profiling
+        withSharedArray(totalCandidateScripts, (candidateScripts) => {
+            let scriptCount = 0;
+            for (let i = 0; i < rawLoafEntries.length; i++) {
+                const frame = rawLoafEntries[i];
+                if (Array.isArray(frame?.scripts)) {
+                    for (let s = 0; s < frame.scripts.length; s++) {
+                        candidateScripts[scriptCount++] = frame.scripts[s];
+                    }
+                }
+                else if (frame && (frame.startTime !== undefined || frame.sourceURL || frame.sourceUrl)) {
+                    candidateScripts[scriptCount++] = frame;
+                }
+            }
+            // Phase 1: Input Delay Blocker Script Attribution
+            if (inpInputDelayMs !== null && inpInputDelayMs > 0) {
+                for (let i = 0; i < scriptCount; i++) {
+                    const script = candidateScripts[i];
+                    const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
+                    const sDuration = script.duration || 0;
+                    const scriptEnd = sStart + sDuration;
+                    const inputIntersecting = Math.max(0, Math.min(scriptEnd, procStart) - Math.max(sStart, worstInteraction.startTime));
+                    if (inputIntersecting > maxInputIntersectingDuration) {
+                        maxInputIntersectingDuration = inputIntersecting;
+                        worstInputScript = script;
+                    }
+                }
+            }
+            // Phase 2: Processing Delay Handler Script Attribution
+            for (let i = 0; i < scriptCount; i++) {
+                const script = candidateScripts[i];
+                const sStart = script.executionStart !== undefined ? script.executionStart : (script.startTime || 0);
+                const sDuration = script.duration || 0;
+                const scriptEnd = sStart + sDuration;
+                const intersectingDuration = Math.max(0, Math.min(scriptEnd, procEnd) - Math.max(sStart, procStart));
+                if (intersectingDuration > maxIntersectingDuration) {
+                    maxIntersectingDuration = intersectingDuration;
+                    const forcedStyle = (sDuration && script.forcedStyleAndLayoutDuration)
+                        ? Math.round((intersectingDuration / sDuration) * script.forcedStyleAndLayoutDuration)
+                        : 0;
+                    maxIntersectingForcedStyle = forcedStyle;
+                    worstScript = script;
+                }
             }
         });
         // Phase 3: Presentation Delay Breakdown (Style & Layout vs Render)
