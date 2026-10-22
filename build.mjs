@@ -115,6 +115,20 @@ fs.writeFileSync(prodPath, finalBundle, 'utf8');
 console.log(`Bundle created successfully:`);
 console.log(`  -> ${prodPath} (${(finalBundle.length / 1024).toFixed(1)} KB)`);
 
+console.log('--- Step 2.5: Running Extension Test Battery ---');
+const extTests = [
+  'tests/test_linear_primitives.mjs',
+  'tests/test_audit_and_attribution_edge_cases.mjs',
+  'tests/test_loaf_and_inp_profiling.mjs'
+];
+for (const testFile of extTests) {
+  const testPath = path.resolve(__dirname, testFile);
+  if (fs.existsSync(testPath)) {
+    console.log(`Executing test gate: ${testFile}...`);
+    execSync(`node "${testPath}"`, { stdio: 'inherit' });
+  }
+}
+
 console.log('--- Step 3: Packaging Release Distribution Zip ---');
 try {
   execSync(`powershell -ExecutionPolicy Bypass -File "${path.resolve(__dirname, 'package_zip.ps1')}"`, { stdio: 'inherit' });
