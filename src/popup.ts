@@ -2461,6 +2461,26 @@ async function initLicense() {
           proTag.innerText = 'ACTIVATE';
           proTag.classList.remove('active');
         }
+        ['toneDataDriven', 'toneUrgency', 'toneSoftSell', 'toneAggressive'].forEach(tabId => {
+          const el = document.getElementById(tabId);
+          if (el) {
+            if (el.getAttribute('data-tone') === activeTone) {
+              el.classList.add('active');
+            } else {
+              el.classList.remove('active');
+            }
+          }
+        });
+        ['tabEmail', 'tabMerchant', 'tabAgency', 'tabDm', 'tabLoom'].forEach(tabId => {
+          const el = document.getElementById(tabId);
+          if (el) {
+            if (el.getAttribute('data-channel') === activeChannel) {
+              el.classList.add('active');
+            } else {
+              el.classList.remove('active');
+            }
+          }
+        });
         if (currentAuditState.domain && currentAuditState.url && currentAuditState.data) {
           renderAuditData(currentAuditState.domain, currentAuditState.url, currentAuditState.data);
         } else if (currentAuditState.domain && currentAuditState.scorecard?.primaryFinding) {

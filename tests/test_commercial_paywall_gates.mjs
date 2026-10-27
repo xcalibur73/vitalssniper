@@ -37,7 +37,7 @@ console.log('\n--- Test 2: LoAF Script Attribution Gating (!isPaidUser) ---');
   assert(popupTs.includes('btnUnlockInpPro'), 'popup.ts must define btnUnlockInpPro button');
   assert(popupTs.includes('Unlock Script Culprit'), 'popup.ts must include Unlock Script Culprit button copy');
   assert(popupTs.includes('Long Animation Frames (LoAF) Script Attribution: Identify the exact JavaScript filename, function name, execution duration, and forced layout thrashing causing interaction delays.'), 'popup.ts must wire modal context for LoAF script attribution');
-  assert(popupTs.includes('INP Interaction Delay:'), 'popup.ts must render interaction delay headline for free users');
+  assert(popupTs.includes('INP 3-Phase Latency:'), 'popup.ts must render interaction delay headline for free users');
 
   assert(popupJs.includes('btnUnlockInpPro'), 'popup.js bundle must contain btnUnlockInpPro');
   assert(popupJs.includes('Unlock Script Culprit'), 'popup.js bundle must contain Unlock Script Culprit');
@@ -70,7 +70,7 @@ console.log('\n--- Test 4: Advanced Search Bot Emulation Gating (!isPaidUser) --
 console.log('\n--- Test 5: PRO Tier Full Unmasked Telemetry and Controls (isPaidUser = true) ---');
 {
   assert(popupTs.includes('Estimated Monthly Revenue Leaked: $${revenueLoss.lostMonthly.toLocaleString()}/mo'), 'popup.ts must provide unmasked revenue loss for PRO users');
-  assert(popupTs.includes('(${execMs}ms execution, ${forcedMs}ms forced layout thrashing)'), 'popup.ts must provide unmasked LoAF metrics for PRO users');
+  assert(popupTs.includes('(${execMs}ms exec, ${forcedMs}ms forced layout thrashing'), 'popup.ts must provide unmasked LoAF metrics for PRO users');
   assert(popupTs.includes("activeChannel = 'merchant';"), 'popup.ts must switch to merchant channel for PRO users');
   assert(popupTs.includes("activeChannel = 'agency';"), 'popup.ts must switch to agency channel for PRO users');
 

@@ -127,7 +127,7 @@ export class CloudSyncService {
           });
         } catch {
           clearTimeout(timeoutId);
-          if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo' || apiKey === 'r3dxlost88') {
+          if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo') {
             return {
               attempted: true,
               success: true,
@@ -147,7 +147,7 @@ export class CloudSyncService {
       clearTimeout(timeoutId);
 
       if (!resp || !resp.ok) {
-        if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo' || apiKey === 'r3dxlost88') {
+        if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo') {
           return {
             attempted: true,
             success: true,

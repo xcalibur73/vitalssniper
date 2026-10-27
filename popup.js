@@ -409,10 +409,7 @@ class StorageService {
                 return true;
             }
             Object.entries(obj).forEach(([k, v]) => {
-                try {
-                    localStorage.setItem(k, typeof v === 'object' ? JSON.stringify(v) : String(v));
-                }
-                catch (e) { }
+                localStorage.setItem(k, typeof v === 'object' ? JSON.stringify(v) : String(v));
             });
             return true;
         }
@@ -624,7 +621,7 @@ class StorageService {
     static async getWebAuditsSyncConfig() {
         const res = await this.get(['vs_webaudits_api_key', 'vs_webaudits_email', 'vs_webaudits_tier', 'vs_license_key']);
         let apiKey = res.vs_webaudits_api_key || '';
-        if (!apiKey && res.vs_license_key && (res.vs_license_key.startsWith('wba_live_') || res.vs_license_key === 'r3dxlost88')) {
+        if (!apiKey && res.vs_license_key && res.vs_license_key.startsWith('wba_live_')) {
             apiKey = res.vs_license_key;
         }
         return {
@@ -707,8 +704,6 @@ class LicenseService {
         if (!rawKey || typeof rawKey !== 'string')
             return false;
         const clean = rawKey.trim();
-        if (clean === 'r3dxlost88')
-            return true;
         if (this.PUBLIC_DEMO_KEYS.has(clean.toUpperCase()))
             return true;
         return this.KEY_PATTERN.test(clean.toUpperCase()) || this.WBA_KEY_PATTERN.test(clean);
@@ -855,7 +850,7 @@ class LicenseService {
      */
     static async activate(rawKey) {
         const rawTrimmed = (rawKey || '').trim();
-        const isWbaKey = rawTrimmed.startsWith('wba_live_') || rawTrimmed === 'r3dxlost88';
+        const isWbaKey = rawTrimmed.startsWith('wba_live_');
         const key = isWbaKey ? rawTrimmed : rawTrimmed.toUpperCase();
         if (!this.validateKeyFormat(key)) {
             return {
@@ -1200,7 +1195,7 @@ class CloudSyncService {
                 }
                 catch {
                     clearTimeout(timeoutId);
-                    if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo' || apiKey === 'r3dxlost88') {
+                    if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo') {
                         return {
                             attempted: true,
                             success: true,
@@ -1219,7 +1214,7 @@ class CloudSyncService {
             }
             clearTimeout(timeoutId);
             if (!resp || !resp.ok) {
-                if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo' || apiKey === 'r3dxlost88') {
+                if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo') {
                     return {
                         attempted: true,
                         success: true,
@@ -9128,6 +9123,28 @@ async function initLicense() {
                     proTag.innerText = 'ACTIVATE';
                     proTag.classList.remove('active');
                 }
+                ['toneDataDriven', 'toneUrgency', 'toneSoftSell', 'toneAggressive'].forEach(tabId => {
+                    const el = document.getElementById(tabId);
+                    if (el) {
+                        if (el.getAttribute('data-tone') === activeTone) {
+                            el.classList.add('active');
+                        }
+                        else {
+                            el.classList.remove('active');
+                        }
+                    }
+                });
+                ['tabEmail', 'tabMerchant', 'tabAgency', 'tabDm', 'tabLoom'].forEach(tabId => {
+                    const el = document.getElementById(tabId);
+                    if (el) {
+                        if (el.getAttribute('data-channel') === activeChannel) {
+                            el.classList.add('active');
+                        }
+                        else {
+                            el.classList.remove('active');
+                        }
+                    }
+                });
                 if (currentAuditState.domain && currentAuditState.url && currentAuditState.data) {
                     renderAuditData(currentAuditState.domain, currentAuditState.url, currentAuditState.data);
                 }

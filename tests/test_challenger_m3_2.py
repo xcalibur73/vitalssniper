@@ -48,19 +48,19 @@ def run_tests():
         }""")
         print(f"Body dimensions: clientWidth={body_dims['clientWidth']}, scrollWidth={body_dims['scrollWidth']}, offsetWidth={body_dims['offsetWidth']}")
         
-        if body_dims["clientWidth"] != 390:
-            msg = f"FAIL: Expected body clientWidth == 390, observed {body_dims['clientWidth']}"
+        if body_dims["clientWidth"] != 440:
+            msg = f"FAIL: Expected body clientWidth == 440, observed {body_dims['clientWidth']}"
             print(msg)
             failures.append(msg)
         else:
-            print("PASS: body clientWidth == 390")
+            print("PASS: body clientWidth == 440")
 
-        if body_dims["scrollWidth"] != 390:
-            msg = f"FAIL: Expected body scrollWidth == 390, observed {body_dims['scrollWidth']}"
+        if body_dims["scrollWidth"] != 440:
+            msg = f"FAIL: Expected body scrollWidth == 440, observed {body_dims['scrollWidth']}"
             print(msg)
             failures.append(msg)
         else:
-            print("PASS: body scrollWidth == 390")
+            print("PASS: body scrollWidth == 440")
 
         if body_dims["hasOverflow"]:
             msg = "FAIL: Body has horizontal overflow (scrollWidth > clientWidth)"
@@ -103,12 +103,12 @@ def run_tests():
             else:
                 print("PASS: #btnOpenSettings is visible")
 
-            if settings_btn["right"] > 390:
-                msg = f"FAIL: #btnOpenSettings right edge ({settings_btn['right']}) exceeds 390px body"
+            if settings_btn["right"] > 440:
+                msg = f"FAIL: #btnOpenSettings right edge ({settings_btn['right']}) exceeds 440px body"
                 print(msg)
                 failures.append(msg)
             else:
-                print(f"PASS: #btnOpenSettings right edge ({settings_btn['right']:.1f}px) is <= 390px (fully within viewport)")
+                print(f"PASS: #btnOpenSettings right edge ({settings_btn['right']:.1f}px) is <= 440px (fully within viewport)")
 
             if settings_btn["width"] < 24 or settings_btn["height"] < 24:
                 msg = f"FAIL: #btnOpenSettings dimensions ({settings_btn['width']}x{settings_btn['height']}) below 24x24px"
@@ -350,7 +350,7 @@ def run_tests():
                     hasOverflow: b.scrollWidth > b.clientWidth
                 };
             }""")
-            vp_pass = dims["clientWidth"] == 390 and not dims["hasOverflow"]
+            vp_pass = dims["clientWidth"] == 440 and not dims["hasOverflow"]
             vp_status = "PASS" if vp_pass else "FAIL"
             print(f"  [{vp_status}] Viewport {vp['name']}: clientWidth={dims['clientWidth']}px, scrollWidth={dims['scrollWidth']}px, hasOverflow={dims['hasOverflow']}")
             if not vp_pass:

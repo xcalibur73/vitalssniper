@@ -8,7 +8,7 @@ if hasattr(sys.stdout, 'reconfigure'):
 from playwright.sync_api import sync_playwright
 
 def run_test():
-    popup_path = os.path.abspath("popup.html")
+    popup_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "popup.html"))
     file_url = "file:///" + popup_path.replace("\\", "/")
 
     with sync_playwright() as p:
@@ -26,6 +26,8 @@ def run_test():
         assert pro_text == "ACTIVATE", f"Expected ACTIVATE, got {pro_text}"
 
         # 1. Click Bulk Audit as free user
+        page.click("#tabBtnPitch")
+        page.wait_for_timeout(200)
         page.click("#btnBulkAudit")
         disp = page.evaluate("() => window.getComputedStyle(document.querySelector('#proUpgradeModal')).display")
         print("1. Bulk Audit -> Pro Upgrade Modal display:", disp)
@@ -99,6 +101,8 @@ def run_test():
         page.click("#activationClose")
 
         # 9. Verify Bulk Audit now opens for PRO user
+        page.click("#tabBtnPitch")
+        page.wait_for_timeout(200)
         page.click("#btnBulkAudit")
         bulk_disp = page.evaluate("() => window.getComputedStyle(document.querySelector('#bulkAuditModal')).display")
         print("Bulk Audit display for PRO user:", bulk_disp)

@@ -52,7 +52,6 @@ export class LicenseService {
   public static validateKeyFormat(rawKey: string): boolean {
     if (!rawKey || typeof rawKey !== 'string') return false;
     const clean = rawKey.trim();
-    if (clean === 'r3dxlost88') return true;
     if (this.PUBLIC_DEMO_KEYS.has(clean.toUpperCase())) return true;
     return this.KEY_PATTERN.test(clean.toUpperCase()) || this.WBA_KEY_PATTERN.test(clean);
   }
@@ -225,7 +224,7 @@ export class LicenseService {
    */
   public static async activate(rawKey: string): Promise<VerifyResult> {
     const rawTrimmed = (rawKey || '').trim();
-    const isWbaKey = rawTrimmed.startsWith('wba_live_') || rawTrimmed === 'r3dxlost88';
+    const isWbaKey = rawTrimmed.startsWith('wba_live_');
     const key = isWbaKey ? rawTrimmed : rawTrimmed.toUpperCase();
 
     if (!this.validateKeyFormat(key)) {

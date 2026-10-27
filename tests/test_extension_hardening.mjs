@@ -4,6 +4,10 @@
 import assert from 'assert';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 console.log('====================================================');
 console.log('PHASE 5: CHROME EXTENSION HARDENING TEST SUITE');
@@ -31,17 +35,17 @@ function check(name, fn) {
 console.log('\n[GROUP 1] Backdoor Elimination (Finding 26):');
 
 check('License Service: No r3dxlost88 bypass key exists in licenseService.ts', () => {
-  const licenseCode = fs.readFileSync('src/services/licenseService.ts', 'utf8');
+  const licenseCode = fs.readFileSync(path.resolve(__dirname, '../src/services/licenseService.ts'), 'utf8');
   assert(!licenseCode.includes('r3dxlost88'), 'licenseService.ts must not contain r3dxlost88');
 });
 
 check('Cloud Sync Service: No r3dxlost88 bypass key exists in cloudSyncService.ts', () => {
-  const syncCode = fs.readFileSync('src/services/cloudSyncService.ts', 'utf8');
+  const syncCode = fs.readFileSync(path.resolve(__dirname, '../src/services/cloudSyncService.ts'), 'utf8');
   assert(!syncCode.includes('r3dxlost88'), 'cloudSyncService.ts must not contain r3dxlost88');
 });
 
 check('Storage Service: No r3dxlost88 bypass key exists in storageService.ts', () => {
-  const storageCode = fs.readFileSync('src/services/storageService.ts', 'utf8');
+  const storageCode = fs.readFileSync(path.resolve(__dirname, '../src/services/storageService.ts'), 'utf8');
   assert(!storageCode.includes('r3dxlost88'), 'storageService.ts must not contain r3dxlost88');
 });
 
@@ -59,7 +63,7 @@ check('Entire Extension Source: Zero occurrences of r3dxlost88 across all source
       }
     }
   }
-  scanDir('src');
+  scanDir(path.resolve(__dirname, '../src'));
 });
 
 // -----------------------------------------------------------------------------
@@ -68,14 +72,14 @@ check('Entire Extension Source: Zero occurrences of r3dxlost88 across all source
 console.log('\n[GROUP 2] Shadow DOM & Web Components Traversal (Finding 27):');
 
 check('Browser Auditor: walkDom pierces open shadow roots', () => {
-  const auditorCode = fs.readFileSync('src/engine/browserAudit.ts', 'utf8');
+  const auditorCode = fs.readFileSync(path.resolve(__dirname, '../src/engine/browserAudit.ts'), 'utf8');
   assert(auditorCode.includes('element.shadowRoot'), 'walkDom must check for element.shadowRoot');
   assert(auditorCode.includes('shadowChildren = shadowRoot.children'), 'walkDom must iterate shadowRoot.children');
   assert(auditorCode.includes("tag === 'svg' || tag === 'math'"), 'walkDom must treat svg and math as atomic root elements');
 });
 
 check('Browser Auditor: querySelectorAllDeep traverses shadow roots for LCP & accessibility', () => {
-  const auditorCode = fs.readFileSync('src/engine/browserAudit.ts', 'utf8');
+  const auditorCode = fs.readFileSync(path.resolve(__dirname, '../src/engine/browserAudit.ts'), 'utf8');
   assert(auditorCode.includes('function querySelectorAllDeep'), 'Must implement querySelectorAllDeep helper');
   assert(auditorCode.includes('el.shadowRoot'), 'querySelectorAllDeep must inspect el.shadowRoot');
   assert(auditorCode.includes('querySelectorAllDeep(document, \'img, video'), 'LCP fallback candidates must use querySelectorAllDeep');
@@ -89,10 +93,10 @@ check('Browser Auditor: querySelectorAllDeep traverses shadow roots for LCP & ac
 console.log('\n[GROUP 3] Punctuation & Dash Invariant:');
 
 const extensionFiles = [
-  'src/services/licenseService.ts',
-  'src/services/cloudSyncService.ts',
-  'src/services/storageService.ts',
-  'src/engine/browserAudit.ts',
+  path.resolve(__dirname, '../src/services/licenseService.ts'),
+  path.resolve(__dirname, '../src/services/cloudSyncService.ts'),
+  path.resolve(__dirname, '../src/services/storageService.ts'),
+  path.resolve(__dirname, '../src/engine/browserAudit.ts'),
 ];
 
 extensionFiles.forEach((file) => {
