@@ -4,7 +4,7 @@
 
 - Name: VitalsSniper: Proof-of-Flaw Web Inspector
 - Short Description (132 char limit): 1-Click CMS & Builder detector, DOM bloat scanner, Core Web Vitals audit, and client outreach email generator.
-- Version: 1.6.1
+- Version: 1.6.2
 - Category: Developer Tools
 - Primary Language: English
 - Pricing: Free (with optional cloud sync and PRO account via WebAudits.pro)
@@ -25,6 +25,13 @@ VitalsSniper has a single, focused purpose: to inspect the active browser tab fo
 VitalsSniper is an in-browser technical website auditor and proof-of-flaw inspector for web developers, technical SEO consultants, and digital agency teams.
 
 Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper inspects the live DOM of the active tab directly in your local browser engine without server queue delays.
+
+### What is New in Version 1.6.2
+
+- Security Hardening and Licensing Verification: Hardened license validation routines, fail-closed cryptographic Ed25519 payload authentication, and cloud synchronization resilience.
+- Browser Storage Error Resilience: Enhanced local quota management ensuring high-volume audit sessions recover smoothly without data loss.
+- Interaction to Next Paint (INP) Telemetry Polish: Enhanced 3-phase latency subpart attribution (Input Delay, Processing Duration, and Presentation Delay) with detailed Long Animation Frame (LoAF) script culprit identification.
+- Modernized 4-Tab Navigation: Refined 440px wide workspace layout with dedicated Overview, Forensics, On-Page SEO Tree, and Client Pitch decks.
 
 ### What is New in Version 1.6.1
 

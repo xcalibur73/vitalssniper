@@ -44,7 +44,7 @@ assert(/^1\.[56]\./.test(manifest.version), `manifest.json version must match /^
 
 const storeListingPath = path.resolve(__dirname, '../STORE_LISTING.md');
 const storeListing = fs.readFileSync(storeListingPath, 'utf8');
-assert(storeListing.includes('Version: 1.6.1') || storeListing.includes('Version: 1.5.2'), 'STORE_LISTING.md must specify Version: 1.6.1 or 1.5.2');
+assert(storeListing.includes('Version: 1.6.2') || storeListing.includes('Version: 1.6.1') || storeListing.includes('Version: 1.5.2'), 'STORE_LISTING.md must specify Version: 1.6.2, 1.6.1, or 1.5.2');
 console.log('PASS: ReportService, CloudSyncService, and Manifest version verified.');
 
 // 2b. Test 8ms frame grouping math and LoAF temporal intersection
