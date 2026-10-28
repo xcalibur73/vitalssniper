@@ -90,6 +90,12 @@ Customer Support: https://webaudits.pro/about
 Publisher Email: sfs@webaudits.pro
 Website: https://webaudits.pro
 
+COMPANION WEB DIAGNOSTIC TOOLS
+
+- Free DOM Bloat Checker: https://webaudits.pro/tools/dom-bloat-checker
+- Mobile LCP Element Finder: https://webaudits.pro/tools/lcp-checker
+- Core Web Vitals Benchmark: https://webaudits.pro/articles/500-ecommerce-saas-web-performance-benchmark-2026
+
 **Category** [REQUIRED]
 Developer Tools
 

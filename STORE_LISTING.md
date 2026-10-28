@@ -82,6 +82,12 @@ Generates structured diagnostic teardowns (email copy, LinkedIn DM, and video te
 12. Teardown Briefs and CRM Exports
 Saves reviewed prospect sites locally and exports client-ready 1-page PDF teardown briefs or RFC 4180 CSV logs.
 
+### Companion Web Diagnostic Tools
+
+- Free DOM Bloat Checker: https://webaudits.pro/tools/dom-bloat-checker
+- Mobile LCP Element Finder: https://webaudits.pro/tools/lcp-checker
+- Core Web Vitals Benchmark: https://webaudits.pro/articles/500-ecommerce-saas-web-performance-benchmark-2026
+
 ### Technical Architecture and Privacy
 
 VitalsSniper runs client-side inside your browser sandbox. Your browsing history, visited URLs, and client audit data are never sold and never sent to external tracking servers. Optional account authentication occurs only if connecting to your WebAudits.pro workspace.
