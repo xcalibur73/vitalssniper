@@ -15,6 +15,12 @@ VitalsSniper is an in-browser technical website auditor and proof-of-flaw inspec
 
 Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper inspects the live DOM of the active tab directly in your local browser engine without server queue delays.
 
+WHAT IS NEW IN VERSION 1.6.3
+
+- Direct Post-Install Onboarding: Automatic product tour tab opening upon initial installation, guiding users through core in-tab audit workflows and keyboard shortcuts (Ctrl+Shift+A). Strictly isolated to fresh installs so existing users are never interrupted during background updates.
+- Streamlined Host Permissions: Consolidated extension host permissions strictly to `<all_urls>` with formal single-purpose disclosure, removing redundant subdomains while maintaining declarativeNetRequest search bot header emulation across client websites.
+- Direct Platform Navigation: Direct integration with WebAudits.pro canonical product workflows, eliminating redirect latency and establishing end-to-end attribution tracking.
+
 WHAT IS NEW IN VERSION 1.6.2
 
 - Security Hardening and Licensing Verification: Hardened license validation routines, fail-closed cryptographic Ed25519 payload authentication, and cloud synchronization resilience.

@@ -26,12 +26,21 @@ const ALL_RESOURCE_TYPES = [
   'other'
 ];
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
   // Service worker initialization: clear any lingering session rules
   if (typeof chrome !== 'undefined' && chrome.declarativeNetRequest && chrome.declarativeNetRequest.updateSessionRules) {
     chrome.declarativeNetRequest.updateSessionRules({
       removeRuleIds: [BOT_RULE_ID]
     }).catch(() => {});
+  }
+
+  // Open onboarding tab strictly on fresh installation
+  if (details && details.reason === 'install') {
+    if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+      chrome.tabs.create({
+        url: 'https://webaudits.pro/products/vitalssniper-pro?utm_source=cws_install&utm_medium=extension'
+      }).catch(() => {});
+    }
   }
 });
 

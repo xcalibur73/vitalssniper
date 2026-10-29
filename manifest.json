@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "VitalsSniper: Proof-of-Flaw Web Inspector",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "browser_specific_settings": {
     "gecko": {
       "id": "vitalssniper@nbsolutions.com",
@@ -17,10 +17,7 @@
     "declarativeNetRequest"
   ],
   "host_permissions": [
-    "<all_urls>",
-    "https://vitalssniper-web.vercel.app/*",
-    "https://webaudits.pro/*",
-    "https://www.googleapis.com/*"
+    "<all_urls>"
   ],
   "commands": {
     "_execute_action": {

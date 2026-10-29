@@ -17,6 +17,22 @@ assert(Array.isArray(manifest.permissions), 'manifest.json must have a permissio
 assert(manifest.permissions.includes('declarativeNetRequest'), 'manifest.permissions must include declarativeNetRequest');
 console.log('PASS: manifest.json permissions include declarativeNetRequest.');
 
+console.log('--- Step 1B: Testing manifest.json v1.6.3 version and streamlined host_permissions ---');
+assert.strictEqual(manifest.version, '1.6.3', 'manifest.version must be bumped to 1.6.3');
+assert(Array.isArray(manifest.host_permissions), 'manifest.host_permissions must be an array');
+assert.strictEqual(manifest.host_permissions.length, 1, 'manifest.host_permissions must strictly contain only 1 entry');
+assert.strictEqual(manifest.host_permissions[0], '<all_urls>', 'manifest.host_permissions must strictly contain only <all_urls>');
+
+const redundantDomains = [
+  'https://vitalssniper-web.vercel.app/*',
+  'https://webaudits.pro/*',
+  'https://www.googleapis.com/*'
+];
+for (const domain of redundantDomains) {
+  assert(!manifest.host_permissions.includes(domain), `Redundant domain ${domain} must not be present in host_permissions`);
+}
+console.log('PASS: manifest.json v1.6.3 version and streamlined host_permissions strictly verified.');
+
 console.log('--- Step 2: Testing background.js bot emulation logic & UA strings ---');
 const bgPath = path.resolve(__dirname, '../background.js');
 const bgCode = fs.readFileSync(bgPath, 'utf8');
@@ -91,6 +107,7 @@ const filesToCheck = [
   path.resolve(__dirname, '../popup.css'),
   path.resolve(__dirname, '../src/popup.ts'),
   path.resolve(__dirname, '../src/types/chrome.d.ts'),
+  path.resolve(__dirname, '../CWS_PERMISSIONS_JUSTIFICATION.md'),
   bundlePath,
   skillPath
 ];
