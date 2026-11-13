@@ -3,8 +3,10 @@ $extDir = Resolve-Path $PSScriptRoot
 $workspaceRoot = Split-Path $extDir -Parent
 $manifestContent = Get-Content (Join-Path $extDir 'manifest.json') -Raw | ConvertFrom-Json
 $version = $manifestContent.version
-$zipPath = Join-Path $workspaceRoot 'vitalssniper_pro.zip'
-$cwsZipPath = Join-Path $workspaceRoot "vitalssniper_cws_v$version.zip"
+$releaseStaging = Join-Path ([System.IO.Path]::GetTempPath()) ("vitalssniper_release_" + [System.IO.Path]::GetRandomFileName())
+New-Item -ItemType Directory -Path $releaseStaging -Force | Out-Null
+$zipPath = Join-Path $releaseStaging 'vitalssniper_pro.zip'
+$cwsZipPath = Join-Path $releaseStaging "vitalssniper_cws_v$version.zip"
 $webZipPath = Join-Path $workspaceRoot 'vitalssniper_web\private_releases\vitalssniper_pro.zip'
 
 $stagingDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
@@ -78,7 +80,7 @@ Copy-Item (Join-Path $extDir 'CHROMEWEBSTORE.md') $bundleStaging -Force
 Copy-Item (Join-Path $extDir 'README.md') $bundleStaging -Force
 Copy-Item (Join-Path $extDir 'store_assets\*.png') (Join-Path $bundleStaging 'store_assets') -Force
 
-$bundleZip = Join-Path $workspaceRoot 'vitalssniper_complete_release_package.zip'
+$bundleZip = Join-Path $releaseStaging 'vitalssniper_complete_release_package.zip'
 if (Test-Path $bundleZip) { Remove-Item $bundleZip -Force }
 
 $bStream = [System.IO.File]::Open($bundleZip, [System.IO.FileMode]::Create)
@@ -104,4 +106,5 @@ foreach ($dir in $targetDirs) {
     }
 }
 
+Remove-Item -Recurse -Force $releaseStaging -ErrorAction SilentlyContinue
 Write-Host "All distribution packages ready."

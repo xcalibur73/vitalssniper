@@ -367,7 +367,6 @@ def run_tests():
     workspace_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     web_dir = os.path.join(workspace_root, "web") if os.path.isdir(os.path.join(workspace_root, "web")) else os.path.join(workspace_root, "vitalssniper_web")
     zip_paths = [
-        os.path.join(workspace_root, "vitalssniper_pro.zip"),
         os.path.join(web_dir, "private_releases", "vitalssniper_pro.zip")
     ]
     for zp in zip_paths:
