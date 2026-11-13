@@ -4,7 +4,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,7 +15,7 @@ console.log('--- Step 1: Compiling TypeScript with tsc ---');
 const tscBin = path.resolve(__dirname, '../vitalssniper_web/node_modules/typescript/bin/tsc');
 const tsconfigPath = path.resolve(__dirname, 'tsconfig.json');
 
-execSync(`node "${tscBin}" -p "${tsconfigPath}"`, { stdio: 'inherit' });
+execFileSync(process.execPath, [tscBin, '-p', tsconfigPath], { stdio: 'inherit' });
 
 console.log('--- Step 2: Bundling Compiled Modules ---');
 
@@ -125,13 +125,13 @@ for (const testFile of extTests) {
   const testPath = path.resolve(__dirname, testFile);
   if (fs.existsSync(testPath)) {
     console.log(`Executing test gate: ${testFile}...`);
-    execSync(`node "${testPath}"`, { stdio: 'inherit' });
+    execFileSync(process.execPath, [testPath], { stdio: 'inherit' });
   }
 }
 
 console.log('--- Step 3: Packaging Release Distribution Zip ---');
 try {
-  execSync(`powershell -ExecutionPolicy Bypass -File "${path.resolve(__dirname, 'package_zip.ps1')}"`, { stdio: 'inherit' });
+  execFileSync('powershell', ['-ExecutionPolicy', 'Bypass', '-File', path.resolve(__dirname, 'package_zip.ps1')], { stdio: 'inherit' });
 } catch (err) {
   console.error('Failed to package release zip:', err.message);
 }

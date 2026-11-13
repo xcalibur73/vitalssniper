@@ -46,7 +46,7 @@ export class ArrayPool {
     }
 
     this.inUse = false;
-    this.lastUsedAt = Date.now();
+    this.lastUsedAt = performance.now();
     this.scheduleRelease();
   }
 
@@ -56,13 +56,13 @@ export class ArrayPool {
     }
     this.releaseTimer = setTimeout(() => {
       this.releaseTimer = null;
-      if (this.pool && !this.inUse && Date.now() - this.lastUsedAt >= this.releaseDelayMs) {
+      if (this.pool && !this.inUse && Math.round(performance.now() - this.lastUsedAt) >= this.releaseDelayMs) {
         this.pool = null;
       } else if (this.pool && !this.inUse) {
-        const remaining = this.releaseDelayMs - (Date.now() - this.lastUsedAt);
+        const remaining = this.releaseDelayMs - Math.round(performance.now() - this.lastUsedAt);
         this.releaseTimer = setTimeout(() => {
           this.releaseTimer = null;
-          if (this.pool && !this.inUse && Date.now() - this.lastUsedAt >= this.releaseDelayMs) {
+          if (this.pool && !this.inUse && Math.round(performance.now() - this.lastUsedAt) >= this.releaseDelayMs) {
             this.pool = null;
           }
         }, Math.max(remaining, 10));

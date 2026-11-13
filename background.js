@@ -31,7 +31,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   if (typeof chrome !== 'undefined' && chrome.declarativeNetRequest && chrome.declarativeNetRequest.updateSessionRules) {
     chrome.declarativeNetRequest.updateSessionRules({
       removeRuleIds: [BOT_RULE_ID]
-    }).catch(() => {});
+    }).catch((err) => console.warn('[VitalsSniper] Background warning:', err));
   }
 
   // Open onboarding tab strictly on fresh installation
@@ -39,7 +39,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
       chrome.tabs.create({
         url: 'https://webaudits.pro/products/vitalssniper-pro?utm_source=cws_install&utm_medium=extension'
-      }).catch(() => {});
+      }).catch((err) => console.warn('[VitalsSniper] Background warning:', err));
     }
   }
 });
