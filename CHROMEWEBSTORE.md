@@ -1,6 +1,6 @@
 # Chrome Web Store Listing: VitalsSniper: Proof-of-Flaw Web Inspector
 
-> Last Updated: 2026-10-28
+> Last Updated: 2026-11-14
 
 ## Store Listing
 
@@ -14,6 +14,12 @@ VitalsSniper: Proof-of-Flaw Web Inspector
 VitalsSniper is an in-browser technical website auditor and proof-of-flaw inspector for web developers, technical SEO consultants, and digital agency teams.
 
 Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper inspects the live DOM of the active tab directly in your local browser engine without server queue delays.
+
+WHAT IS NEW IN VERSION 1.6.4
+
+- Hardened Build & ArrayPool Determinism: Switched ArrayPool expiry timestamps to monotonic performance.now() timing and locked bundler execution to argument-array execFileSync invocations.
+- Storage & Telemetry Diagnostics: Added explicit background quota and local storage read failure logging across storageService and MV3 service worker handlers.
+- UI & CWS Compliance Sync: Aligned popup footer version indicator (v1.6.4 PRO) and synchronized WebAudits.pro product metadata and permission disclosures.
 
 WHAT IS NEW IN VERSION 1.6.3
 
