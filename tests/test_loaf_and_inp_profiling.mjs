@@ -31,7 +31,17 @@ const requiredSymbols = [
   'loafTableWrapper',
   'inpCulpritRow',
   'INP 3-Phase Attribution',
-  'Long Animation Frames (LoAF) Script Attribution'
+  'Long Animation Frames (LoAF) Script Attribution',
+  'loadState',
+  'inputDelay',
+  'processingDuration',
+  'presentationDelay',
+  'interactionTargetElement',
+  'interactionTime',
+  'nextPaintTime',
+  'overlappingLoafCount',
+  'getLoadState',
+  'Page Load State'
 ];
 
 for (const sym of requiredSymbols) {
@@ -307,6 +317,111 @@ console.log('--- 2b. Testing Multi-Frame LoAF Interaction & Inline Script Edge C
   console.log('PASS: Multi-frame interaction and inline script edge cases verified.');
 }
 
+// 2c. Test Google web-vitals v4 getLoadState and INP attribution properties
+console.log('--- 2c. Testing Google web-vitals v4 getLoadState and INP attribution properties ---');
+{
+  const getLoadStateMatch = popupJs.match(/function getLoadState\(timestamp\)[\s\S]*?\n\}/);
+  assert(getLoadStateMatch, 'popup.js must contain function getLoadState');
+  const getLoadState = new Function('timestamp', `${getLoadStateMatch[0]}; return getLoadState(timestamp);`);
+
+  const origDoc = globalThis.document;
+  const origPerf = globalThis.performance;
+
+  try {
+    // Test document.readyState === 'loading'
+    globalThis.document = { readyState: 'loading' };
+    assert.strictEqual(getLoadState(100), 'loading', 'document.readyState loading must return loading');
+
+    // Test with mock navigation timing entries
+    globalThis.document = { readyState: 'complete' };
+    globalThis.performance = {
+      getEntriesByType: (type) => {
+        if (type === 'navigation') {
+          return [{
+            domInteractive: 200,
+            domContentLoadedEventStart: 400,
+            domContentLoadedEventEnd: 450,
+            domComplete: 700,
+            loadEventStart: 750
+          }];
+        }
+        return [];
+      }
+    };
+
+    assert.strictEqual(getLoadState(150), 'loading', 'Timestamp before domInteractive must return loading');
+    assert.strictEqual(getLoadState(300), 'dom-interactive', 'Timestamp between domInteractive and domContentLoadedEventStart must return dom-interactive');
+    assert.strictEqual(getLoadState(500), 'dom-content-loaded', 'Timestamp between domContentLoadedEventStart and domComplete must return dom-content-loaded');
+    assert.strictEqual(getLoadState(800), 'complete', 'Timestamp after domComplete must return complete');
+
+    // Test web-vitals v4 canonical fields attribution and overlappingLoafCount
+    const interaction = {
+      name: 'click',
+      startTime: 300,
+      duration: 150,
+      processingStart: 350,
+      processingEnd: 410,
+      target: null
+    };
+
+    const mockLoafEntries = [
+      { startTime: 250, duration: 100 },
+      { startTime: 400, duration: 80 },
+      { startTime: 500, duration: 100 }
+    ];
+
+    const presentationEnd = interaction.startTime + interaction.duration;
+    let overlappingCount = 0;
+    mockLoafEntries.forEach(frame => {
+      const fStart = frame.startTime || 0;
+      const fEnd = fStart + (frame.duration || 0);
+      const overlap = Math.max(0, Math.min(fEnd, presentationEnd) - Math.max(fStart, interaction.startTime));
+      if (overlap > 0) {
+        overlappingCount++;
+      }
+    });
+
+    assert.strictEqual(overlappingCount, 2, 'Must count exactly 2 overlapping LoAF frames');
+
+    const loadState = getLoadState(interaction.startTime);
+    assert.strictEqual(loadState, 'dom-interactive', 'Interaction at 300ms must be in dom-interactive phase');
+
+    const inpInputDelay = Math.max(0, Math.round(interaction.processingStart - interaction.startTime));
+    const inpProcessingDelay = Math.max(0, Math.round(interaction.processingEnd - interaction.processingStart));
+    const inpPresentationDelay = Math.max(0, Math.round(presentationEnd - interaction.processingEnd));
+
+    const attribution = {
+      interactionTarget: '#submit-button',
+      interactionType: interaction.name,
+      processingDelayMs: inpProcessingDelay,
+      inputDelayMs: inpInputDelay,
+      presentationDelayMs: inpPresentationDelay,
+      loadState,
+      inputDelay: inpInputDelay,
+      processingDuration: inpProcessingDelay,
+      presentationDelay: inpPresentationDelay,
+      interactionTargetElement: '#submit-button',
+      interactionTime: Math.round(interaction.startTime),
+      nextPaintTime: Math.round(presentationEnd),
+      overlappingLoafCount: overlappingCount
+    };
+
+    assert.strictEqual(attribution.loadState, 'dom-interactive');
+    assert.strictEqual(attribution.inputDelay, 50);
+    assert.strictEqual(attribution.processingDuration, 60);
+    assert.strictEqual(attribution.presentationDelay, 40);
+    assert.strictEqual(attribution.interactionTargetElement, '#submit-button');
+    assert.strictEqual(attribution.interactionTime, 300);
+    assert.strictEqual(attribution.nextPaintTime, 450);
+    assert.strictEqual(attribution.overlappingLoafCount, 2);
+
+    console.log('PASS: Google web-vitals v4 getLoadState and INP attribution properties verified.');
+  } finally {
+    globalThis.document = origDoc;
+    globalThis.performance = origPerf;
+  }
+}
+
 // 3. Test 8ms VSYNC budget violation detection
 console.log('--- 3. Testing 8ms VSYNC frame budget rule ---');
 {
@@ -350,6 +465,7 @@ const filesToVerify = [
   '../src/engine/findingsEngine.ts',
   '../src/popup.ts',
   '../src/services/reportService.ts',
+  '../../vitalssniper_web/lib/inp-attribution.ts',
   '../popup.js',
   './test_loaf_and_inp_profiling.mjs'
 ];

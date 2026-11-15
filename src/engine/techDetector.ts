@@ -748,8 +748,8 @@ export function extractTechVersion(techName: string, doc: Document | null, windo
         try {
           const parsed = JSON.parse(el.textContent);
           if (parsed && parsed.buildId) return String(parsed.buildId);
-        } catch {
-          // ignore
+        } catch (err) {
+          console.debug('Next.js buildId probe suppressed:', err);
         }
       }
     }
@@ -758,8 +758,8 @@ export function extractTechVersion(techName: string, doc: Document | null, windo
       try {
         const parsed = JSON.parse(m[1]);
         if (parsed && parsed.buildId) return String(parsed.buildId);
-      } catch {
-        // ignore
+      } catch (err) {
+        console.debug('Next.js script tag probe suppressed:', err);
       }
     }
     return null;

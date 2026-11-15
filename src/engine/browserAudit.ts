@@ -3,9 +3,41 @@
 // Zero em-dash compliance: strictly hyphens or colons
 
 import { detectTechnologies } from './techDetector';
-import { TechnologyDetection, LoafAttribution, LoafScriptAttributionItem } from '../types/audit';
+import { TechnologyDetection, LoafAttribution, LoafScriptAttributionItem, LoadState, InpSubpartAttribution } from '../types/audit';
 import { withSharedArray } from '../utils/arrayPool';
 import { AsyncLock } from '../utils/asyncLock';
+
+export function getLoadState(timestamp: number): LoadState {
+  if (typeof document !== 'undefined' && document.readyState === 'loading') {
+    return 'loading';
+  }
+
+  const navEntry = (typeof performance !== 'undefined' && typeof performance.getEntriesByType === 'function')
+    ? (performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined)
+    : undefined;
+
+  if (navEntry) {
+    if (navEntry.domInteractive && timestamp < navEntry.domInteractive) {
+      return 'loading';
+    }
+    if (
+      navEntry.domContentLoadedEventStart === 0 ||
+      (navEntry.domContentLoadedEventStart && timestamp < navEntry.domContentLoadedEventStart)
+    ) {
+      return 'dom-interactive';
+    }
+    if (
+      (navEntry.domContentLoadedEventEnd && timestamp < navEntry.domContentLoadedEventEnd) ||
+      (navEntry.loadEventStart && timestamp < navEntry.loadEventStart) ||
+      navEntry.domComplete === 0 ||
+      (navEntry.domComplete && timestamp < navEntry.domComplete)
+    ) {
+      return 'dom-content-loaded';
+    }
+  }
+
+  return 'complete';
+}
 
 export async function inspectPageForensics() {
   const scanStartTime = performance.now();
@@ -47,7 +79,7 @@ export async function inspectPageForensics() {
         cur = el.parentElement;
         if (sel.length > maxLen) break;
       }
-    } catch (e) {}
+    } catch (err) { console.debug('Telemetry probe suppressed:', err); }
     return sel || (node.tagName ? node.tagName.toLowerCase() : '');
   }
 
@@ -93,7 +125,7 @@ export async function inspectPageForensics() {
           results.push(sub[j]);
         }
       }
-    } catch {}
+    } catch (err) { console.debug('Telemetry probe suppressed:', err); }
     return results;
   }
 
@@ -105,7 +137,7 @@ export async function inspectPageForensics() {
         fcpMs = Math.round(entry.startTime);
       }
     });
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
   // B, C, D. Asynchronous PerformanceObservers with buffered entry window
   let poLcp: PerformanceObserver | null = null;
@@ -145,7 +177,7 @@ export async function inspectPageForensics() {
         }
       });
       poLcp.observe({ type: 'largest-contentful-paint', buffered: true });
-    } catch (e) {}
+    } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
     // 2. Google Web Vitals Layout Shift observer (collect raw entries with bounding box sources)
     try {
@@ -165,7 +197,7 @@ export async function inspectPageForensics() {
         });
       });
       poCls.observe({ type: 'layout-shift', buffered: true });
-    } catch (e) {}
+    } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
     // 3. Long Tasks observer
     try {
@@ -182,7 +214,7 @@ export async function inspectPageForensics() {
         });
       });
       poLt.observe({ type: 'longtask', buffered: true });
-    } catch (e) {}
+    } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
     // 3b. Long Animation Frames (LoAF) observer (Chrome 123+)
     try {
@@ -197,7 +229,7 @@ export async function inspectPageForensics() {
         });
         (poLoaf as any).observe({ type: 'long-animation-frame', buffered: true });
       }
-    } catch (e) {}
+    } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
     // 4. Google Web Vitals INP (Event Timing observer)
     try {
@@ -219,7 +251,7 @@ export async function inspectPageForensics() {
         });
         poInp.observe({ type: 'first-input', buffered: true });
       }
-    } catch (e) {}
+    } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
     // Observation window of 200ms allows the browser event loop to flush buffered entries
     setTimeout(resolve, 200);
@@ -244,7 +276,7 @@ export async function inspectPageForensics() {
       }
       (poLcp as PerformanceObserver).disconnect();
     }
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
   try {
     if (poCls) {
@@ -267,7 +299,7 @@ export async function inspectPageForensics() {
       });
       (poCls as PerformanceObserver).disconnect();
     }
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
   try {
     if (poLt) {
@@ -284,7 +316,7 @@ export async function inspectPageForensics() {
       });
       (poLt as PerformanceObserver).disconnect();
     }
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
   try {
     if (poLoaf) {
@@ -294,7 +326,7 @@ export async function inspectPageForensics() {
       });
       (poLoaf as PerformanceObserver).disconnect();
     }
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
   try {
     if (poInp) {
@@ -304,7 +336,7 @@ export async function inspectPageForensics() {
       });
       (poInp as PerformanceObserver).disconnect();
     }
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
   // Calculate canonical CLS session windows reproducing Google Web Vitals logic:
   // 1s gap between shifts, 5s maximum session window length, hadRecentInput filtering, reporting maximum window.
@@ -431,7 +463,7 @@ export async function inspectPageForensics() {
     }
     try {
       (window as any).__vitalssniper_last_shifts = shiftDetails;
-    } catch (e) {}
+    } catch (err) { console.debug('Telemetry probe suppressed:', err); }
   }
 
   // --- LoAF (Long Animation Frames) Telemetry Processing ---
@@ -597,11 +629,11 @@ export async function inspectPageForensics() {
                 const rt = resEntries[resEntries.length - 1];
                 lcpMs = Math.round(rt.responseEnd || rt.startTime);
               }
-            } catch (e) {}
+            } catch (err) { console.debug('Telemetry probe suppressed:', err); }
           }
         }
       }
-    } catch (e) {}
+    } catch (err) { console.debug('Telemetry probe suppressed:', err); }
   }
 
   // --- 2. NAVIGATION TIMING & BODY SIZES ---
@@ -650,7 +682,7 @@ export async function inspectPageForensics() {
         cacheState = 'unavailable/uncertain';
       }
     }
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
   // Google Web Vitals LCP subpart attribution
   let lcpTtfbMs: number | null = canonicalTtfbMs;
@@ -673,7 +705,7 @@ export async function inspectPageForensics() {
             break;
           }
         }
-      } catch (e) {}
+      } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
       if (resTiming) {
         const reqStart = Math.round(resTiming.requestStart || resTiming.startTime);
@@ -721,7 +753,7 @@ export async function inspectPageForensics() {
     if (firstInputs && firstInputs.length > 0) {
       firstInputs.forEach((fi: any) => interactionEntries.push(fi));
     }
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
   // Group interaction events into presentation frame groups using an 8ms tolerance window
   interface InteractionGroup {
@@ -810,12 +842,16 @@ export async function inspectPageForensics() {
     // 3-Phase temporal correlation against overlapping LoAF entries
     let overlappingLoafFrame: any = null;
     let maxLoafOverlap = 0;
+    let overlappingLoafCount = 0;
     const presentationEnd = worstInteraction.startTime + worstInteraction.duration;
 
     rawLoafEntries.forEach((frame: any) => {
       const fStart = frame.startTime || 0;
       const fEnd = fStart + (frame.duration || 0);
       const overlap = Math.max(0, Math.min(fEnd, presentationEnd) - Math.max(fStart, worstInteraction.startTime));
+      if (overlap > 0) {
+        overlappingLoafCount++;
+      }
       if (overlap > maxLoafOverlap) {
         maxLoafOverlap = overlap;
         overlappingLoafFrame = frame;
@@ -928,12 +964,24 @@ export async function inspectPageForensics() {
 
     const targetLabel = inpTarget ? ` on ${inpTarget}` : '';
     inpDisplay = `${inpMs} ms (${worstInteraction.name || 'interaction'}${targetLabel})`;
+    const interactionLoadState = getLoadState(worstInteraction.startTime);
+    const interactionTime = Math.round(worstInteraction.startTime);
+    const nextPaintTime = Math.round(presentationEnd);
+
     inpAttribution = {
       interactionTarget: inpTarget,
       interactionType: worstInteraction.name || 'interaction',
       processingDelayMs: inpProcessingDelayMs,
       inputDelayMs: inpInputDelayMs,
       presentationDelayMs: inpPresentationDelayMs,
+      loadState: interactionLoadState,
+      inputDelay: inpInputDelayMs,
+      processingDuration: inpProcessingDelayMs,
+      presentationDelay: inpPresentationDelayMs,
+      interactionTargetElement: inpTarget,
+      interactionTime,
+      nextPaintTime,
+      overlappingLoafCount,
       culpritScriptUrl: hasSignificantCulprit ? (worstScript.sourceURL || worstScript.sourceUrl || 'inline') : null,
       culpritFunctionName: hasSignificantCulprit ? (worstScript.sourceFunctionName || null) : null,
       culpritExecutionMs: hasSignificantCulprit ? Math.round(maxIntersectingDuration) : null,
@@ -1006,7 +1054,7 @@ export async function inspectPageForensics() {
         resourceMap[r.name] = Math.round((r.transferSize || r.encodedBodySize || 0) / 1024);
       }
     });
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
   imgElements.slice(0, 50).forEach(img => {
     const rawSrc = img.currentSrc || img.src || '';
@@ -1136,7 +1184,7 @@ export async function inspectPageForensics() {
       const tokens = bodyText.match(/\S+/g);
       wordCount = tokens ? tokens.length : 0;
     }
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
   // Heading Hierarchy Engine: Parse DOM order, track counts, skipped levels, and duplicate/missing H1
   // False-positive guard: exclude hidden navigation drawers, aria-hidden modals, and display:none containers
@@ -1363,7 +1411,7 @@ export async function inspectPageForensics() {
         if (srcHost !== currentHost && !srcHost.endsWith('.' + currentHost)) {
           thirdPartyScripts++;
         }
-      } catch (e) {}
+      } catch (err) { console.debug('Telemetry probe suppressed:', err); }
     } else {
       inlineScripts++;
     }
@@ -1387,7 +1435,7 @@ export async function inspectPageForensics() {
       if (n.includes('analytics.tiktok.com') && !detectedTelemetry.includes('TikTok Pixel')) detectedTelemetry.push('TikTok Pixel');
       if (n.includes('hs-scripts.com') && !detectedTelemetry.includes('HubSpot')) detectedTelemetry.push('HubSpot');
     });
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 
   // --- 8. TECHNOLOGY & CMS MULTI-SIGNAL DETECTION ---
   let techDetections: TechnologyDetection[] = [];
@@ -1580,7 +1628,7 @@ export function removeLayoutShiftOverlay(): void {
     if (existingCanvas) existingCanvas.remove();
     const existingBanner = document.getElementById('vitalssniper-shift-banner');
     if (existingBanner) existingBanner.remove();
-  } catch (e) {}
+  } catch (err) { console.debug('Telemetry probe suppressed:', err); }
 }
 
 /**
@@ -1620,7 +1668,7 @@ export function renderLayoutShiftOverlay(shifts?: any[]): boolean {
         if (primaryEl && typeof primaryEl.scrollIntoView === 'function') {
           primaryEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      } catch (e) {}
+      } catch (err) { console.debug('Telemetry probe suppressed:', err); }
     }
 
     // 3. Create fixed canvas overlay
@@ -1685,7 +1733,7 @@ export function renderLayoutShiftOverlay(shifts?: any[]): boolean {
                 };
               }
             }
-          } catch (e) {}
+          } catch (err) { console.debug('Telemetry probe suppressed:', err); }
         }
 
         // 1. Draw previous rectangle (blue dashed outline with soft translucent tint)

@@ -29,12 +29,22 @@ export interface LcpSubpartAttribution {
   url?: string | null;
 }
 
+export type LoadState = 'loading' | 'dom-interactive' | 'dom-content-loaded' | 'complete';
+
 export interface InpSubpartAttribution {
   interactionTarget: string | null;
   interactionType: string | null;
   processingDelayMs: number | null;
   inputDelayMs: number | null;
   presentationDelayMs: number | null;
+  loadState?: LoadState | null;
+  inputDelay?: number | null;
+  processingDuration?: number | null;
+  presentationDelay?: number | null;
+  interactionTargetElement?: string | null;
+  interactionTime?: number | null;
+  nextPaintTime?: number | null;
+  overlappingLoafCount?: number;
   culpritScriptUrl?: string | null;
   culpritFunctionName?: string | null;
   culpritExecutionMs?: number | null;

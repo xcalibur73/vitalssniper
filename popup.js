@@ -2864,8 +2864,8 @@ function extractTechVersion(techName, doc, windowObj, rawHtml) {
                     if (parsed && parsed.buildId)
                         return String(parsed.buildId);
                 }
-                catch {
-                    // ignore
+                catch (err) {
+                    console.debug('Next.js buildId probe suppressed:', err);
                 }
             }
         }
@@ -2876,8 +2876,8 @@ function extractTechVersion(techName, doc, windowObj, rawHtml) {
                 if (parsed && parsed.buildId)
                     return String(parsed.buildId);
             }
-            catch {
-                // ignore
+            catch (err) {
+                console.debug('Next.js script tag probe suppressed:', err);
             }
         }
         return null;
@@ -3189,6 +3189,30 @@ class ExternalAudit {
 // In-Page Forensic Browser Auditor
 // Injected into the active prospect tab via chrome.scripting.executeScript()
 // Zero em-dash compliance: strictly hyphens or colons
+function getLoadState(timestamp) {
+    if (typeof document !== 'undefined' && document.readyState === 'loading') {
+        return 'loading';
+    }
+    const navEntry = (typeof performance !== 'undefined' && typeof performance.getEntriesByType === 'function')
+        ? performance.getEntriesByType('navigation')[0]
+        : undefined;
+    if (navEntry) {
+        if (navEntry.domInteractive && timestamp < navEntry.domInteractive) {
+            return 'loading';
+        }
+        if (navEntry.domContentLoadedEventStart === 0 ||
+            (navEntry.domContentLoadedEventStart && timestamp < navEntry.domContentLoadedEventStart)) {
+            return 'dom-interactive';
+        }
+        if ((navEntry.domContentLoadedEventEnd && timestamp < navEntry.domContentLoadedEventEnd) ||
+            (navEntry.loadEventStart && timestamp < navEntry.loadEventStart) ||
+            navEntry.domComplete === 0 ||
+            (navEntry.domComplete && timestamp < navEntry.domComplete)) {
+            return 'dom-content-loaded';
+        }
+    }
+    return 'complete';
+}
 async function inspectPageForensics() {
     const scanStartTime = performance.now();
     // --- 1. CORE WEB VITALS & TIMING OBSERVERS (ASYNC BUFFERED DISPATCH) ---
@@ -3233,7 +3257,9 @@ async function inspectPageForensics() {
                     break;
             }
         }
-        catch (e) { }
+        catch (err) {
+            console.debug('Telemetry probe suppressed:', err);
+        }
         return sel || (node.tagName ? node.tagName.toLowerCase() : '');
     }
     const shadowRootsCache = new WeakMap();
@@ -3277,7 +3303,9 @@ async function inspectPageForensics() {
                 }
             }
         }
-        catch { }
+        catch (err) {
+            console.debug('Telemetry probe suppressed:', err);
+        }
         return results;
     }
     // A. Paint entries (FCP)
@@ -3289,7 +3317,9 @@ async function inspectPageForensics() {
             }
         });
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
     // B, C, D. Asynchronous PerformanceObservers with buffered entry window
     let poLcp = null;
     let poCls = null;
@@ -3322,7 +3352,9 @@ async function inspectPageForensics() {
             });
             poLcp.observe({ type: 'largest-contentful-paint', buffered: true });
         }
-        catch (e) { }
+        catch (err) {
+            console.debug('Telemetry probe suppressed:', err);
+        }
         // 2. Google Web Vitals Layout Shift observer (collect raw entries with bounding box sources)
         try {
             poCls = new PerformanceObserver((entryList) => {
@@ -3342,7 +3374,9 @@ async function inspectPageForensics() {
             });
             poCls.observe({ type: 'layout-shift', buffered: true });
         }
-        catch (e) { }
+        catch (err) {
+            console.debug('Telemetry probe suppressed:', err);
+        }
         // 3. Long Tasks observer
         try {
             poLt = new PerformanceObserver((list) => {
@@ -3359,7 +3393,9 @@ async function inspectPageForensics() {
             });
             poLt.observe({ type: 'longtask', buffered: true });
         }
-        catch (e) { }
+        catch (err) {
+            console.debug('Telemetry probe suppressed:', err);
+        }
         // 3b. Long Animation Frames (LoAF) observer (Chrome 123+)
         try {
             const supportedTypes = (typeof PerformanceObserver !== 'undefined' && PerformanceObserver.supportedEntryTypes)
@@ -3374,7 +3410,9 @@ async function inspectPageForensics() {
                 poLoaf.observe({ type: 'long-animation-frame', buffered: true });
             }
         }
-        catch (e) { }
+        catch (err) {
+            console.debug('Telemetry probe suppressed:', err);
+        }
         // 4. Google Web Vitals INP (Event Timing observer)
         try {
             const supportedTypes = (typeof PerformanceObserver !== 'undefined' && PerformanceObserver.supportedEntryTypes)
@@ -3397,7 +3435,9 @@ async function inspectPageForensics() {
                 poInp.observe({ type: 'first-input', buffered: true });
             }
         }
-        catch (e) { }
+        catch (err) {
+            console.debug('Telemetry probe suppressed:', err);
+        }
         // Observation window of 200ms allows the browser event loop to flush buffered entries
         setTimeout(resolve, 200);
     });
@@ -3422,7 +3462,9 @@ async function inspectPageForensics() {
             poLcp.disconnect();
         }
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
     try {
         if (poCls) {
             const records = poCls.takeRecords();
@@ -3445,7 +3487,9 @@ async function inspectPageForensics() {
             poCls.disconnect();
         }
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
     try {
         if (poLt) {
             const records = poLt.takeRecords();
@@ -3462,7 +3506,9 @@ async function inspectPageForensics() {
             poLt.disconnect();
         }
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
     try {
         if (poLoaf) {
             const records = poLoaf.takeRecords();
@@ -3472,7 +3518,9 @@ async function inspectPageForensics() {
             poLoaf.disconnect();
         }
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
     try {
         if (poInp) {
             const records = poInp.takeRecords();
@@ -3482,7 +3530,9 @@ async function inspectPageForensics() {
             poInp.disconnect();
         }
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
     // Calculate canonical CLS session windows reproducing Google Web Vitals logic:
     // 1s gap between shifts, 5s maximum session window length, hadRecentInput filtering, reporting maximum window.
     let largestShiftValue = 0;
@@ -3601,7 +3651,9 @@ async function inspectPageForensics() {
         try {
             window.__vitalssniper_last_shifts = shiftDetails;
         }
-        catch (e) { }
+        catch (err) {
+            console.debug('Telemetry probe suppressed:', err);
+        }
     }
     // --- LoAF (Long Animation Frames) Telemetry Processing ---
     let loafCount = 0;
@@ -3738,12 +3790,16 @@ async function inspectPageForensics() {
                                 lcpMs = Math.round(rt.responseEnd || rt.startTime);
                             }
                         }
-                        catch (e) { }
+                        catch (err) {
+                            console.debug('Telemetry probe suppressed:', err);
+                        }
                     }
                 }
             }
         }
-        catch (e) { }
+        catch (err) {
+            console.debug('Telemetry probe suppressed:', err);
+        }
     }
     // --- 2. NAVIGATION TIMING & BODY SIZES ---
     let canonicalTtfbMs = null;
@@ -3795,7 +3851,9 @@ async function inspectPageForensics() {
             }
         }
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
     // Google Web Vitals LCP subpart attribution
     let lcpTtfbMs = canonicalTtfbMs;
     let lcpLoadDelayMs = null;
@@ -3816,7 +3874,9 @@ async function inspectPageForensics() {
                     }
                 }
             }
-            catch (e) { }
+            catch (err) {
+                console.debug('Telemetry probe suppressed:', err);
+            }
             if (resTiming) {
                 const reqStart = Math.round(resTiming.requestStart || resTiming.startTime);
                 const resEnd = Math.round(resTiming.responseEnd || resTiming.startTime);
@@ -3863,7 +3923,9 @@ async function inspectPageForensics() {
             firstInputs.forEach((fi) => interactionEntries.push(fi));
         }
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
     const interactionGroups = [];
     if (interactionEntries.length > 0) {
         interactionEntries.forEach((entry) => {
@@ -3935,11 +3997,15 @@ async function inspectPageForensics() {
         // 3-Phase temporal correlation against overlapping LoAF entries
         let overlappingLoafFrame = null;
         let maxLoafOverlap = 0;
+        let overlappingLoafCount = 0;
         const presentationEnd = worstInteraction.startTime + worstInteraction.duration;
         rawLoafEntries.forEach((frame) => {
             const fStart = frame.startTime || 0;
             const fEnd = fStart + (frame.duration || 0);
             const overlap = Math.max(0, Math.min(fEnd, presentationEnd) - Math.max(fStart, worstInteraction.startTime));
+            if (overlap > 0) {
+                overlappingLoafCount++;
+            }
             if (overlap > maxLoafOverlap) {
                 maxLoafOverlap = overlap;
                 overlappingLoafFrame = frame;
@@ -4041,12 +4107,23 @@ async function inspectPageForensics() {
             maxIntersectingDuration >= (inpProcessingDelayMs || 0) * 0.15);
         const targetLabel = inpTarget ? ` on ${inpTarget}` : '';
         inpDisplay = `${inpMs} ms (${worstInteraction.name || 'interaction'}${targetLabel})`;
+        const interactionLoadState = getLoadState(worstInteraction.startTime);
+        const interactionTime = Math.round(worstInteraction.startTime);
+        const nextPaintTime = Math.round(presentationEnd);
         inpAttribution = {
             interactionTarget: inpTarget,
             interactionType: worstInteraction.name || 'interaction',
             processingDelayMs: inpProcessingDelayMs,
             inputDelayMs: inpInputDelayMs,
             presentationDelayMs: inpPresentationDelayMs,
+            loadState: interactionLoadState,
+            inputDelay: inpInputDelayMs,
+            processingDuration: inpProcessingDelayMs,
+            presentationDelay: inpPresentationDelayMs,
+            interactionTargetElement: inpTarget,
+            interactionTime,
+            nextPaintTime,
+            overlappingLoafCount,
             culpritScriptUrl: hasSignificantCulprit ? (worstScript.sourceURL || worstScript.sourceUrl || 'inline') : null,
             culpritFunctionName: hasSignificantCulprit ? (worstScript.sourceFunctionName || null) : null,
             culpritExecutionMs: hasSignificantCulprit ? Math.round(maxIntersectingDuration) : null,
@@ -4115,7 +4192,9 @@ async function inspectPageForensics() {
             }
         });
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
     imgElements.slice(0, 50).forEach(img => {
         const rawSrc = img.currentSrc || img.src || '';
         if (!rawSrc)
@@ -4254,7 +4333,9 @@ async function inspectPageForensics() {
             wordCount = tokens ? tokens.length : 0;
         }
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
     // Heading Hierarchy Engine: Parse DOM order, track counts, skipped levels, and duplicate/missing H1
     // False-positive guard: exclude hidden navigation drawers, aria-hidden modals, and display:none containers
     const isVisibleHeading = (el) => {
@@ -4479,7 +4560,9 @@ async function inspectPageForensics() {
                     thirdPartyScripts++;
                 }
             }
-            catch (e) { }
+            catch (err) {
+                console.debug('Telemetry probe suppressed:', err);
+            }
         }
         else {
             inlineScripts++;
@@ -4512,7 +4595,9 @@ async function inspectPageForensics() {
                 detectedTelemetry.push('HubSpot');
         });
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
     // --- 8. TECHNOLOGY & CMS MULTI-SIGNAL DETECTION ---
     let techDetections = [];
     try {
@@ -4702,7 +4787,9 @@ function removeLayoutShiftOverlay() {
         if (existingBanner)
             existingBanner.remove();
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Telemetry probe suppressed:', err);
+    }
 }
 /**
  * Renders a high-contrast, non-intrusive canvas overlay illustrating layout shift bounding boxes,
@@ -4737,7 +4824,9 @@ function renderLayoutShiftOverlay(shifts) {
                     primaryEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }
-            catch (e) { }
+            catch (err) {
+                console.debug('Telemetry probe suppressed:', err);
+            }
         }
         // 3. Create fixed canvas overlay
         const canvas = document.createElement('canvas');
@@ -4799,7 +4888,9 @@ function renderLayoutShiftOverlay(shifts) {
                             }
                         }
                     }
-                    catch (e) { }
+                    catch (err) {
+                        console.debug('Telemetry probe suppressed:', err);
+                    }
                 }
                 // 1. Draw previous rectangle (blue dashed outline with soft translucent tint)
                 if (prev && prev.width > 0 && prev.height > 0) {
@@ -5060,6 +5151,13 @@ class FindingsEngine {
                 { label: 'Presentation Delay (Phase 3)', value: `${inpPresentationDelay} ms`, context: 'Style recalculation and compositing' },
                 { label: 'Measurement Source', value: 'Google Web Vitals Event Timing Observer' }
             ];
+            if (inpAttribution?.loadState) {
+                inpEvidence.push({
+                    label: 'Page Load State',
+                    value: inpAttribution.loadState,
+                    context: 'Lifecycle phase during user interaction'
+                });
+            }
             // Input Delay Blocker attribution (Phase 1)
             if (inpAttribution?.inputDelayCulpritScriptUrl) {
                 const blockerFile = inpAttribution.inputDelayCulpritScriptUrl.split('/').pop() || inpAttribution.inputDelayCulpritScriptUrl;
@@ -6858,7 +6956,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnManual.disabled = true;
         }
         try {
-            const syncConfig = await StorageService.getWebAuditsSyncConfig().catch(() => null);
+            const syncConfig = await StorageService.getWebAuditsSyncConfig().catch(err => {
+                console.debug('Async operation suppressed:', err);
+                return null;
+            });
             const authKey = syncConfig?.apiKey?.trim() || '';
             const auditHeaders = { 'Content-Type': 'application/json' };
             if (authKey) {
@@ -7006,7 +7107,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             tab = (tabs && tabs[0]) || null;
         }
     }
-    catch (e) { }
+    catch (err) {
+        console.debug('Popup operation suppressed:', err);
+    }
     // 4. Standalone or System Page Handling
     const isWebUrl = tab && tab.url && (tab.url.startsWith('http://') || tab.url.startsWith('https://'));
     if (!tab || !tab.id || !isWebUrl) {
@@ -7790,7 +7893,9 @@ function renderAuditData(domain, currentUrl, data) {
                 cloudBadge.style.display = 'inline-flex';
                 cloudBadge.title = 'Synced to WebAudits.pro Dashboard';
             }
-        }).catch(() => { });
+        }).catch(err => {
+            console.debug('Async operation suppressed:', err);
+        });
     }
     else {
         if (cloudBadge)
@@ -8064,7 +8169,9 @@ function initActionButtons(domain, currentUrl, score, data, primaryFinding) {
                 const cfg = await StorageService.getAgencySettings();
                 apiKey = cfg.psiApiKey || '';
             }
-            catch (e) { }
+            catch (err) {
+                console.debug('Popup operation suppressed:', err);
+            }
             const psiData = await ExternalAudit.runPSI(currentUrl, apiKey);
             if (psiData) {
                 currentAuditState.externalMetrics = psiData;
@@ -8153,7 +8260,9 @@ function highlightLcpInTab(selector) {
         try {
             target = document.querySelector(selector);
         }
-        catch (e) { }
+        catch (err) {
+            console.debug('Popup operation suppressed:', err);
+        }
     }
     if (!target) {
         // Find largest visual element
@@ -8773,7 +8882,10 @@ async function initBulkAuditModal() {
                 let domCount = 1420;
                 let stack = 'Custom';
                 try {
-                    const syncConfig = await StorageService.getWebAuditsSyncConfig().catch(() => null);
+                    const syncConfig = await StorageService.getWebAuditsSyncConfig().catch(err => {
+                        console.debug('Async operation suppressed:', err);
+                        return null;
+                    });
                     const authKey = syncConfig?.apiKey?.trim() || '';
                     const auditHeaders = { 'Content-Type': 'application/json' };
                     if (authKey) {
@@ -8852,7 +8964,9 @@ async function initBulkAuditModal() {
                                 clsDisplay: '0.00'
                             }
                         }
-                    }).catch(() => { });
+                    }).catch(err => {
+                        console.debug('Async operation suppressed:', err);
+                    });
                 }
             }
             // Sort results by lowest score (highest agency pitch priority)
@@ -8957,7 +9071,9 @@ async function initLicense() {
                                     updateSubscriptionDisplay();
                             });
                         }
-                    }).catch(() => { });
+                    }).catch(err => {
+                        console.debug('Async operation suppressed:', err);
+                    });
                 }
             }
             return;
@@ -9101,7 +9217,9 @@ async function initLicense() {
                             cloudBadge.style.display = 'inline-flex';
                             cloudBadge.title = 'Synced to WebAudits.pro Dashboard';
                         }
-                    }).catch(() => { });
+                    }).catch(err => {
+                        console.debug('Async operation suppressed:', err);
+                    });
                 }
             }
             else {

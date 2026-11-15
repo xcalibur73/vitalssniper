@@ -109,6 +109,14 @@ export class FindingsEngine {
         { label: 'Measurement Source', value: 'Google Web Vitals Event Timing Observer' }
       ];
 
+      if (inpAttribution?.loadState) {
+        inpEvidence.push({
+          label: 'Page Load State',
+          value: inpAttribution.loadState,
+          context: 'Lifecycle phase during user interaction'
+        });
+      }
+
       // Input Delay Blocker attribution (Phase 1)
       if (inpAttribution?.inputDelayCulpritScriptUrl) {
         const blockerFile = inpAttribution.inputDelayCulpritScriptUrl.split('/').pop() || inpAttribution.inputDelayCulpritScriptUrl;

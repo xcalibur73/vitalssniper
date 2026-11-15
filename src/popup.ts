@@ -185,7 +185,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-      const syncConfig = await StorageService.getWebAuditsSyncConfig().catch(() => null);
+      const syncConfig = await StorageService.getWebAuditsSyncConfig().catch(err => {
+        console.debug('Async operation suppressed:', err);
+        return null;
+      });
       const authKey = syncConfig?.apiKey?.trim() || '';
       const auditHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
       if (authKey) {
@@ -333,7 +336,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       tab = (tabs && tabs[0]) || null;
     }
-  } catch (e) {}
+  } catch (err) {
+    console.debug('Popup operation suppressed:', err);
+  }
 
   // 4. Standalone or System Page Handling
   const isWebUrl = tab && tab.url && (tab.url.startsWith('http://') || tab.url.startsWith('https://'));
@@ -1096,7 +1101,9 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
         cloudBadge.style.display = 'inline-flex';
         cloudBadge.title = 'Synced to WebAudits.pro Dashboard';
       }
-    }).catch(() => {});
+    }).catch(err => {
+      console.debug('Async operation suppressed:', err);
+    });
   } else {
     if (cloudBadge) cloudBadge.style.display = 'none';
   }
@@ -1360,7 +1367,9 @@ function initActionButtons(domain: string, currentUrl: string, score: number, da
       try {
         const cfg = await StorageService.getAgencySettings();
         apiKey = cfg.psiApiKey || '';
-      } catch (e) {}
+      } catch (err) {
+        console.debug('Popup operation suppressed:', err);
+      }
 
       const psiData = await ExternalAudit.runPSI(currentUrl, apiKey);
       if (psiData) {
@@ -1464,7 +1473,9 @@ function highlightLcpInTab(selector: string | null) {
   if (selector) {
     try {
       target = document.querySelector(selector);
-    } catch (e) {}
+    } catch (err) {
+      console.debug('Popup operation suppressed:', err);
+    }
   }
 
   if (!target) {
@@ -2121,7 +2132,10 @@ async function initBulkAuditModal() {
         let stack = 'Custom';
 
         try {
-          const syncConfig = await StorageService.getWebAuditsSyncConfig().catch(() => null);
+          const syncConfig = await StorageService.getWebAuditsSyncConfig().catch(err => {
+            console.debug('Async operation suppressed:', err);
+            return null;
+          });
           const authKey = syncConfig?.apiKey?.trim() || '';
           const auditHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
           if (authKey) {
@@ -2200,7 +2214,9 @@ async function initBulkAuditModal() {
                 clsDisplay: '0.00'
               }
             }
-          }).catch(() => {});
+          }).catch(err => {
+            console.debug('Async operation suppressed:', err);
+          });
         }
       }
 
@@ -2308,7 +2324,9 @@ async function initLicense() {
                 if (refreshedSub) updateSubscriptionDisplay();
               });
             }
-          }).catch(() => {});
+          }).catch(err => {
+            console.debug('Async operation suppressed:', err);
+          });
         }
       }
       return;
@@ -2439,7 +2457,9 @@ async function initLicense() {
               cloudBadge.style.display = 'inline-flex';
               cloudBadge.title = 'Synced to WebAudits.pro Dashboard';
             }
-          }).catch(() => {});
+          }).catch(err => {
+            console.debug('Async operation suppressed:', err);
+          });
         }
       } else {
         if (errorEl) {
