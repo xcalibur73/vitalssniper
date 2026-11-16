@@ -15,6 +15,13 @@ VitalsSniper is an in-browser technical website auditor and proof-of-flaw inspec
 
 Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper inspects the live DOM of the active tab directly in your local browser engine without server queue delays.
 
+WHAT IS NEW IN VERSION 1.6.5
+
+- Google web-vitals v4 Deep INP Attribution: Detailed breakdown of Input Delay, Processing Duration, and Presentation Delay with target element selectors.
+- Long Animation Frame (LoAF) Correlation: Measures overlapping frame counts and isolates main-thread blocking scripts.
+- Page Load State: Classifies interaction timing across loading, dom-interactive, dom-content-loaded, and complete.
+- Telemetry Stability: Hardened internal error boundaries and DevTools logging.
+
 WHAT IS NEW IN VERSION 1.6.4
 
 - Hardened Build & ArrayPool Determinism: Switched ArrayPool expiry timestamps to monotonic performance.now() timing and locked bundler execution to argument-array execFileSync invocations.

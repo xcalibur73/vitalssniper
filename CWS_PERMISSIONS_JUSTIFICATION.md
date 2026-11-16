@@ -1,6 +1,6 @@
 # Chrome Web Store Permissions Justification
 
-This document provides single-purpose permission justifications for the Chrome Web Store Developer Console for VitalsSniper v1.6.4.
+This document provides single-purpose permission justifications for the Chrome Web Store Developer Console for VitalsSniper v1.6.5.
 
 ## Permission: <all_urls>
 
