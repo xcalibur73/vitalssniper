@@ -3,7 +3,7 @@
 ## Store Listing Metadata
 
 - Name: VitalsSniper: Proof-of-Flaw Web Inspector
-- Short Description (132 char limit): 1-Click CMS & Builder detector, DOM bloat scanner, Core Web Vitals audit, and client outreach email generator.
+- Short Description (132 char limit): Core Web Vitals INP inspector, Googlebot crawler emulator, DOM bloat scanner, and client audit pitch deck generator.
 - Version: 1.6.5
 - Category: Developer Tools
 - Primary Language: English
@@ -22,9 +22,9 @@ VitalsSniper has a single, focused purpose: to inspect the active browser tab fo
 
 ## Detailed Store Description
 
-VitalsSniper is an in-browser technical website auditor and proof-of-flaw inspector for web developers, technical SEO consultants, and digital agency teams.
+VitalsSniper is an in-browser Core Web Vitals INP inspector, Googlebot crawler emulator, DOM bloat scanner, and client audit pitch deck engine for web developers, technical SEO consultants, and digital agency teams seeking faster, queue-free Lighthouse alternatives.
 
-Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. VitalsSniper inspects the live DOM of the active tab directly in your local browser engine without server queue delays.
+Most site audit tools rely on third-party server queues, taking minutes to crawl or returning simulated metrics that fail to reflect live client-side DOM reality. As one of the premier browser-based Lighthouse alternatives, VitalsSniper inspects the live DOM of the active tab directly in your local browser engine without server queue delays.
 
 ### What is New in Version 1.6.5
 
@@ -65,40 +65,50 @@ Most site audit tools rely on third-party server queues, taking minutes to crawl
 
 ### Core Audit Capabilities
 
-1. CMS and Page Builder Detection
+1. Core Web Vitals INP Inspector & LoAF Profiler
+Measures 3-phase latency subparts (Input Delay, Processing Duration, Presentation Delay) and correlates main-thread blocking scripts with Long Animation Frames (LoAF) to diagnose interaction responsiveness.
+
+2. CMS and Page Builder Detection
 Instantly detects active content management systems, visual site builders, and frontend application frameworks from live runtime signatures and script fingerprints.
 
-2. DOM Bloat and Tree Depth Analysis
+3. DOM Bloat Scanner and Tree Depth Analysis
 Measures total DOM node count, maximum nesting depth, and flags deep branches exceeding 15 levels that degrade browser layout passes and interaction response times.
 
-3. Document Payload and Transfer Weights
+4. Googlebot Crawler Emulator & Search Bot Testing
+Simulates Googlebot Smartphone, Googlebot Desktop, Bingbot, and GPTBot session headers to audit mobile cloaking, crawler-specific payloads, and bot rendering disparity.
+
+5. Fast, Local Lighthouse Alternatives Engine
+Provides instant in-tab metric triangulation without remote queuing or synthetic throttling distortion.
+
+6. Document Payload and Transfer Weights
 Measures in-memory HTML size, wire transfer weight, and asset distribution to pinpoint oversized payloads that slow mobile first contentful paint.
 
-4. Long Animation Frames (LoAF) and Script Attribution
+7. Script Contention & Long Animation Frames (LoAF)
 Attributes main-thread interaction delays to specific script URLs, execution durations, and invokers to isolate Interaction to Next Paint (INP) bottlenecks.
 
-5. Layout Shift and Visual Stability Diagnostics
+8. Layout Shift and Visual Stability Diagnostics
 Monitors cumulative layout shifts with live element coordinates to detect shifting layout elements and reflow triggers.
 
-6. Heading Hierarchy and On-Page SEO Structure
+9. Heading Hierarchy and On-Page SEO Structure
 Maps complete H1-H6 heading outlines in DOM sequence, identifying missing primary H1 tags, duplicate H1s, and skipped-level hierarchy breaks.
 
-7. Link Graph and Anchor Quality Audit
+10. Link Graph and Anchor Quality Audit
 Inventories internal versus external link ratios, inspects nofollow, sponsored, and UGC attributes, and flags empty anchor tags without accessible text.
 
-8. Viewport and Accessibility Checks
+11. Viewport and Accessibility Checks
 Evaluates viewport meta configuration to identify user-scalable restrictions that impair pinch-to-zoom accessibility under WCAG 2.2 Criterion 1.4.4.
 
-9. Schema.org JSON-LD Verification
+12. Schema.org JSON-LD Verification
 Parses and checks structured data blocks for syntax validity, entity graph connections, and missing required properties.
 
-10. Third-Party Script Contention
+13. Third-Party Script Contention
 Inventories external, inline, and asynchronous scripts competing for main-thread execution time.
 
-11. Evidence-Grounded Outreach Teardowns
+14. Evidence-Grounded Outreach Teardowns
 Generates structured diagnostic teardowns (email copy, LinkedIn DM, and video teardown outlines) directly from observed technical flaws, citing measured values instead of vague generalizations.
 
-12. Teardown Briefs and CRM Exports
+15. Client Audit Pitch Deck & 1-Page Teardowns
+Saves reviewed prospect sites locally and generates client audit pitch deck briefs with financial ROI calculations, revenue leakage estimates, and RFC 4180 CSV exports.
 Saves reviewed prospect sites locally and exports client-ready 1-page PDF teardown briefs or RFC 4180 CSV logs.
 
 ### Companion Web Diagnostic Tools

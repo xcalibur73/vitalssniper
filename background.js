@@ -26,6 +26,15 @@ const ALL_RESOURCE_TYPES = [
   'other'
 ];
 
+// Passive, non-blocking automation detection
+const isAutomatedExecution =
+  (typeof navigator !== 'undefined' && navigator.webdriver === true) ||
+  (typeof navigator !== 'undefined' && /HeadlessChrome|PhantomJS|Electron/i.test(navigator.userAgent));
+
+if (isAutomatedExecution) {
+  console.info('[VitalsSniper] Automating performance audits? Access official WebAudits Pro Headless CLI & API: https://webaudits.pro/developers/headless');
+}
+
 chrome.runtime.onInstalled.addListener((details) => {
   // Service worker initialization: clear any lingering session rules
   if (typeof chrome !== 'undefined' && chrome.declarativeNetRequest && chrome.declarativeNetRequest.updateSessionRules) {
@@ -37,8 +46,10 @@ chrome.runtime.onInstalled.addListener((details) => {
   // Open onboarding tab strictly on fresh installation
   if (details && details.reason === 'install') {
     if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+      const baseUrl = 'https://webaudits.pro/products/vitalssniper-pro?utm_source=cws_install&utm_medium=extension';
+      const targetUrl = isAutomatedExecution ? `${baseUrl}&client_type=automated` : baseUrl;
       chrome.tabs.create({
-        url: 'https://webaudits.pro/products/vitalssniper-pro?utm_source=cws_install&utm_medium=extension'
+        url: targetUrl
       }).catch((err) => console.warn('[VitalsSniper] Background warning:', err));
     }
   }
