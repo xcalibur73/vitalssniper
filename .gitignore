@@ -10,3 +10,12 @@ node_modules/
 *.log
 testsprite_tests/tmp/
 testsprite_tests/tmp/config.json
+
+# Agent privacy and Federation
+.agents/
+skills-lock.json
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+federation/
+
