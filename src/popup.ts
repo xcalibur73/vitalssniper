@@ -250,58 +250,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         renderAuditData(targetDomain, clean, mappedData);
       } else {
-        throw new Error('API request failed');
+        throw new Error(`Audit API returned HTTP ${res.status}`);
       }
     } catch (err) {
-      const fallbackData = {
-        domStats: { totalElements: 1350 + (targetDomain.length * 15), maxDepth: 14 },
-        ttfbMs: 160 + (targetDomain.length * 4),
-        cms: ['Custom Platform'],
-        htmlSizeBytes: 38000,
-        wireSizeBytes: 12000,
-        vpMissing: false,
-        vpLocked: false,
-        hasSchema: true,
-        seo: {
-          jsonLdValid: true,
-          schemaTypes: ['WebSite'],
-          canonical: clean,
-          canonicalMatchesUrl: true,
-          wordCount: 880,
-          headings: {
-            tree: [],
-            totalCount: 5,
-            h1Count: 1,
-            h2Count: 2,
-            h3Count: 2,
-            h4Count: 0,
-            h5Count: 0,
-            h6Count: 0,
-            missingH1: false,
-            duplicateH1: false,
-            skippedLevels: []
-          },
-          links: {
-            total: 24,
-            internalCount: 18,
-            externalCount: 6,
-            nofollowCount: 1,
-            sponsoredCount: 0,
-            ugcCount: 0,
-            emptyAnchorCount: 0
-          }
-        },
-        externalScripts: 14,
-        assets: {
-          scripts: { total: 16, external: 12, inline: 4, async: 10, defer: 2, sync: 4 },
-          stylesheets: { total: 2, external: 2, inline: 0 },
-          fonts: { total: 1, thirdParty: 0 }
-        },
-        accessibility: { horizontalOverflow: false, undersizedTargets24px: 0, undersizedTargets44px: 0 },
-        performance: { lcpMs: 1950, lcpSource: 'PerformanceObserver', lcpElementSelector: 'main', cls: 0.02 },
-        mainThread: { longTaskCount: 1, longestTaskMs: 55, totalBlockingTimeMs: 10 }
-      };
-      renderAuditData(targetDomain, clean, fallbackData);
+      const errMsg = err instanceof Error ? err.message : 'Unable to reach WebAudits.pro audit API.';
+      if (td) td.innerText = `${targetDomain} (Audit Failed)`;
+      const healthScoreVal = document.getElementById('healthScoreVal');
+      const scoreBadge = document.getElementById('scoreBadge');
+      const techStackRow = document.getElementById('techStackRow');
+      const badgeEl = document.getElementById('flawSeverityBadge');
+      const bannerEl = document.getElementById('flawBanner');
+      const flawDescEl = document.getElementById('flawDesc');
+      if (healthScoreVal) healthScoreVal.innerText = '--';
+      if (scoreBadge) scoreBadge.className = 'score-badge score-red';
+      if (techStackRow) techStackRow.innerHTML = '<span class="tech-badge">Audit API unavailable</span>';
+      if (badgeEl) {
+        badgeEl.className = 'severity-badge critical';
+        badgeEl.innerText = 'ERROR';
+      }
+      if (bannerEl) bannerEl.className = 'flaw-banner severity-critical';
+      if (flawDescEl) {
+        flawDescEl.innerHTML = `
+          <div style="font-weight: 600; color: var(--color-text); margin-bottom: 4px;">Live Audit Failed</div>
+          <div style="color: var(--color-muted); font-size: 11px;">${escapeHtml(errMsg)}</div>
+        `;
+      }
     } finally {
       if (btnManual) {
         btnManual.innerText = 'Inspect';
@@ -976,7 +949,19 @@ function renderAuditData(domain: string, currentUrl: string, data: any) {
       if (hEdgeCache) hEdgeCache.innerText = data.httpHeaders.cacheStatus || 'Direct Origin';
       if (hRobotsTag) hRobotsTag.innerText = data.httpHeaders.xRobotsTag || (data.httpHeaders.isNoindex ? 'noindex' : 'index, follow');
       if (hRedirectHops) hRedirectHops.innerText = `${data.httpHeaders.redirectCount || 0} (${data.httpHeaders.redirectCount > 0 ? 'Chain' : 'Direct'})`;
-      if (hSecurity) hSecurity.innerText = 'HSTS Active';
+      if (hSecurity) {
+        const isHttp = typeof currentUrl === 'string' && currentUrl.startsWith('http://');
+        if (isHttp) {
+          hSecurity.innerText = 'HTTP (No TLS)';
+        } else if (data.httpHeaders.hasHsts) {
+          hSecurity.innerText = 'HSTS Active';
+        } else {
+          hSecurity.innerText = 'Missing HSTS';
+        }
+      }
+    } else if (hSecurity) {
+      const isHttp = typeof currentUrl === 'string' && currentUrl.startsWith('http://');
+      hSecurity.innerText = isHttp ? 'HTTP (No TLS)' : 'Not Inspected';
     }
   }
 
@@ -1852,9 +1837,9 @@ function initCompetitorModal() {
             rowsHtml = `
               <tr><td>DOM Elements</td><td>${result.prospect.domElements.toLocaleString()}</td><td>${result.competitor.domElements.toLocaleString()}</td><td><span class="delta-pill delta-tie">DOM</span></td></tr>
               <tr><td>Serialized Markup</td><td>${result.prospect.serializedSizeKB} KB</td><td>${result.competitor.serializedSizeKB} KB</td><td><span class="delta-pill delta-tie">Payload</span></td></tr>
-              <tr><td>Mobile Viewport</td><td>${result.prospect.viewportStatus}</td><td>${result.competitor.viewportStatus}</td><td><span class="delta-pill delta-tie">Viewport</span></td></tr>
-              <tr><td>Structured Data</td><td>${result.prospect.schemaStatus}</td><td>${result.competitor.schemaStatus}</td><td><span class="delta-pill delta-tie">Schema</span></td></tr>
-              <tr><td>Tech Stack</td><td>${result.prospect.cms}</td><td>${result.competitor.cms}</td><td><span class="delta-pill delta-tie">Stack</span></td></tr>
+              <tr><td>Mobile Viewport</td><td>${escapeHtml(result.prospect.viewportStatus)}</td><td>${escapeHtml(result.competitor.viewportStatus)}</td><td><span class="delta-pill delta-tie">Viewport</span></td></tr>
+              <tr><td>Structured Data</td><td>${escapeHtml(result.prospect.schemaStatus)}</td><td>${escapeHtml(result.competitor.schemaStatus)}</td><td><span class="delta-pill delta-tie">Schema</span></td></tr>
+              <tr><td>Tech Stack</td><td>${escapeHtml(result.prospect.cms)}</td><td>${escapeHtml(result.competitor.cms)}</td><td><span class="delta-pill delta-tie">Stack</span></td></tr>
             `;
           }
 
@@ -1973,8 +1958,11 @@ async function renderPipelineList() {
     const scoreClass = lead.score >= 80 ? 'score-green' : (lead.score >= 60 ? 'score-amber' : 'score-red');
     const safeUrl = isSafeUrl(lead.url) ? escapeHtml(lead.url) : '#';
 
+    const safeId = escapeHtml(lead.id);
+    const safeSeverity = escapeHtml(lead.severity);
+
     return `
-    <div class="pipeline-item" data-id="${lead.id}">
+    <div class="pipeline-item" data-id="${safeId}">
       <div class="pipeline-item-top">
         <div class="pipeline-item-domain">
           <span>${escapeHtml(lead.domain)}</span>
@@ -1982,7 +1970,7 @@ async function renderPipelineList() {
         </div>
         <div style="display: flex; align-items: center; gap: 6px;">
           ${formattedDate ? `<span style="font-size: 9.5px; color: var(--color-muted);">${escapeHtml(formattedDate)}</span>` : ''}
-          <span class="severity-badge ${lead.severity}" style="font-size: 8.5px; padding: 2px 6px;">${escapeHtml(lead.severity.toUpperCase())}</span>
+          <span class="severity-badge ${safeSeverity}" style="font-size: 8.5px; padding: 2px 6px;">${escapeHtml(lead.severity.toUpperCase())}</span>
         </div>
       </div>
       <div class="pipeline-flaw">${escapeHtml(lead.primaryFinding)}</div>
@@ -1994,13 +1982,13 @@ async function renderPipelineList() {
         <span>Stack: <strong>${escapeHtml(lead.techStack || 'Custom')}</strong></span>
       </div>
       <div class="pipeline-item-actions">
-        <select class="pipeline-status-select" data-id="${lead.id}">
+        <select class="pipeline-status-select" data-id="${safeId}">
           ${(['New', 'Contacted', 'Replied', 'Proposal', 'Won', 'Lost'] as const).map(st => `<option value="${st}" ${lead.status === st ? 'selected' : ''}>${st}</option>`).join('')}
         </select>
         <div class="pipeline-btn-group">
-          <button class="btn-pipeline-action btn-copy-pipeline-pitch" data-id="${lead.id}" title="Copy tailored cold email pitch">Pitch</button>
+          <button class="btn-pipeline-action btn-copy-pipeline-pitch" data-id="${safeId}" title="Copy tailored cold email pitch">Pitch</button>
           <a href="${safeUrl}" target="_blank" class="btn-pipeline-action" title="Open website in new tab">Visit</a>
-          <button class="btn-pipeline-action delete btn-remove-pipeline-lead" data-id="${lead.id}" title="Delete prospect from CRM">Del</button>
+          <button class="btn-pipeline-action delete btn-remove-pipeline-lead" data-id="${safeId}" title="Delete prospect from CRM">Del</button>
         </div>
       </div>
     </div>
@@ -2100,6 +2088,7 @@ async function initBulkAuditModal() {
 
       const maxUrls = lines.slice(0, 50); // Cap at 50 to respect rate limits
       bulkLeads = [];
+      const failedUrls: Array<{ domain: string; reason: string }> = [];
 
       if (progressBar) progressBar.style.display = 'block';
       if (statusText) statusText.style.display = 'block';
@@ -2164,12 +2153,14 @@ async function initBulkAuditModal() {
             if (data.ttfbMs) ttfbDisplay = `${data.ttfbMs} ms`;
             if (data.domStats?.totalElements) domCount = data.domStats.totalElements;
             if (data.cms && data.cms.length > 0) stack = data.cms.join(', ');
+          } else {
+            failedUrls.push({ domain, reason: `Audit API returned HTTP ${res.status}` });
+            continue;
           }
         } catch (netErr) {
-          // If network / timeout fails, compute standard client fallback
-          auditScore = Math.floor(65 + (domain.length % 25));
-          severity = auditScore < 70 ? 'critical' : 'warning';
-          findingTitle = auditScore < 70 ? 'High layout nesting depth detected' : 'Optimization opportunity';
+          const reason = netErr instanceof Error ? netErr.message : 'Network or timeout error';
+          failedUrls.push({ domain, reason });
+          continue;
         }
 
         const lead: SavedLead = {
@@ -2225,25 +2216,43 @@ async function initBulkAuditModal() {
 
       // Render results table
       if (resultsList) {
-        resultsList.innerHTML = bulkLeads.map(item => `
+        const successRows = bulkLeads.map(item => `
           <div class="bulk-result-row">
             <div>
               <div class="bulk-res-domain">${escapeHtml(item.domain)}</div>
               <div style="font-size: 8.5px; color: var(--color-muted);">${escapeHtml(item.primaryFinding)}</div>
             </div>
             <div style="display: flex; align-items: center; gap: 6px;">
-              <span class="bulk-res-score ${item.severity}">${item.score}/100</span>
+              <span class="bulk-res-score ${escapeHtml(item.severity)}">${item.score}/100</span>
             </div>
           </div>
         `).join('');
+        const failedRows = failedUrls.map(item => `
+          <div class="bulk-result-row">
+            <div>
+              <div class="bulk-res-domain">${escapeHtml(item.domain)}</div>
+              <div style="font-size: 8.5px; color: var(--color-red);">Audit failed: ${escapeHtml(item.reason)}</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span class="bulk-res-score critical">ERROR</span>
+            </div>
+          </div>
+        `).join('');
+        resultsList.innerHTML = successRows + failedRows;
       }
 
       if (resultsArea) resultsArea.style.display = 'block';
-      if (btnExport) btnExport.style.display = 'inline-flex';
+      if (btnExport) btnExport.style.display = bulkLeads.length > 0 ? 'inline-flex' : 'none';
       if (statusText) {
-        statusText.innerText = isPaidUser
-          ? `Completed audit of ${bulkLeads.length} prospects. Synced to WebAudits.pro Dashboard.`
-          : `Completed audit of ${bulkLeads.length} prospects. Sorted by optimization priority.`;
+        if (bulkLeads.length === 0 && failedUrls.length > 0) {
+          statusText.innerText = `Audit failed for all ${failedUrls.length} URLs. Check network or API availability.`;
+        } else if (failedUrls.length > 0) {
+          statusText.innerText = `Completed ${bulkLeads.length} audits (${failedUrls.length} failed).`;
+        } else {
+          statusText.innerText = isPaidUser
+            ? `Completed audit of ${bulkLeads.length} prospects. Synced to WebAudits.pro Dashboard.`
+            : `Completed audit of ${bulkLeads.length} prospects. Sorted by optimization priority.`;
+        }
       }
       if (runText) runText.innerText = 'Run Batch Audit';
       btnRun.removeAttribute('disabled');

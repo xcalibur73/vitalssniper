@@ -48,11 +48,23 @@ export class LicenseService {
 
   private static KEY_PATTERN = /^VS-PRO-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
   private static WBA_KEY_PATTERN = /^wba_live_[a-f0-9]{32}$/i;
+  private static readonly PRO_TIERS = new Set(['pro', 'ultra', 'agency', 'enterprise', 'master']);
+
+  public static isProTier(tier: string | null | undefined): boolean {
+    if (!tier || typeof tier !== 'string') return false;
+    return this.PRO_TIERS.has(tier.trim().toLowerCase());
+  }
+
+  public static isExplicitTestMode(): boolean {
+    const proc = (globalThis as { process?: { env?: { NODE_ENV?: string } } }).process;
+    return proc?.env?.NODE_ENV === 'test' ||
+      Boolean((globalThis as Record<string, unknown>).__VITALS_TEST_MODE__ === true);
+  }
 
   public static validateKeyFormat(rawKey: string): boolean {
     if (!rawKey || typeof rawKey !== 'string') return false;
     const clean = rawKey.trim();
-    if (this.PUBLIC_DEMO_KEYS.has(clean.toUpperCase())) return true;
+    if (this.isExplicitTestMode() && this.PUBLIC_DEMO_KEYS.has(clean.toUpperCase())) return true;
     return this.KEY_PATTERN.test(clean.toUpperCase()) || this.WBA_KEY_PATTERN.test(clean);
   }
 
@@ -146,11 +158,13 @@ export class LicenseService {
     if (res.vs_entitlement) {
       const ent = res.vs_entitlement as EntitlementState;
 
-      // Handle demo mode
+      // Handle demo mode only in explicit test mode
       if (ent.source === 'demo') {
-        if (ent.token && ent.token.startsWith('demo-auth-')) {
+        if (this.isExplicitTestMode() && ent.token && ent.token.startsWith('demo-auth-')) {
           return ent;
         }
+        await this.deactivate();
+        return this.defaultFreeEntitlement();
       }
 
       // Handle production server-signed license or WebAudits SSO entitlement
@@ -168,7 +182,7 @@ export class LicenseService {
             return this.defaultFreeEntitlement();
           }
           return {
-            isPro: true,
+            isPro: this.isProTier(ent.payload.tier),
             tier: ent.payload.tier,
             valid: true,
             expiresAt: ent.payload.exp ? new Date(ent.payload.exp).toISOString() : null,
@@ -186,9 +200,9 @@ export class LicenseService {
       }
     }
 
-    // 2. Check pre-authorized public demo key
+    // 2. Check pre-authorized public demo key only in explicit test mode
     const key = (res.vs_license_key || '').toString().trim().toUpperCase();
-    if (key && this.validateKeyFormat(key) && this.PUBLIC_DEMO_KEYS.has(key)) {
+    if (this.isExplicitTestMode() && key && this.validateKeyFormat(key) && this.PUBLIC_DEMO_KEYS.has(key)) {
       const ent: EntitlementState = {
         isPro: true,
         tier: 'pro',
@@ -234,8 +248,14 @@ export class LicenseService {
       };
     }
 
-    // Instant local activation for public demo/QA testing vouchers
+    // Instant local activation for public demo/QA testing vouchers only in explicit test mode
     if (this.PUBLIC_DEMO_KEYS.has(key)) {
+      if (!this.isExplicitTestMode()) {
+        return {
+          valid: false,
+          message: 'Demo voucher keys are disabled in production. Enter a valid commercial license key.'
+        };
+      }
       const ent: EntitlementState = {
         isPro: true,
         tier: 'pro',
@@ -273,40 +293,40 @@ export class LicenseService {
     // Server-side authoritative verification
     const clientInstanceId = await this.getClientInstanceId();
     try {
-      const primaryEndpoint = 'https://webaudits.pro/api/license/verify';
-      const fallbackEndpoint = 'https://vitalssniper-web.vercel.app/api/license/verify';
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
-
+      const endpoints = [
+        'https://webaudits.pro/api/license/verify',
+        'https://vitalssniper-web.vercel.app/api/license/verify'
+      ];
       let resp: Response | null = null;
-      try {
-        resp = await fetch(primaryEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'x-client-instance-id': clientInstanceId
-          },
-          body: JSON.stringify({ key, licenseKey: key, clientInstanceId }),
-          signal: controller.signal
-        });
-      } catch {
-        // Fallback to secondary endpoint
-        resp = await fetch(fallbackEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'x-client-instance-id': clientInstanceId
-          },
-          body: JSON.stringify({ key, licenseKey: key, clientInstanceId }),
-          signal: controller.signal
-        });
+      for (const endpoint of endpoints) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        try {
+          resp = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'x-client-instance-id': clientInstanceId
+            },
+            body: JSON.stringify({ key, licenseKey: key, clientInstanceId }),
+            signal: controller.signal
+          });
+          break;
+        } catch {
+          resp = null;
+        } finally {
+          clearTimeout(timeoutId);
+        }
       }
-      clearTimeout(timeoutId);
 
       if (!resp || !resp.ok) {
-        const errData = resp ? await resp.json().catch(() => ({})) : {};
+        const errData = resp
+          ? await resp.json().catch((err) => {
+              console.warn('[License] Failed to parse error JSON response:', err);
+              return {};
+            })
+          : {};
         return {
           valid: false,
           message: errData.error || errData.message || `Server rejected license key (HTTP ${resp ? resp.status : 'ERR'}).`
@@ -325,7 +345,8 @@ export class LicenseService {
             };
           }
 
-          const isPro = data.payload.tier === 'pro' || data.payload.tier === 'master' || data.tier === 'pro';
+          const resolvedTier = (data.payload.tier || data.tier || 'free').toString();
+          const isPro = this.isProTier(resolvedTier);
           const isWebAuditsSso = data.source === 'webaudits_sso' || isWbaKey;
 
           const ent: EntitlementState = {

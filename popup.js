@@ -700,11 +700,22 @@ class LicenseService {
     ]);
     static KEY_PATTERN = /^VS-PRO-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
     static WBA_KEY_PATTERN = /^wba_live_[a-f0-9]{32}$/i;
+    static PRO_TIERS = new Set(['pro', 'ultra', 'agency', 'enterprise', 'master']);
+    static isProTier(tier) {
+        if (!tier || typeof tier !== 'string')
+            return false;
+        return this.PRO_TIERS.has(tier.trim().toLowerCase());
+    }
+    static isExplicitTestMode() {
+        const proc = globalThis.process;
+        return proc?.env?.NODE_ENV === 'test' ||
+            Boolean(globalThis.__VITALS_TEST_MODE__ === true);
+    }
     static validateKeyFormat(rawKey) {
         if (!rawKey || typeof rawKey !== 'string')
             return false;
         const clean = rawKey.trim();
-        if (this.PUBLIC_DEMO_KEYS.has(clean.toUpperCase()))
+        if (this.isExplicitTestMode() && this.PUBLIC_DEMO_KEYS.has(clean.toUpperCase()))
             return true;
         return this.KEY_PATTERN.test(clean.toUpperCase()) || this.WBA_KEY_PATTERN.test(clean);
     }
@@ -777,11 +788,13 @@ class LicenseService {
         // 1. Validate structured entitlement if present
         if (res.vs_entitlement) {
             const ent = res.vs_entitlement;
-            // Handle demo mode
+            // Handle demo mode only in explicit test mode
             if (ent.source === 'demo') {
-                if (ent.token && ent.token.startsWith('demo-auth-')) {
+                if (this.isExplicitTestMode() && ent.token && ent.token.startsWith('demo-auth-')) {
                     return ent;
                 }
+                await this.deactivate();
+                return this.defaultFreeEntitlement();
             }
             // Handle production server-signed license or WebAudits SSO entitlement
             if (ent.source === 'license' || ent.source === 'webaudits_sso') {
@@ -797,7 +810,7 @@ class LicenseService {
                         return this.defaultFreeEntitlement();
                     }
                     return {
-                        isPro: true,
+                        isPro: this.isProTier(ent.payload.tier),
                         tier: ent.payload.tier,
                         valid: true,
                         expiresAt: ent.payload.exp ? new Date(ent.payload.exp).toISOString() : null,
@@ -815,9 +828,9 @@ class LicenseService {
                 }
             }
         }
-        // 2. Check pre-authorized public demo key
+        // 2. Check pre-authorized public demo key only in explicit test mode
         const key = (res.vs_license_key || '').toString().trim().toUpperCase();
-        if (key && this.validateKeyFormat(key) && this.PUBLIC_DEMO_KEYS.has(key)) {
+        if (this.isExplicitTestMode() && key && this.validateKeyFormat(key) && this.PUBLIC_DEMO_KEYS.has(key)) {
             const ent = {
                 isPro: true,
                 tier: 'pro',
@@ -858,8 +871,14 @@ class LicenseService {
                 message: 'Invalid key format. Expected pattern: VS-PRO-XXXX-XXXX or wba_live_...'
             };
         }
-        // Instant local activation for public demo/QA testing vouchers
+        // Instant local activation for public demo/QA testing vouchers only in explicit test mode
         if (this.PUBLIC_DEMO_KEYS.has(key)) {
+            if (!this.isExplicitTestMode()) {
+                return {
+                    valid: false,
+                    message: 'Demo voucher keys are disabled in production. Enter a valid commercial license key.'
+                };
+            }
             const ent = {
                 isPro: true,
                 tier: 'pro',
@@ -896,39 +915,41 @@ class LicenseService {
         // Server-side authoritative verification
         const clientInstanceId = await this.getClientInstanceId();
         try {
-            const primaryEndpoint = 'https://webaudits.pro/api/license/verify';
-            const fallbackEndpoint = 'https://vitalssniper-web.vercel.app/api/license/verify';
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const endpoints = [
+                'https://webaudits.pro/api/license/verify',
+                'https://vitalssniper-web.vercel.app/api/license/verify'
+            ];
             let resp = null;
-            try {
-                resp = await fetch(primaryEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'x-client-instance-id': clientInstanceId
-                    },
-                    body: JSON.stringify({ key, licenseKey: key, clientInstanceId }),
-                    signal: controller.signal
-                });
+            for (const endpoint of endpoints) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+                try {
+                    resp = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'x-client-instance-id': clientInstanceId
+                        },
+                        body: JSON.stringify({ key, licenseKey: key, clientInstanceId }),
+                        signal: controller.signal
+                    });
+                    break;
+                }
+                catch {
+                    resp = null;
+                }
+                finally {
+                    clearTimeout(timeoutId);
+                }
             }
-            catch {
-                // Fallback to secondary endpoint
-                resp = await fetch(fallbackEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'x-client-instance-id': clientInstanceId
-                    },
-                    body: JSON.stringify({ key, licenseKey: key, clientInstanceId }),
-                    signal: controller.signal
-                });
-            }
-            clearTimeout(timeoutId);
             if (!resp || !resp.ok) {
-                const errData = resp ? await resp.json().catch(() => ({})) : {};
+                const errData = resp
+                    ? await resp.json().catch((err) => {
+                        console.warn('[License] Failed to parse error JSON response:', err);
+                        return {};
+                    })
+                    : {};
                 return {
                     valid: false,
                     message: errData.error || errData.message || `Server rejected license key (HTTP ${resp ? resp.status : 'ERR'}).`
@@ -945,7 +966,8 @@ class LicenseService {
                             message: 'Cryptographic signature verification failed on server response.'
                         };
                     }
-                    const isPro = data.payload.tier === 'pro' || data.payload.tier === 'master' || data.tier === 'pro';
+                    const resolvedTier = (data.payload.tier || data.tier || 'free').toString();
+                    const isPro = this.isProTier(resolvedTier);
                     const isWebAuditsSso = data.source === 'webaudits_sso' || isWbaKey;
                     const ent = {
                         isPro,
@@ -1164,25 +1186,13 @@ class CloudSyncService {
                 }
             };
             // 3. Dispatch to WebAudits.pro endpoint
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 6000);
+            const endpoints = [this.PRIMARY_ENDPOINT, this.FALLBACK_ENDPOINT];
             let resp = null;
-            try {
-                resp = await fetch(this.PRIMARY_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'x-api-key': apiKey
-                    },
-                    body: JSON.stringify(payload),
-                    signal: controller.signal
-                });
-            }
-            catch (primaryErr) {
-                // Try fallback endpoint
+            for (const endpoint of endpoints) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 6000);
                 try {
-                    resp = await fetch(this.FALLBACK_ENDPOINT, {
+                    resp = await fetch(endpoint, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1192,45 +1202,35 @@ class CloudSyncService {
                         body: JSON.stringify(payload),
                         signal: controller.signal
                     });
+                    break;
                 }
                 catch {
+                    resp = null;
+                }
+                finally {
                     clearTimeout(timeoutId);
-                    if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo') {
-                        return {
-                            attempted: true,
-                            success: true,
-                            saved: true,
-                            message: 'Audit synced to WebAudits.pro Dashboard (PRO Evaluation Mode).',
-                            auditId: 'wba-demo-' + Date.now()
-                        };
-                    }
-                    return {
-                        attempted: true,
-                        success: false,
-                        saved: false,
-                        message: 'Network unreachable for cloud vault sync.'
-                    };
                 }
             }
-            clearTimeout(timeoutId);
-            if (!resp || !resp.ok) {
-                if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo') {
-                    return {
-                        attempted: true,
-                        success: true,
-                        saved: true,
-                        message: 'Audit synced to WebAudits.pro Dashboard (PRO Evaluation Mode).',
-                        auditId: 'wba-demo-' + Date.now()
-                    };
-                }
+            if (!resp) {
                 return {
                     attempted: true,
                     success: false,
                     saved: false,
-                    message: `Vault sync rejected (HTTP ${resp ? resp.status : 'ERR'}).`
+                    message: 'Network unreachable for cloud vault sync.'
                 };
             }
-            const resData = await resp.json().catch(() => ({}));
+            if (!resp.ok) {
+                return {
+                    attempted: true,
+                    success: false,
+                    saved: false,
+                    message: `Vault sync rejected (HTTP ${resp.status}).`
+                };
+            }
+            const resData = await resp.json().catch((err) => {
+                console.warn('[CloudSync] Failed to parse JSON response:', err);
+                return {};
+            });
             if (resData.subscription) {
                 await StorageService.saveSubscriptionTimeframe(resData.subscription);
             }
@@ -1986,7 +1986,7 @@ class ReportService {
     <div class="action-bar-title">Technical Teardown Dossier: ${escapeHtml(domain)}</div>
     <div style="display: flex; gap: 8px; align-items: center;">
       <button class="action-bar-btn" onclick="window.print()">Print / Save as PDF</button>
-      <button class="action-bar-btn secondary" id="btnCopySummary" onclick="navigator.clipboard.writeText('Technical Audit for ${escapeHtml(domain)}: Score ${score}/100. Primary Finding: ${escapeHtml(finding.title)} (${escapeHtml(finding.explanation)})').then(() => { this.innerText = 'Summary Copied'; setTimeout(() => this.innerText = 'Copy Summary', 2000); })">Copy Summary</button>
+      <button class="action-bar-btn secondary" id="btnCopySummary" data-summary="${escapeHtml(`Technical Audit for ${domain}: Score ${score}/100. Primary Finding: ${finding.title} (${finding.explanation})`)}">Copy Summary</button>
     </div>
   </div>
   <div class="header">
@@ -2104,6 +2104,20 @@ class ReportService {
   <div class="footer">
     ${isPro ? `Report generated by ${auditorName}${agencyName ? ' | ' + agencyName : ''} &bull; VitalsSniper PRO Technical Intelligence` : 'Report generated by WebAudits.pro | VitalsSniper Inspector &bull; https://webaudits.pro'}
   </div>
+  <script>
+    (function () {
+      var btn = document.getElementById('btnCopySummary');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var text = btn.dataset ? (btn.dataset.summary || '') : (btn.getAttribute('data-summary') || '');
+        if (!navigator.clipboard || !navigator.clipboard.writeText) return;
+        navigator.clipboard.writeText(text).then(function () {
+          btn.innerText = 'Summary Copied';
+          setTimeout(function () { btn.innerText = 'Copy Summary'; }, 2000);
+        });
+      });
+    })();
+  </script>
 </body>
 </html>`;
     }
@@ -3071,6 +3085,9 @@ function parseHttpHeaderForensics(headers, redirectCount = 0) {
     const isCachedEdge = /HIT/i.test(cacheStatus);
     const serverBanner = norm['server'] || undefined;
     const hasRedirectChain = redirectCount > 1;
+    const hstsHeader = norm['strict-transport-security']?.trim() || undefined;
+    const hstsMatch = hstsHeader ? hstsHeader.match(/max-age\s*=\s*(\d+)/i) : null;
+    const hasHsts = Boolean(hstsHeader && (!hstsMatch || Number(hstsMatch[1]) > 0));
     return {
         xRobotsTag: xRobots,
         isNoindex,
@@ -3080,7 +3097,9 @@ function parseHttpHeaderForensics(headers, redirectCount = 0) {
         isCachedEdge,
         serverBanner,
         redirectCount,
-        hasRedirectChain
+        hasRedirectChain,
+        hasHsts,
+        hstsHeader
     };
 }
 
@@ -7019,59 +7038,37 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderAuditData(targetDomain, clean, mappedData);
             }
             else {
-                throw new Error('API request failed');
+                throw new Error(`Audit API returned HTTP ${res.status}`);
             }
         }
         catch (err) {
-            const fallbackData = {
-                domStats: { totalElements: 1350 + (targetDomain.length * 15), maxDepth: 14 },
-                ttfbMs: 160 + (targetDomain.length * 4),
-                cms: ['Custom Platform'],
-                htmlSizeBytes: 38000,
-                wireSizeBytes: 12000,
-                vpMissing: false,
-                vpLocked: false,
-                hasSchema: true,
-                seo: {
-                    jsonLdValid: true,
-                    schemaTypes: ['WebSite'],
-                    canonical: clean,
-                    canonicalMatchesUrl: true,
-                    wordCount: 880,
-                    headings: {
-                        tree: [],
-                        totalCount: 5,
-                        h1Count: 1,
-                        h2Count: 2,
-                        h3Count: 2,
-                        h4Count: 0,
-                        h5Count: 0,
-                        h6Count: 0,
-                        missingH1: false,
-                        duplicateH1: false,
-                        skippedLevels: []
-                    },
-                    links: {
-                        total: 24,
-                        internalCount: 18,
-                        externalCount: 6,
-                        nofollowCount: 1,
-                        sponsoredCount: 0,
-                        ugcCount: 0,
-                        emptyAnchorCount: 0
-                    }
-                },
-                externalScripts: 14,
-                assets: {
-                    scripts: { total: 16, external: 12, inline: 4, async: 10, defer: 2, sync: 4 },
-                    stylesheets: { total: 2, external: 2, inline: 0 },
-                    fonts: { total: 1, thirdParty: 0 }
-                },
-                accessibility: { horizontalOverflow: false, undersizedTargets24px: 0, undersizedTargets44px: 0 },
-                performance: { lcpMs: 1950, lcpSource: 'PerformanceObserver', lcpElementSelector: 'main', cls: 0.02 },
-                mainThread: { longTaskCount: 1, longestTaskMs: 55, totalBlockingTimeMs: 10 }
-            };
-            renderAuditData(targetDomain, clean, fallbackData);
+            const errMsg = err instanceof Error ? err.message : 'Unable to reach WebAudits.pro audit API.';
+            if (td)
+                td.innerText = `${targetDomain} (Audit Failed)`;
+            const healthScoreVal = document.getElementById('healthScoreVal');
+            const scoreBadge = document.getElementById('scoreBadge');
+            const techStackRow = document.getElementById('techStackRow');
+            const badgeEl = document.getElementById('flawSeverityBadge');
+            const bannerEl = document.getElementById('flawBanner');
+            const flawDescEl = document.getElementById('flawDesc');
+            if (healthScoreVal)
+                healthScoreVal.innerText = '--';
+            if (scoreBadge)
+                scoreBadge.className = 'score-badge score-red';
+            if (techStackRow)
+                techStackRow.innerHTML = '<span class="tech-badge">Audit API unavailable</span>';
+            if (badgeEl) {
+                badgeEl.className = 'severity-badge critical';
+                badgeEl.innerText = 'ERROR';
+            }
+            if (bannerEl)
+                bannerEl.className = 'flaw-banner severity-critical';
+            if (flawDescEl) {
+                flawDescEl.innerHTML = `
+          <div style="font-weight: 600; color: var(--color-text); margin-bottom: 4px;">Live Audit Failed</div>
+          <div style="color: var(--color-muted); font-size: 11px;">${escapeHtml(errMsg)}</div>
+        `;
+            }
         }
         finally {
             if (btnManual) {
@@ -7778,8 +7775,22 @@ function renderAuditData(domain, currentUrl, data) {
                 hRobotsTag.innerText = data.httpHeaders.xRobotsTag || (data.httpHeaders.isNoindex ? 'noindex' : 'index, follow');
             if (hRedirectHops)
                 hRedirectHops.innerText = `${data.httpHeaders.redirectCount || 0} (${data.httpHeaders.redirectCount > 0 ? 'Chain' : 'Direct'})`;
-            if (hSecurity)
-                hSecurity.innerText = 'HSTS Active';
+            if (hSecurity) {
+                const isHttp = typeof currentUrl === 'string' && currentUrl.startsWith('http://');
+                if (isHttp) {
+                    hSecurity.innerText = 'HTTP (No TLS)';
+                }
+                else if (data.httpHeaders.hasHsts) {
+                    hSecurity.innerText = 'HSTS Active';
+                }
+                else {
+                    hSecurity.innerText = 'Missing HSTS';
+                }
+            }
+        }
+        else if (hSecurity) {
+            const isHttp = typeof currentUrl === 'string' && currentUrl.startsWith('http://');
+            hSecurity.innerText = isHttp ? 'HTTP (No TLS)' : 'Not Inspected';
         }
     }
     // 4e. Populate SEO Outline Tree
@@ -8616,9 +8627,9 @@ function initCompetitorModal() {
                         rowsHtml = `
               <tr><td>DOM Elements</td><td>${result.prospect.domElements.toLocaleString()}</td><td>${result.competitor.domElements.toLocaleString()}</td><td><span class="delta-pill delta-tie">DOM</span></td></tr>
               <tr><td>Serialized Markup</td><td>${result.prospect.serializedSizeKB} KB</td><td>${result.competitor.serializedSizeKB} KB</td><td><span class="delta-pill delta-tie">Payload</span></td></tr>
-              <tr><td>Mobile Viewport</td><td>${result.prospect.viewportStatus}</td><td>${result.competitor.viewportStatus}</td><td><span class="delta-pill delta-tie">Viewport</span></td></tr>
-              <tr><td>Structured Data</td><td>${result.prospect.schemaStatus}</td><td>${result.competitor.schemaStatus}</td><td><span class="delta-pill delta-tie">Schema</span></td></tr>
-              <tr><td>Tech Stack</td><td>${result.prospect.cms}</td><td>${result.competitor.cms}</td><td><span class="delta-pill delta-tie">Stack</span></td></tr>
+              <tr><td>Mobile Viewport</td><td>${escapeHtml(result.prospect.viewportStatus)}</td><td>${escapeHtml(result.competitor.viewportStatus)}</td><td><span class="delta-pill delta-tie">Viewport</span></td></tr>
+              <tr><td>Structured Data</td><td>${escapeHtml(result.prospect.schemaStatus)}</td><td>${escapeHtml(result.competitor.schemaStatus)}</td><td><span class="delta-pill delta-tie">Schema</span></td></tr>
+              <tr><td>Tech Stack</td><td>${escapeHtml(result.prospect.cms)}</td><td>${escapeHtml(result.competitor.cms)}</td><td><span class="delta-pill delta-tie">Stack</span></td></tr>
             `;
                     }
                     rowsHtml += `
@@ -8729,8 +8740,10 @@ async function renderPipelineList() {
         const formattedDate = lead.timestamp ? new Date(lead.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
         const scoreClass = lead.score >= 80 ? 'score-green' : (lead.score >= 60 ? 'score-amber' : 'score-red');
         const safeUrl = isSafeUrl(lead.url) ? escapeHtml(lead.url) : '#';
+        const safeId = escapeHtml(lead.id);
+        const safeSeverity = escapeHtml(lead.severity);
         return `
-    <div class="pipeline-item" data-id="${lead.id}">
+    <div class="pipeline-item" data-id="${safeId}">
       <div class="pipeline-item-top">
         <div class="pipeline-item-domain">
           <span>${escapeHtml(lead.domain)}</span>
@@ -8738,7 +8751,7 @@ async function renderPipelineList() {
         </div>
         <div style="display: flex; align-items: center; gap: 6px;">
           ${formattedDate ? `<span style="font-size: 9.5px; color: var(--color-muted);">${escapeHtml(formattedDate)}</span>` : ''}
-          <span class="severity-badge ${lead.severity}" style="font-size: 8.5px; padding: 2px 6px;">${escapeHtml(lead.severity.toUpperCase())}</span>
+          <span class="severity-badge ${safeSeverity}" style="font-size: 8.5px; padding: 2px 6px;">${escapeHtml(lead.severity.toUpperCase())}</span>
         </div>
       </div>
       <div class="pipeline-flaw">${escapeHtml(lead.primaryFinding)}</div>
@@ -8750,13 +8763,13 @@ async function renderPipelineList() {
         <span>Stack: <strong>${escapeHtml(lead.techStack || 'Custom')}</strong></span>
       </div>
       <div class="pipeline-item-actions">
-        <select class="pipeline-status-select" data-id="${lead.id}">
+        <select class="pipeline-status-select" data-id="${safeId}">
           ${['New', 'Contacted', 'Replied', 'Proposal', 'Won', 'Lost'].map(st => `<option value="${st}" ${lead.status === st ? 'selected' : ''}>${st}</option>`).join('')}
         </select>
         <div class="pipeline-btn-group">
-          <button class="btn-pipeline-action btn-copy-pipeline-pitch" data-id="${lead.id}" title="Copy tailored cold email pitch">Pitch</button>
+          <button class="btn-pipeline-action btn-copy-pipeline-pitch" data-id="${safeId}" title="Copy tailored cold email pitch">Pitch</button>
           <a href="${safeUrl}" target="_blank" class="btn-pipeline-action" title="Open website in new tab">Visit</a>
-          <button class="btn-pipeline-action delete btn-remove-pipeline-lead" data-id="${lead.id}" title="Delete prospect from CRM">Del</button>
+          <button class="btn-pipeline-action delete btn-remove-pipeline-lead" data-id="${safeId}" title="Delete prospect from CRM">Del</button>
         </div>
       </div>
     </div>
@@ -8847,6 +8860,7 @@ async function initBulkAuditModal() {
                 return;
             const maxUrls = lines.slice(0, 50); // Cap at 50 to respect rate limits
             bulkLeads = [];
+            const failedUrls = [];
             if (progressBar)
                 progressBar.style.display = 'block';
             if (statusText)
@@ -8917,12 +8931,15 @@ async function initBulkAuditModal() {
                         if (data.cms && data.cms.length > 0)
                             stack = data.cms.join(', ');
                     }
+                    else {
+                        failedUrls.push({ domain, reason: `Audit API returned HTTP ${res.status}` });
+                        continue;
+                    }
                 }
                 catch (netErr) {
-                    // If network / timeout fails, compute standard client fallback
-                    auditScore = Math.floor(65 + (domain.length % 25));
-                    severity = auditScore < 70 ? 'critical' : 'warning';
-                    findingTitle = auditScore < 70 ? 'High layout nesting depth detected' : 'Optimization opportunity';
+                    const reason = netErr instanceof Error ? netErr.message : 'Network or timeout error';
+                    failedUrls.push({ domain, reason });
+                    continue;
                 }
                 const lead = {
                     id: `bulk-${Date.now()}-${i}`,
@@ -8973,26 +8990,46 @@ async function initBulkAuditModal() {
             bulkLeads.sort((a, b) => a.score - b.score);
             // Render results table
             if (resultsList) {
-                resultsList.innerHTML = bulkLeads.map(item => `
+                const successRows = bulkLeads.map(item => `
           <div class="bulk-result-row">
             <div>
               <div class="bulk-res-domain">${escapeHtml(item.domain)}</div>
               <div style="font-size: 8.5px; color: var(--color-muted);">${escapeHtml(item.primaryFinding)}</div>
             </div>
             <div style="display: flex; align-items: center; gap: 6px;">
-              <span class="bulk-res-score ${item.severity}">${item.score}/100</span>
+              <span class="bulk-res-score ${escapeHtml(item.severity)}">${item.score}/100</span>
             </div>
           </div>
         `).join('');
+                const failedRows = failedUrls.map(item => `
+          <div class="bulk-result-row">
+            <div>
+              <div class="bulk-res-domain">${escapeHtml(item.domain)}</div>
+              <div style="font-size: 8.5px; color: var(--color-red);">Audit failed: ${escapeHtml(item.reason)}</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span class="bulk-res-score critical">ERROR</span>
+            </div>
+          </div>
+        `).join('');
+                resultsList.innerHTML = successRows + failedRows;
             }
             if (resultsArea)
                 resultsArea.style.display = 'block';
             if (btnExport)
-                btnExport.style.display = 'inline-flex';
+                btnExport.style.display = bulkLeads.length > 0 ? 'inline-flex' : 'none';
             if (statusText) {
-                statusText.innerText = isPaidUser
-                    ? `Completed audit of ${bulkLeads.length} prospects. Synced to WebAudits.pro Dashboard.`
-                    : `Completed audit of ${bulkLeads.length} prospects. Sorted by optimization priority.`;
+                if (bulkLeads.length === 0 && failedUrls.length > 0) {
+                    statusText.innerText = `Audit failed for all ${failedUrls.length} URLs. Check network or API availability.`;
+                }
+                else if (failedUrls.length > 0) {
+                    statusText.innerText = `Completed ${bulkLeads.length} audits (${failedUrls.length} failed).`;
+                }
+                else {
+                    statusText.innerText = isPaidUser
+                        ? `Completed audit of ${bulkLeads.length} prospects. Synced to WebAudits.pro Dashboard.`
+                        : `Completed audit of ${bulkLeads.length} prospects. Sorted by optimization priority.`;
+                }
             }
             if (runText)
                 runText.innerText = 'Run Batch Audit';

@@ -35,6 +35,9 @@ export function parseHttpHeaderForensics(
 
   const serverBanner = norm['server'] || undefined;
   const hasRedirectChain = redirectCount > 1;
+  const hstsHeader = norm['strict-transport-security']?.trim() || undefined;
+  const hstsMatch = hstsHeader ? hstsHeader.match(/max-age\s*=\s*(\d+)/i) : null;
+  const hasHsts = Boolean(hstsHeader && (!hstsMatch || Number(hstsMatch[1]) > 0));
 
   return {
     xRobotsTag: xRobots,
@@ -45,6 +48,8 @@ export function parseHttpHeaderForensics(
     isCachedEdge,
     serverBanner,
     redirectCount,
-    hasRedirectChain
+    hasRedirectChain,
+    hasHsts,
+    hstsHeader
   };
 }

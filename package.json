@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
+    "pretest": "node build.mjs",
     "test": "npm run test:primitives && npm run test:loaf && npm run test:dag && npm run test:bot && npm run test:edge",
     "test:primitives": "node tests/test_linear_primitives.mjs",
     "test:loaf": "node tests/test_loaf_and_inp_profiling.mjs",

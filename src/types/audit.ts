@@ -347,6 +347,8 @@ export interface HttpHeaderForensics {
   serverBanner?: string;
   redirectCount: number;
   hasRedirectChain: boolean;
+  hasHsts: boolean;
+  hstsHeader?: string;
 }
 
 export interface LabMetrics {

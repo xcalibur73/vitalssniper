@@ -97,25 +97,13 @@ export class CloudSyncService {
       };
 
       // 3. Dispatch to WebAudits.pro endpoint
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
-
+      const endpoints = [this.PRIMARY_ENDPOINT, this.FALLBACK_ENDPOINT];
       let resp: Response | null = null;
-      try {
-        resp = await fetch(this.PRIMARY_ENDPOINT, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'x-api-key': apiKey
-          },
-          body: JSON.stringify(payload),
-          signal: controller.signal
-        });
-      } catch (primaryErr) {
-        // Try fallback endpoint
+      for (const endpoint of endpoints) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
         try {
-          resp = await fetch(this.FALLBACK_ENDPOINT, {
+          resp = await fetch(endpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -125,46 +113,36 @@ export class CloudSyncService {
             body: JSON.stringify(payload),
             signal: controller.signal
           });
+          break;
         } catch {
+          resp = null;
+        } finally {
           clearTimeout(timeoutId);
-          if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo') {
-            return {
-              attempted: true,
-              success: true,
-              saved: true,
-              message: 'Audit synced to WebAudits.pro Dashboard (PRO Evaluation Mode).',
-              auditId: 'wba-demo-' + Date.now()
-            };
-          }
-          return {
-            attempted: true,
-            success: false,
-            saved: false,
-            message: 'Network unreachable for cloud vault sync.'
-          };
         }
       }
-      clearTimeout(timeoutId);
 
-      if (!resp || !resp.ok) {
-        if (LicenseService.PUBLIC_DEMO_KEYS.has(apiKey) || entitlement.source === 'demo') {
-          return {
-            attempted: true,
-            success: true,
-            saved: true,
-            message: 'Audit synced to WebAudits.pro Dashboard (PRO Evaluation Mode).',
-            auditId: 'wba-demo-' + Date.now()
-          };
-        }
+      if (!resp) {
         return {
           attempted: true,
           success: false,
           saved: false,
-          message: `Vault sync rejected (HTTP ${resp ? resp.status : 'ERR'}).`
+          message: 'Network unreachable for cloud vault sync.'
         };
       }
 
-      const resData = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        return {
+          attempted: true,
+          success: false,
+          saved: false,
+          message: `Vault sync rejected (HTTP ${resp.status}).`
+        };
+      }
+
+      const resData = await resp.json().catch((err) => {
+        console.warn('[CloudSync] Failed to parse JSON response:', err);
+        return {};
+      });
       if (resData.subscription) {
         await StorageService.saveSubscriptionTimeframe(resData.subscription);
       }
